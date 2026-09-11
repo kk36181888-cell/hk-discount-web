@@ -3,126 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>全港著數優惠網 | Premium</title>
-    <!-- 引入極粗字體，模仿片中嘅現代感 -->
-    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <title>DayBuy 抵Buy - 全港著數導航</title>
+    <!-- 引入 Bootstrap 5 (排版) & FontAwesome (圖示) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { margin: 0; font-family: 'Inter', sans-serif; background-color: #000; color: #fff; overflow-x: hidden; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         
-        /* 透明懸浮導航列 */
-        nav {
-            position: fixed; top: 0; width: 100%; padding: 25px 50px; 
-            display: flex; justify-content: space-between; z-index: 999;
-            box-sizing: border-box; text-transform: uppercase; font-weight: 600; letter-spacing: 2px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, transparent 100%);
+        /* 1. 零版權風險嘅專業漸變背景 */
+        .hero-section { 
+            background: linear-gradient(135deg, #ff4757 0%, #2f3542 100%); 
+            color: white; 
+            padding: 120px 0 100px 0; 
+            text-align: center; 
+            margin-bottom: 40px; 
         }
-        .nav-logo { font-family: 'Anton', sans-serif; font-size: 24px; letter-spacing: 4px; }
-        .nav-links { display: flex; gap: 40px; }
+        
+        /* 2. 震撼力大字體 */
+        .hero-title { 
+            font-size: 4rem; 
+            font-weight: 900; 
+            letter-spacing: 2px; 
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        /* 3. 搜尋框設計 */
+        .search-box { 
+            max-width: 600px; 
+            margin: 30px auto 0; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
+            border-radius: 50px;
+            overflow: hidden;
+        }
+        .search-box input { border: none; padding: 15px 25px; font-size: 1.1rem; }
+        .search-box button { border: none; padding: 15px 30px; font-size: 1.1rem; }
 
-        /* 首頁全螢幕大橫幅 */
-        .hero {
-            height: 100vh; position: sticky; top: 0; z-index: 1;
-            display: flex; align-items: center; justify-content: center;
-            /* 暫時用一張靚嘅超市相做背景 */
-            background: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?auto=format&fit=crop&w=1920&q=80') center/cover no-repeat;
-        }
-        .hero::after { content: ''; position: absolute; inset: 0; background: rgba(0,0,0,0.4); }
-        .hero-title {
-            font-family: 'Anton', sans-serif; font-size: 12vw; line-height: 0.85; 
-            text-transform: uppercase; text-align: center; z-index: 2; margin: 0;
-            color: #fff; letter-spacing: -2px;
-        }
-
-        /* 每一個優惠的全螢幕區塊 */
-        .discount-section {
-            height: 100vh; position: sticky; top: 0; z-index: 2;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 120px 50px 50px 50px; box-sizing: border-box;
-            background-size: cover; background-position: center;
-            box-shadow: 0 -20px 50px rgba(0,0,0,0.5); /* 堆疊時嘅陰影效果 */
-        }
-        /* 底部黑色漸變，確保白色字清晰可見 */
-        .discount-section::before {
-            content: ''; position: absolute; inset: 0; z-index: -1;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.1) 60%);
-        }
-        
-        .discount-meta { font-size: 1.2rem; letter-spacing: 4px; text-transform: uppercase; color: #ccc; }
-        .discount-title {
-            font-family: 'Anton', sans-serif; font-size: 8vw; line-height: 1; 
-            text-transform: uppercase; margin: 0; max-width: 80%;
-        }
-        .merchant-tag {
-            display: inline-block; padding: 10px 20px; border: 2px solid #fff; 
-            border-radius: 30px; font-weight: 600; margin-top: 20px; transition: 0.3s;
-        }
-        .merchant-tag:hover { background: #fff; color: #000; cursor: pointer; }
-        
-        /* 載入中/錯誤提示 */
-        .message-box { height: 100vh; display: flex; align-items: center; justify-content: center; font-size: 24px; position: relative; z-index: 10; background: #111;}
+        /* 卡片特效 */
+        .discount-card { transition: transform 0.3s, box-shadow 0.3s; border: none; border-radius: 12px; }
+        .discount-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
 
-    <nav>
-        <div class="nav-logo">JETSO FINDER</div>
-        <div class="nav-links">
-            <span>Experiences</span>
-            <span>Sanctuary</span>
-            <span>Reserve /</span>
+    <!-- 導航列 (換上 DayBuy 品牌) -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">
+                <i class="fa-solid fa-tags me-2 text-danger"></i>DayBuy
+            </a>
+            <div class="collapse navbar-collapse justify-content-end">
+                <ul class="navbar-nav">
+                    <li class="nav-item"><a class="nav-link" href="#">超市著數</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">飲食情報</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">信用卡優惠</a></li>
+                    <li class="nav-item ms-3">
+                        <a class="btn btn-outline-light btn-sm mt-1" href="#"><i class="fa-solid fa-user me-1"></i>登入</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
 
-    <!-- 主視覺 -->
-    <div class="hero">
-        <h1 class="hero-title">ESCAPE<br>COMPLETELY</h1>
+    <!-- 歡迎橫幅 Hero Banner -->
+    <div class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">全港著數 一網打盡</h1>
+            <p class="lead fs-4 mt-3">每日為你搜羅各大商戶最抵情報，對抗通脹！</p>
+            
+            <!-- 行動呼籲 (Call-To-Action) -->
+            <div class="input-group search-box">
+                <input type="text" class="form-control" placeholder="搜尋例如：可口可樂、百佳、壽司郎...">
+                <button class="btn btn-danger fw-bold" type="button">
+                    <i class="fa-solid fa-magnifying-glass me-2"></i>即時格價
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 優惠內容區 -->
+    <div class="container mb-5">
+        <h3 class="fw-bold mb-4 border-bottom pb-2">🔥 今日精選優惠</h3>
+        <div class="row g-4" id="discounts-container">
+            <!-- 呢度保留咗預設嘅讀取動畫，之後會用 Java 系統將真實優惠放落去 -->
+            <div class="col-12 text-center my-5">
+                <div class="spinner-border text-danger" role="status"></div>
+                <p class="mt-3 text-muted">正在為您連接最新數據庫...</p>
+            </div>
+        </div>
     </div>
 
-    <!-- 自動生成的全螢幕優惠區塊 -->
-    <div id="dynamic-content">
-        <div class="message-box">LOADING JOURNEY...</div>
-    </div>
-
-    <script>
-        // 用來隨機抽相嘅庫 (因為你 Database 暫時未有相)
-        const bgImages = [
-            'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?auto=format&fit=crop&w=1920&q=80',
-            'https://images.unsplash.com/photo-1534723452862-4c874018d66d?auto=format&fit=crop&w=1920&q=80'
-        ];
-
-        fetch('/api/discounts')
-            .then(response => response.json())
-            .then(data => {
-                const container = document.getElementById('dynamic-content');
-                container.innerHTML = ''; 
-
-                if (data.length === 0) {
-                    container.innerHTML = '<div class="message-box">NO OFFERS AVAILABLE</div>';
-                    return;
-                }
-
-                data.forEach((discount, index) => {
-                    // 輪流用上面嘅相
-                    const bgImage = bgImages[index % bgImages.length];
-                    // 補零效果 (例如 01, 02)
-                    const serialNumber = '0' + (index + 1);
-
-                    const sectionHtml = `
-                        <div class="discount-section" style="background-image: url('${bgImage}');">
-                            <div class="discount-meta">${serialNumber} — ${discount.category || 'FEATURED'}</div>
-                            <div>
-                                <h2 class="discount-title">${discount.title}</h2>
-                                <div class="merchant-tag">EXPLORE ${discount.merchantName || 'MERCHANT'}</div>
-                            </div>
-                        </div>
-                    `;
-                    container.innerHTML += sectionHtml;
-                });
-            })
-            .catch(error => {
-                document.getElementById('dynamic-content').innerHTML = '<div class="message-box text-danger">SYSTEM OFFLINE</div>';
-            });
-    </script>
 </body>
 </html>
