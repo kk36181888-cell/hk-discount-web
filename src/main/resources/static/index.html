@@ -4,89 +4,146 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DayBuy 抵Buy - 全港著數導航</title>
-    <!-- 引入 Bootstrap 5 (排版) & FontAwesome (圖示) -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        /* 1. 零版權風險嘅專業漸變背景 */
-        .hero-section { 
-            background: linear-gradient(135deg, #ff4757 0%, #2f3542 100%); 
-            color: white; 
-            padding: 120px 0 100px 0; 
-            text-align: center; 
-            margin-bottom: 40px; 
+        body { 
+            background-color: #ffffff; 
+            color: #333333; 
+            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; 
         }
         
-        /* 2. 震撼力大字體 */
-        .hero-title { 
-            font-size: 4rem; 
-            font-weight: 900; 
-            letter-spacing: 2px; 
-            text-shadow: 2px 2px 10px rgba(0,0,0,0.3);
-        }
+        .top-header { background-color: #FFDE00; padding: 15px 0; border-bottom: 1px solid #e0c200; }
+        .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
+        .brand-logo i { color: #000; }
         
-        /* 3. 搜尋框設計 */
-        .search-box { 
-            max-width: 600px; 
-            margin: 30px auto 0; 
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2); 
-            border-radius: 50px;
-            overflow: hidden;
-        }
-        .search-box input { border: none; padding: 15px 25px; font-size: 1.1rem; }
-        .search-box button { border: none; padding: 15px 30px; font-size: 1.1rem; }
+        .search-bar { background-color: #fff; border-radius: 6px; border: 2px solid #000; display: flex; align-items: center; padding: 2px 15px; }
+        .search-bar input { border: none; outline: none; width: 100%; padding: 10px; color: #333; font-size: 1rem; }
+        .search-bar i { color: #555; font-size: 1.2rem; }
 
-        /* 卡片特效 */
-        .discount-card { transition: transform 0.3s, box-shadow 0.3s; border: none; border-radius: 12px; }
-        .discount-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
+        .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
+        .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
+
+        /* 圖片分類卡片設計 */
+        .categories-section { margin-bottom: 60px; }
+        .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .category-header h4 { font-weight: bold; margin: 0; color: #000; }
+        .category-header a { color: #666; text-decoration: none; font-size: 0.95rem; }
+        .category-header a:hover { color: #000; }
+        
+        .category-card {
+            height: 280px;
+            border-radius: 12px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .category-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        }
+        .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        
+        .category-title {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+            z-index: 2;
+            margin: 0;
+        }
+        .category-arrow {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            color: black;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
     </style>
 </head>
 <body>
 
-    <!-- 導航列 (換上 DayBuy 品牌) -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="#">
-                <i class="fa-solid fa-tags me-2 text-danger"></i>DayBuy
-            </a>
-            <div class="collapse navbar-collapse justify-content-end">
-                <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="#">超市著數</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">飲食情報</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">信用卡優惠</a></li>
-                    <li class="nav-item ms-3">
-                        <a class="btn btn-outline-light btn-sm mt-1" href="#"><i class="fa-solid fa-user me-1"></i>登入</a>
-                    </li>
-                </ul>
+    <header class="top-header">
+        <div class="container d-flex flex-wrap align-items-center justify-content-between">
+            <div class="col-md-3">
+                <a href="#" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
             </div>
+            <div class="col-md-6">
+                <div class="search-bar">
+                    <input type="text" placeholder="搜尋例如：可口可樂、百佳、壽司郎...">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </header>
+
+    <nav class="sub-nav text-center">
+        <div class="container">
+            <a href="#" class="active"><i class="fa-solid fa-house me-2"></i>首頁</a>
+            <a href="#"><i class="fa-solid fa-fire me-2"></i>超市著數</a>
+            <a href="#"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
         </div>
     </nav>
 
-    <!-- 歡迎橫幅 Hero Banner -->
-    <div class="hero-section">
-        <div class="container">
-            <h1 class="hero-title">全港著數 一網打盡</h1>
-            <p class="lead fs-4 mt-3">每日為你搜羅各大商戶最抵情報，對抗通脹！</p>
-            
-            <!-- 行動呼籲 (Call-To-Action) -->
-            <div class="input-group search-box">
-                <input type="text" class="form-control" placeholder="搜尋例如：可口可樂、百佳、壽司郎...">
-                <button class="btn btn-danger fw-bold" type="button">
-                    <i class="fa-solid fa-magnifying-glass me-2"></i>即時格價
-                </button>
+    <div class="container categories-section">
+        <div class="category-header">
+            <h4>熱門分類</h4>
+            <a href="#">查看全部 <i class="fa-solid fa-arrow-right ms-1"></i></a>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-3">
+                <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=600&auto=format&fit=crop');">
+                    <p class="category-title">超市情報</p>
+                    <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop');">
+                    <p class="category-title">飲食優惠</p>
+                    <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop');">
+                    <p class="category-title">開倉大減價</p>
+                    <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?q=80&w=600&auto=format&fit=crop');">
+                    <p class="category-title">其他著數</p>
+                    <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                </div>
             </div>
         </div>
     </div>
-    
-    <!-- 優惠內容區 -->
+
     <div class="container mb-5">
-        <h3 class="fw-bold mb-4 border-bottom pb-2">🔥 今日精選優惠</h3>
+        <h4 class="section-title">今日精選</h4>
         <div class="row g-4" id="discounts-container">
-            <!-- 呢度保留咗預設嘅讀取動畫，之後會用 Java 系統將真實優惠放落去 -->
             <div class="col-12 text-center my-5">
-                <div class="spinner-border text-danger" role="status"></div>
+                <div class="spinner-border text-warning" role="status"></div>
                 <p class="mt-3 text-muted">正在為您連接最新數據庫...</p>
             </div>
         </div>
