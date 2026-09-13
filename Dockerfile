@@ -1,16 +1,18 @@
-# 使用 Java 21 環境
-FROM eclipse-temurin:21-jdk
+# 使用帶有 Maven 同 Java 21 嘅官方標準映像檔
+FROM maven:3.9.6-eclipse-temurin-21 AS build
 WORKDIR /app
 
-# 將你嘅 Code 複製入去
+# 複製所有檔案
 COPY . .
 
-# 解鎖並打包 Spring Boot 程式
+# 給予執行權限並打包
 RUN chmod +x mvnw
 RUN ./mvnw clean package -DskipTests
 
-# 暴露 8080 端口
-EXPOSE 8080
+# 執行階段
+FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY --from=build /app/target/discount-web-0.0.1-SNAPSHOT.jar app.jar
 
-# 啟動伺服器
-CMD ["java", "-jar", "target/discount-web-0.0.1-SNAPSHOT.jar"]
+EXPOSE 8080
+CMD ["java", "-jar", "app.jar"]
