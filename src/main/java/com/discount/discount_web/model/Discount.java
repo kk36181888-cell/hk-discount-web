@@ -1,8 +1,5 @@
-package com.discount.discount_web.model; // 留意呢行要對應返你真實嘅 package 名
+package com.discount.discount_web.model;
 
-import java.time.LocalDate;
-
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,16 +16,8 @@ public class Discount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;          // 優惠標題
-
-    private String promoCode;      // 優惠碼 (有啲優惠可能冇 code)
-
-    private String merchantName;   // 商戶名稱
-
-    private String category;       // 分類 (例如：飲食, 網購)
-
-    private LocalDate expiryDate;  // 到期日
-
-    private boolean isActive = true; // 優惠係咪仲有效
+    private String title;       // 優惠標題 (例如: "新客優惠 85折")
+    private String description; // 優惠描述
+    private String imageUrl;    // 圖片網址
+    private String promoPeriod; // 優惠期限 (例如: "1/9 - 30/9")
 }
