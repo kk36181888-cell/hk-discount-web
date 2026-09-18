@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { 
-            background-color: #ffffff; 
+            background-color: #f8f9fa; 
             color: #333333; 
             font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; 
         }
@@ -72,28 +72,28 @@
             font-size: 0.8rem;
             font-weight: bold;
         }
-
-        .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
         
         .wellcome-banner-card {
-            border-radius: 16px;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.08);
             transition: transform 0.3s ease;
             background: #fff;
+            border: 2px solid #ccc;
         }
         
-        /* 升級：成張卡片滑鼠指埋去會有微微發光同浮起效果 */
         .wellcome-banner-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 222, 0, 0.4);
+            box-shadow: 0 10px 30px rgba(255, 222, 0, 0.5);
+            border-color: #FFDE00;
         }
-        
-        .discount-link-wrapper {
-            transition: opacity 0.2s;
-        }
-        .discount-link-wrapper:hover {
-            opacity: 0.95;
+
+        /* 黃底刻字效果 */
+        .carved-title-bar {
+            background-color: #FFDE00;
+            color: #000000;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.7);
+            border-bottom: 2px solid #b39b00;
         }
     </style>
 </head>
@@ -101,9 +101,7 @@
 
     <header class="top-header">
         <div class="container d-flex flex-wrap align-items-center justify-content-start">
-            <div>
-                <a href="/" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
-            </div>
+            <div><a href="/" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a></div>
         </div>
     </header>
 
@@ -157,42 +155,37 @@
     </div>
 
     <div class="container mb-5">
-        <div class="d-flex align-items-center justify-content-between mb-4">
-            <h4 class="section-title mb-0">🔥 最新著數優惠</h4>
-        </div>
+        <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">🔥 最新著數優惠</h4>
 
-        <!-- 🌟 最新升級版優惠卡片 -->
-        <div th:each="discount : ${discounts}" class="wellcome-banner-card mb-5" style="border: 2px solid #FFDE00;">
-            <!-- 連去自己網站嘅詳細頁面，target="_blank" 代表彈出新分頁 -->
-            <a th:href="@{/discount/{id}(id=${discount.id})}" target="_blank" class="text-decoration-none text-dark d-block discount-link-wrapper">
+        <div th:each="discount : ${discounts}" class="wellcome-banner-card mb-5">
+            <a th:href="@{/discount/{id}(id=${discount.id})}" target="_blank" class="text-decoration-none text-dark d-block">
                 
-                <div class="p-3 bg-danger text-white fw-bold px-4 fs-4">
-                    <i class="fa-solid fa-fire me-2"></i><span th:text="${discount.title}">優惠標題</span>
+                <!-- 🌟 黃底刻字標題 (獨立喺圖片上方，絕對唔會遮圖) -->
+                <div class="p-3 fw-bold px-4 fs-4 carved-title-bar">
+                    <i class="fa-solid fa-tag me-2"></i><span th:text="${discount.title}">優惠標題</span>
                 </div>
                 
-                <img th:src="${discount.imageUrl}" class="w-100" alt="優惠圖片" style="max-height: 450px; object-fit: cover;">
+                <!-- 圖片使用 object-fit: contain 保證唔會裁走任何邊緣 -->
+                <img th:src="${discount.imageUrl}" class="w-100 d-block" alt="優惠圖片" style="max-height: 450px; object-fit: contain; background-color: #f1f1f1;">
                 
-                <div class="p-4 bg-light">
+                <div class="p-4 bg-white">
                     <div class="text-danger fw-bold fs-4 mb-3">
                         🕒 優惠期: <span th:text="${discount.promoPeriod}"></span>
                     </div>
                     
-                    <div class="fs-5 text-muted mb-4" th:text="${discount.description}"></div>
+                    <!-- 首頁只顯示頭幾行字，避免排版過長 -->
+                    <div class="fs-5 text-muted mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;" th:utext="${discount.description}"></div>
                     
-                    <!-- 搶眼嘅跳轉按鈕 -->
                     <button class="btn btn-warning w-100 fw-bold fs-4 py-3" style="box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        👉 點擊查看詳細內容
+                        👉 點擊查看詳細圖文內容
                     </button>
                 </div>
             </a>
         </div>
         
-        <!-- 如果暫時冇資料，會顯示呢句提示 -->
         <div th:if="${#lists.isEmpty(discounts)}" class="text-center py-5 text-muted">
             <h4><i class="fa-solid fa-box-open me-2"></i>目前未有最新優惠</h4>
-            <p>請稍後再嚟睇下啦！</p>
         </div>
-
     </div>
 </body>
 </html>
