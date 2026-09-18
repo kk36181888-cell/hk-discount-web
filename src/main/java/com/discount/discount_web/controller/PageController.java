@@ -2,6 +2,8 @@ package com.discount.discount_web.controller;
 
 import com.discount.discount_web.model.Discount;
 import com.discount.discount_web.repository.DiscountRepository;
+// 新增引入 ScraperService
+import com.discount.discount_web.service.ScraperService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,9 +18,12 @@ public class PageController {
     @Autowired
     private DiscountRepository discountRepository;
 
+    // 新增：注入爬蟲服務
+    @Autowired
+    private ScraperService scraperService;
+
     @GetMapping("/")
     public String index(Model model) {
-        // 改用 findAllByOrderByIdDesc()
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc());
         return "index"; 
     }
@@ -26,7 +31,6 @@ public class PageController {
     @GetMapping("/admin")
     public String adminPage(Model model) {
         model.addAttribute("discount", new Discount());
-        // 後台清單都一樣，最新嘅排最頂，方便管理
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
         return "admin"; 
     }
@@ -43,9 +47,15 @@ public class PageController {
         return "redirect:/admin"; 
     }
 
+    // 新增：觸發爬蟲嘅按鈕對接點
+    @PostMapping("/admin/scrape")
+    public String runScraper() {
+        scraperService.scrapeDiscounts();
+        return "redirect:/admin"; // 爬完自動彈返去後台，等你可以即刻見到結果
+    }
+
     @GetMapping("/supermarket")
     public String supermarket(Model model) { 
-        // 改用 findByCategoryOrderByIdDesc()
         model.addAttribute("discounts", discountRepository.findByCategoryOrderByIdDesc("supermarket"));
         return "index"; 
     }

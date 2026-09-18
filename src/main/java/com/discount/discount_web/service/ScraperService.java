@@ -1,34 +1,54 @@
 package com.discount.discount_web.service;
 
+import com.discount.discount_web.model.Discount;
+import com.discount.discount_web.repository.DiscountRepository;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ScraperService {
 
-    public void scrapeWellcome() {
+    @Autowired
+    private DiscountRepository discountRepository;
+
+    public void scrapeDiscounts() {
         try {
-            // 惠康嘅目標網址
-            String url = "https://www.wellcome.com.hk/zh-hant/d/0BnIfjXEWesZ.html?venderBrandIds=6%252C5&flowDeliveryTimeType=1";
-            System.out.println("🛒 準備出發去惠康: " + url);
+            // 1. 連線去測試用嘅靜態網站
+            String url = "http://books.toscrape.com/";
+            Document doc = Jsoup.connect(url).get();
 
-            // 加入 UserAgent 扮成真實嘅電腦 Google Chrome 瀏覽器，減少被惠康 Server 踢走嘅機會
-            Document doc = Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36")
-                    .timeout(10000) // 畀 10 秒時間佢 Load
-                    .get();
+            // 2. 鎖定網頁入面裝住商品嘅「卡片」 (佢哋嘅 HTML class 係 .product_pod)
+            Elements items = doc.select(".product_pod");
 
-            // ⚠️ 照妖鏡：印出 Jsoup 真正下載到嘅 HTML 原始碼！
-            System.out.println("--- Jsoup 睇到嘅 HTML 節錄 ---");
-            String rawHtml = doc.html();
-            
-            // 因為成個網頁太長，我哋淨係印最頭 2000 個字元出嚟睇吓，避免 Terminal 洗版
-            System.out.println(rawHtml.substring(0, Math.min(rawHtml.length(), 2000))); 
-            System.out.println("--------------------------------");
+            // 3. 為咗唔好一次過塞爆 Database，我哋淨係抽頭 3 個
+            int count = 0;
+            for (Element item : items) {
+                if (count >= 3) break;
 
+                // 4. 利用 CSS Selector 抽走標題、圖片、價錢
+                String title = item.select("h3 a").attr("title");
+                // 處理相對路徑圖片網址
+                String imageUrl = "http://books.toscrape.com/" + item.select(".image_container img").attr("src");
+                String price = item.select(".price_color").text();
+
+                // 5. 建立新 Discount 物件並塞入 Database
+                Discount discount = new Discount();
+                discount.setTitle("🤖 [自動抓取] " + title);
+                discount.setDescription("自動化系統搵到嘅價錢: " + price);
+                discount.setImageUrl(imageUrl);
+                discount.setPromoPeriod("即日起");
+                discount.setCategory("others"); // 預設擺落「其他」分類
+
+                discountRepository.save(discount);
+                count++;
+            }
+            System.out.println("✅ 爬蟲執行完畢！成功抓取 " + count + " 筆資料。");
         } catch (Exception e) {
-            System.out.println("❌ 抓取失敗: " + e.getMessage());
+            System.out.println("❌ 爬蟲發生錯誤: " + e.getMessage());
         }
     }
 }
