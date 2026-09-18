@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-HK" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DayBuy - 優惠管理後台</title>
+    <!-- 引入 Bootstrap (沿用你嘅設計) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="mb-0">⚙️ 新增優惠 (管理員專用)</h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- 表單設定 POST 請求去 /admin/add -->
+                        <form th:action="@{/admin/add}" th:object="${discount}" method="post">
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">優惠標題</label>
+                                <input type="text" class="form-control" th:field="*{title}" placeholder="例如: 麥當勞 $10 歎漢堡" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">圖片網址 (Image URL)</label>
+                                <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="貼上圖片 Link" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">優惠期限</label>
+                                <input type="text" class="form-control" th:field="*{promoPeriod}" placeholder="例如: 1/10 - 31/10" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">詳細內容</label>
+                                <textarea class="form-control" th:field="*{description}" rows="4" placeholder="請輸入優惠詳情..."></textarea>
+                            </div>
+
+                            <div class="d-flex justify-content-between">
+                                <a href="/" class="btn btn-outline-secondary">取消並返回首頁</a>
+                                <button type="submit" class="btn btn-success">✅ 發佈優惠</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

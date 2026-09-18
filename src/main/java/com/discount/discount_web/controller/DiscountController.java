@@ -1,42 +1,56 @@
 package com.discount.discount_web.controller;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.discount.discount_web.model.Discount;
 import com.discount.discount_web.repository.DiscountRepository;
-import com.discount.discount_web.service.ScraperService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
 
-@RestController
-@RequestMapping("/api/discounts")
-public class DiscountController {
+@Controller
+public class PageController {
 
     @Autowired
     private DiscountRepository discountRepository;
 
-    @Autowired
-    private ScraperService scraperService; // 注入爬蟲 Service
-
-    @GetMapping
-    public List<Discount> getAllDiscounts() {
-        return discountRepository.findAll();
+    @GetMapping("/")
+    public String index(Model model) {
+        model.addAttribute("discounts", discountRepository.findAll());
+        return "index"; 
     }
 
-    @PostMapping
-    public Discount createDiscount(@RequestBody Discount discount) {
-        return discountRepository.save(discount);
+    // ----------------------------------------------------
+    // 管理員後台：顯示新增優惠嘅表單
+    // ----------------------------------------------------
+    @GetMapping("/admin")
+    public String adminPage(Model model) {
+        // 準備一個空嘅 Discount 物件畀前端表單填寫
+        model.addAttribute("discount", new Discount());
+        return "admin"; 
     }
 
-    // 新增呢個 API 用嚟撻着惠康爬蟲
-    @GetMapping("/test-scrape")
-    public String runTestScraper() {
-        scraperService.scrapeWellcome(); // <--- 已經幫你改咗做呼叫惠康爬蟲！
-        return "惠康抓取測試中... 請睇 VS Code Terminal！";
+    // ----------------------------------------------------
+    // 接收表單資料，並存入 Database
+    // ----------------------------------------------------
+    @PostMapping("/admin/add")
+    public String addDiscount(@ModelAttribute Discount discount) {
+        // 呢行一出，Spring Data JPA 就會自動生成 INSERT SQL 將資料寫入 Supabase
+        discountRepository.save(discount);
+        // 儲存成功後，自動跳轉返去首頁 (即刻睇到新加嘅優惠)
+        return "redirect:/"; 
     }
+
+    @GetMapping("/supermarket")
+    public String supermarket() { return "supermarket"; }
+
+    @GetMapping("/dining")
+    public String dining() { return "dining"; }
+
+    @GetMapping("/warehouse")
+    public String warehouse() { return "warehouse"; }
+
+    @GetMapping("/others")
+    public String others() { return "others"; }
 }
