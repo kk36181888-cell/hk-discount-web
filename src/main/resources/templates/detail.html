@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${discount.title} + ' - DayBuy 著數詳情'"></title>
+    
+    <!-- 🚀 SEO 及社交媒體預覽圖設定 (WhatsApp 專用) -->
+    <meta property="og:title" th:content="${discount.title} + ' - DayBuy'" />
+    <meta property="og:description" content="DayBuy 最新著數情報：即撳入嚟睇詳情，千祈唔好錯過！" />
+    <meta property="og:image" th:content="${discount.imageUrl}" />
+    <meta property="og:type" content="website" />
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .rich-content img {
-            max-width: 100%;
-            height: auto;
-            border-radius: 8px;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
     </style>
 </head>
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
     
     <header class="p-3 mb-4" style="background-color: #FFDE00; border-bottom: 2px solid #000;">
         <div class="container">
@@ -25,7 +27,7 @@
         </div>
     </header>
 
-    <div class="container mb-5">
+    <div class="container mb-5 flex-grow-1">
         <div class="row justify-content-center">
             <div class="col-md-8">
                 <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
@@ -49,7 +51,12 @@
                         <div class="fs-5 text-dark mb-5 rich-content" style="line-height: 1.8; word-wrap: break-word;" th:utext="${discount.description}">
                         </div>
                         
-                        <div class="d-grid gap-3">
+                        <div class="d-grid gap-3 mt-5">
+                            <!-- 🟢 一鍵 WhatsApp 分享按鈕 -->
+                            <button onclick="shareWhatsApp()" class="btn btn-success btn-lg fw-bold py-3">
+                                <i class="fa-brands fa-whatsapp me-2"></i>分享呢個優惠畀 WhatsApp 朋友
+                            </button>
+                            
                             <a href="/" class="btn btn-outline-secondary btn-lg fw-bold py-3">🏠 返回著數列表</a>
                         </div>
                     </div>
@@ -58,5 +65,24 @@
         </div>
     </div>
 
+    <!-- 🛡️ Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-auto">
+        <div class="container">
+            <p class="mb-1 fw-bold fs-5"><i class="fa-solid fa-tags me-2"></i>DayBuy 抵Buy 著數情報網</p>
+            <p class="mb-2">© 2026 DayBuy. All rights reserved.</p>
+            <small class="text-secondary" style="font-size: 0.8rem;">
+                免責聲明：本網站僅為優惠資訊整合平台，旨在為大眾提供免費著數情報。所有優惠詳情、條款及細則均以官方公佈為準。本站與相關商戶無任何直接交易或從屬關係，亦不對任何交易損失負責。
+            </small>
+        </div>
+    </footer>
+
+    <!-- 觸發 WhatsApp 彈出嘅魔法 -->
+    <script>
+        function shareWhatsApp() {
+            const url = encodeURIComponent(window.location.href);
+            const title = encodeURIComponent(document.title);
+            window.open('https://api.whatsapp.com/send?text=喂！睇吓呢個抵買優惠：' + title + ' %0A%0A' + url, '_blank');
+        }
+    </script>
 </body>
 </html>

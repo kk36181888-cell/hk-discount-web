@@ -20,17 +20,11 @@
         .category-header h4 { font-weight: bold; margin: 0; color: #000; }
         
         .category-card {
-            height: 180px;
-            border-radius: 12px;
-            position: relative;
-            background-size: cover;
-            background-position: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            overflow: hidden;
+            height: 180px; border-radius: 12px; position: relative; background-size: cover;
+            background-position: center; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden;
         }
         .category-card::after {
-            content: '';
-            position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
+            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
             background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
         }
         .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
@@ -43,9 +37,7 @@
         }
         .wellcome-banner-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(255, 222, 0, 0.4); border-color: #FFDE00; }
         
-        .card-img-wrapper {
-            height: 220px; background-color: #f1f1f1; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f1f1f1;
-        }
+        .card-img-wrapper { height: 220px; background-color: #f1f1f1; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f1f1f1; }
         .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
 
         .card-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
@@ -55,19 +47,25 @@
         }
     </style>
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     <header class="top-header">
-        <div class="container d-flex flex-wrap align-items-center justify-content-start">
-            <div><a href="/" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a></div>
+        <div class="container d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="brand-logo mb-2 mb-md-0"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
+            
+            <!-- 🔍 搜尋列 -->
+            <form class="d-flex" action="/search" method="get">
+                <input class="form-control me-2" type="search" name="keyword" th:value="${searchKeyword}" placeholder="搵優惠 (例: 百佳)..." required>
+                <button class="btn btn-dark fw-bold" type="submit" style="white-space: nowrap;"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
         </div>
     </header>
 
     <nav class="sub-nav text-center">
         <div class="container">
-            <a href="/" class="active"><i class="fa-solid fa-house me-2"></i>首頁</a>
-            <a href="/supermarket"><i class="fa-solid fa-fire me-2"></i>超市著數</a>
-            <a href="/faq"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
+            <a href="/" th:classappend="${currentUrl == '/'} ? 'active' : ''"><i class="fa-solid fa-house me-2"></i>首頁</a>
+            <a href="/supermarket" th:classappend="${currentUrl == '/supermarket'} ? 'active' : ''"><i class="fa-solid fa-cart-shopping me-2"></i>超市著數</a>
+            <a href="/dining" th:classappend="${currentUrl == '/dining'} ? 'active' : ''"><i class="fa-solid fa-utensils me-2"></i>飲食優惠</a>
         </div>
     </nav>
 
@@ -107,11 +105,14 @@
         </div>
     </div>
 
-    <div class="container mb-5">
-        <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">🔥 最新著數優惠</h4>
+    <!-- 主要內容區 (flex-grow-1 推 Footer 到底) -->
+    <div class="container mb-5 flex-grow-1">
+        <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">
+            <span th:if="${searchKeyword != null}">🔍 搜尋結果: "<span th:text="${searchKeyword}"></span>"</span>
+            <span th:unless="${searchKeyword != null}">🔥 最新著數優惠</span>
+        </h4>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <!-- 🌟 升級：由 discountPage 裡面抽出資料 -->
             <div class="col" th:each="discount : ${discountPage.content}">
                 <a th:href="@{/discount/{id}(id=${discount.id})}" target="_blank" class="text-decoration-none text-dark d-block h-100">
                     <div class="wellcome-banner-card">
@@ -136,39 +137,42 @@
             </div>
         </div>
         
-        <!-- 🌟 升級：全新精美分頁按鈕 (Pagination) -->
+        <!-- 分頁導航 (加入 keyword 防止斷 Link) -->
         <nav th:if="${discountPage.totalPages > 1}" aria-label="Page navigation" class="mt-5">
             <ul class="pagination justify-content-center pagination-lg shadow-sm" style="border-radius: 8px;">
-                
-                <!-- 上一頁 -->
                 <li class="page-item" th:classappend="${discountPage.first} ? 'disabled'">
-                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number - 1})}" tabindex="-1">
+                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number - 1}, keyword=${searchKeyword})}" tabindex="-1">
                         <i class="fa-solid fa-angle-left me-2"></i>上一頁
                     </a>
                 </li>
-                
-                <!-- 數字頁碼 -->
-                <li class="page-item" th:each="i : ${#numbers.sequence(0, discountPage.totalPages - 1)}" 
-                    th:classappend="${i == discountPage.number} ? 'active'">
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, discountPage.totalPages - 1)}" th:classappend="${i == discountPage.number} ? 'active'">
                     <a class="page-link fw-bold" 
                        th:style="${i == discountPage.number} ? 'background-color: #FFDE00; border-color: #FFDE00; color: #000;' : 'color: #333;'" 
-                       th:href="@{${currentUrl}(page=${i})}" th:text="${i + 1}">1</a>
+                       th:href="@{${currentUrl}(page=${i}, keyword=${searchKeyword})}" th:text="${i + 1}">1</a>
                 </li>
-                
-                <!-- 下一頁 -->
                 <li class="page-item" th:classappend="${discountPage.last} ? 'disabled'">
-                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number + 1})}">
+                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number + 1}, keyword=${searchKeyword})}">
                         下一頁<i class="fa-solid fa-angle-right ms-2"></i>
                     </a>
                 </li>
-                
             </ul>
         </nav>
 
-        <!-- 如果完全冇資料先顯示 -->
         <div th:if="${discountPage.empty}" class="text-center py-5 text-muted">
-            <h4><i class="fa-solid fa-box-open me-2"></i>目前未有最新優惠</h4>
+            <h4><i class="fa-solid fa-box-open me-2"></i>目前未有相關優惠</h4>
         </div>
     </div>
+
+    <!-- 🛡️ 法律免責聲明 Footer -->
+    <footer class="bg-dark text-white text-center py-4 mt-auto">
+        <div class="container">
+            <p class="mb-1 fw-bold fs-5"><i class="fa-solid fa-tags me-2"></i>DayBuy 抵Buy 著數情報網</p>
+            <p class="mb-2">© 2026 DayBuy. All rights reserved.</p>
+            <small class="text-secondary" style="font-size: 0.8rem;">
+                免責聲明：本網站僅為優惠資訊整合平台，旨在為大眾提供免費著數情報。所有優惠詳情、條款及細則均以官方公佈為準。本站與相關商戶無任何直接交易或從屬關係，亦不對任何交易損失負責。
+            </small>
+        </div>
+    </footer>
+
 </body>
 </html>

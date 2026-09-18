@@ -21,18 +21,27 @@ public class PageController {
     private DiscountRepository discountRepository;
 
     private static final String SECRET_KEY = "DayBuy_Super_Secret_Key_2026_xyz";
-    // 🌟 設定每頁顯示數量 (6 個啱啱好填滿兩排 3 格)
     private static final int PAGE_SIZE = 6; 
 
     // ==========================================
-    // 🌐 前台分頁路由 (Pagination)
+    // 🌐 前台分頁與搜尋路由
     // ==========================================
     @GetMapping("/")
     public String index(@RequestParam(defaultValue = "0") int page, Model model) {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         model.addAttribute("discountPage", discountRepository.findAllByOrderByIdDesc(pageable));
-        model.addAttribute("currentUrl", ""); // 記住而家喺邊度，方便分頁按鈕對位
+        model.addAttribute("currentUrl", "/"); 
+        model.addAttribute("searchKeyword", null); 
         return "index"; 
+    }
+
+    @GetMapping("/search")
+    public String search(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, Model model) {
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        model.addAttribute("discountPage", discountRepository.findByTitleContainingIgnoreCaseOrderByIdDesc(keyword, pageable));
+        model.addAttribute("currentUrl", "/search");
+        model.addAttribute("searchKeyword", keyword); 
+        return "index";
     }
 
     @GetMapping("/supermarket")
@@ -40,6 +49,7 @@ public class PageController {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("supermarket", pageable));
         model.addAttribute("currentUrl", "/supermarket");
+        model.addAttribute("searchKeyword", null);
         return "index"; 
     }
     
@@ -48,6 +58,7 @@ public class PageController {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("dining", pageable));
         model.addAttribute("currentUrl", "/dining");
+        model.addAttribute("searchKeyword", null);
         return "index"; 
     }
     
@@ -56,6 +67,7 @@ public class PageController {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("warehouse", pageable));
         model.addAttribute("currentUrl", "/warehouse");
+        model.addAttribute("searchKeyword", null);
         return "index"; 
     }
     
@@ -64,6 +76,7 @@ public class PageController {
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
         model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("others", pageable));
         model.addAttribute("currentUrl", "/others");
+        model.addAttribute("searchKeyword", null);
         return "index"; 
     }
 
@@ -71,7 +84,7 @@ public class PageController {
     public String faq() { return "faq"; }
 
     // ==========================================
-    // 詳情頁
+    // 📄 詳情頁
     // ==========================================
     @GetMapping("/discount/{id}")
     public String discountDetail(@PathVariable Long id, Model model) {
@@ -84,7 +97,7 @@ public class PageController {
     }
 
     // ==========================================
-    // 🚀 後台路徑 (保持不變)
+    // 🚀 後台路徑 (7日免登入)
     // ==========================================
     @GetMapping("/daybuy-hq")
     public String adminPage(Model model, 
