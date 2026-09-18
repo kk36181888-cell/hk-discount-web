@@ -16,11 +16,6 @@
         .top-header { background-color: #FFDE00; padding: 15px 0; border-bottom: 1px solid #e0c200; }
         .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
         .brand-logo i { color: #000; }
-        
-        /* 搜尋列 CSS */
-        .search-bar { background-color: #fff; border-radius: 6px; border: 2px solid #000; display: flex; align-items: center; padding: 2px 15px; }
-        .search-bar input { border: none; outline: none; width: 100%; padding: 10px; color: #333; font-size: 1rem; }
-        .search-bar i { color: #555; font-size: 1.2rem; }
 
         .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
         .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
@@ -96,16 +91,9 @@
 <body>
 
     <header class="top-header">
-        <div class="container d-flex flex-wrap align-items-center justify-content-between">
-            <div class="col-md-3">
+        <div class="container d-flex flex-wrap align-items-center justify-content-start">
+            <div>
                 <a href="/" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
-            </div>
-            <!-- 調整搜尋列闊度，填補原本後台按鈕嘅位 -->
-            <div class="col-md-8">
-                <div class="search-bar">
-                    <input type="text" placeholder="搜尋例如：可口可樂、百佳、壽司郎...">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </div>
             </div>
         </div>
     </header>
