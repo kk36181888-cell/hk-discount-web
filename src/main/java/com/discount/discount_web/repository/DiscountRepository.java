@@ -5,6 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
-    // 讓 Spring Boot 識得根據 Category 搵優惠出嚟
-    List<Discount> findByCategory(String category);
+    
+    // 1. 搵所有優惠，並按 ID 倒序排列 (最新嘅排最頂)
+    List<Discount> findAllByOrderByIdDesc();
+    
+    // 2. 根據分類搵優惠，並按 ID 倒序排列
+    List<Discount> findByCategoryOrderByIdDesc(String category);
 }

@@ -18,14 +18,16 @@ public class PageController {
 
     @GetMapping("/")
     public String index(Model model) {
-        model.addAttribute("discounts", discountRepository.findAll());
+        // 改用 findAllByOrderByIdDesc()
+        model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc());
         return "index"; 
     }
 
     @GetMapping("/admin")
     public String adminPage(Model model) {
         model.addAttribute("discount", new Discount());
-        model.addAttribute("discounts", discountRepository.findAll()); 
+        // 後台清單都一樣，最新嘅排最頂，方便管理
+        model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
         return "admin"; 
     }
 
@@ -43,29 +45,29 @@ public class PageController {
 
     @GetMapping("/supermarket")
     public String supermarket(Model model) { 
-        model.addAttribute("discounts", discountRepository.findByCategory("supermarket"));
+        // 改用 findByCategoryOrderByIdDesc()
+        model.addAttribute("discounts", discountRepository.findByCategoryOrderByIdDesc("supermarket"));
         return "index"; 
     }
 
     @GetMapping("/dining")
     public String dining(Model model) { 
-        model.addAttribute("discounts", discountRepository.findByCategory("dining"));
+        model.addAttribute("discounts", discountRepository.findByCategoryOrderByIdDesc("dining"));
         return "index"; 
     }
 
     @GetMapping("/warehouse")
     public String warehouse(Model model) { 
-        model.addAttribute("discounts", discountRepository.findByCategory("warehouse"));
+        model.addAttribute("discounts", discountRepository.findByCategoryOrderByIdDesc("warehouse"));
         return "index"; 
     }
 
     @GetMapping("/others")
     public String others(Model model) { 
-        model.addAttribute("discounts", discountRepository.findByCategory("others"));
+        model.addAttribute("discounts", discountRepository.findByCategoryOrderByIdDesc("others"));
         return "index"; 
     }
 
-    // 新增：常見問題頁面導航
     @GetMapping("/faq")
     public String faq() { 
         return "faq"; 
