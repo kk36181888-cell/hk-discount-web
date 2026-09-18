@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-HK" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${discount.title} + ' - DayBuy 著數詳情'"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-light">
+    
+    <header class="p-3 mb-4" style="background-color: #FFDE00; border-bottom: 2px solid #000;">
+        <div class="container">
+            <a href="/" class="text-dark text-decoration-none fw-bold fs-3"><i class="fa-solid fa-tags me-2"></i>DayBuy 首頁</a>
+        </div>
+    </header>
+
+    <div class="container mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card shadow border-0 rounded-4 overflow-hidden">
+                    <img th:src="${discount.imageUrl}" class="w-100" style="max-height: 500px; object-fit: cover;" alt="優惠圖片">
+                    
+                    <div class="card-body p-5">
+                        <span class="badge bg-danger mb-3 fs-6" th:text="${discount.category}">分類</span>
+                        <h1 class="fw-bold mb-4" th:text="${discount.title}">優惠標題</h1>
+                        
+                        <div class="alert alert-warning fw-bold fs-5 mb-4">
+                            <i class="fa-regular fa-clock me-2"></i>優惠期: <span th:text="${discount.promoPeriod}"></span>
+                        </div>
+                        
+                        <h4 class="fw-bold border-bottom pb-2 mb-3">優惠詳細內容</h4>
+                        <p class="fs-5 text-muted mb-5" style="white-space: pre-wrap; line-height: 1.8;" th:text="${discount.description}">詳細內容</p>
+                        
+                        <div class="d-grid gap-3">
+                            <a th:if="${discount.linkUrl != null and !discount.linkUrl.isEmpty()}" 
+                               th:href="${discount.linkUrl}" target="_blank" class="btn btn-primary btn-lg fw-bold py-3">
+                               🔗 前往官方網站查看 / 購買
+                            </a>
+                            <a href="/" class="btn btn-outline-secondary btn-lg fw-bold py-3">🏠 返回著數列表</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

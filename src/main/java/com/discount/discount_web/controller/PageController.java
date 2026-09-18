@@ -28,7 +28,19 @@ public class PageController {
         return "index"; 
     }
 
-    // 🚀 網址已經由 /admin 升級為 /daybuy-hq
+    // 🆕 新增：專屬優惠詳情頁面路由
+    @GetMapping("/discount/{id}")
+    public String discountDetail(@PathVariable Long id, Model model) {
+        // 喺資料庫搵呢個 ID 嘅優惠出嚟
+        Discount discount = discountRepository.findById(id).orElse(null);
+        if (discount == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "搵唔到呢個優惠");
+        }
+        model.addAttribute("discount", discount);
+        return "detail"; // 呼叫 detail.html 顯示畫面
+    }
+
+    // 🚀 後台路徑
     @GetMapping("/daybuy-hq")
     public String adminPage(Model model, HttpSession session, @RequestParam(required = false) String key) {
         if (SECRET_KEY.equals(key)) {

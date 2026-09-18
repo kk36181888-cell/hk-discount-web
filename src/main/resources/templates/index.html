@@ -81,10 +81,19 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.08);
             transition: transform 0.3s ease;
             background: #fff;
-            margin-bottom: 25px;
         }
+        
+        /* 升級：成張卡片滑鼠指埋去會有微微發光同浮起效果 */
         .wellcome-banner-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255, 222, 0, 0.4);
+        }
+        
+        .discount-link-wrapper {
+            transition: opacity 0.2s;
+        }
+        .discount-link-wrapper:hover {
+            opacity: 0.95;
         }
     </style>
 </head>
@@ -148,20 +157,42 @@
     </div>
 
     <div class="container mb-5">
-        <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="d-flex align-items-center justify-content-between mb-4">
             <h4 class="section-title mb-0">🔥 最新著數優惠</h4>
         </div>
 
-        <div th:each="discount : ${discounts}" class="wellcome-banner-card">
-            <div class="p-2 bg-danger text-white fw-bold px-3">
-                <i class="fa-solid fa-fire me-2"></i><span th:text="${discount.title}">優惠標題</span>
-            </div>
-            <img th:src="${discount.imageUrl}" class="w-100" alt="優惠圖片" style="max-height: 380px; object-fit: cover;">
-            <div class="p-3 bg-light text-muted small">
-                <span class="text-danger fw-bold me-2">🕒 優惠期: <span th:text="${discount.promoPeriod}"></span></span><br>
-                <span th:text="${discount.description}">優惠詳細內容...</span>
-            </div>
+        <!-- 🌟 最新升級版優惠卡片 -->
+        <div th:each="discount : ${discounts}" class="wellcome-banner-card mb-5" style="border: 2px solid #FFDE00;">
+            <!-- 連去自己網站嘅詳細頁面，target="_blank" 代表彈出新分頁 -->
+            <a th:href="@{/discount/{id}(id=${discount.id})}" target="_blank" class="text-decoration-none text-dark d-block discount-link-wrapper">
+                
+                <div class="p-3 bg-danger text-white fw-bold px-4 fs-4">
+                    <i class="fa-solid fa-fire me-2"></i><span th:text="${discount.title}">優惠標題</span>
+                </div>
+                
+                <img th:src="${discount.imageUrl}" class="w-100" alt="優惠圖片" style="max-height: 450px; object-fit: cover;">
+                
+                <div class="p-4 bg-light">
+                    <div class="text-danger fw-bold fs-4 mb-3">
+                        🕒 優惠期: <span th:text="${discount.promoPeriod}"></span>
+                    </div>
+                    
+                    <div class="fs-5 text-muted mb-4" th:text="${discount.description}"></div>
+                    
+                    <!-- 搶眼嘅跳轉按鈕 -->
+                    <button class="btn btn-warning w-100 fw-bold fs-4 py-3" style="box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                        👉 點擊查看詳細內容
+                    </button>
+                </div>
+            </a>
         </div>
+        
+        <!-- 如果暫時冇資料，會顯示呢句提示 -->
+        <div th:if="${#lists.isEmpty(discounts)}" class="text-center py-5 text-muted">
+            <h4><i class="fa-solid fa-box-open me-2"></i>目前未有最新優惠</h4>
+            <p>請稍後再嚟睇下啦！</p>
+        </div>
+
     </div>
 </body>
 </html>
