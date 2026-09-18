@@ -15,34 +15,28 @@ public class PageController {
     @Autowired
     private DiscountRepository discountRepository;
 
-    // 首頁：從資料庫撈取全部優惠並傳送到前端
+    // --- 1. 首頁 (載入全部優惠) ---
     @GetMapping("/")
     public String index(Model model) {
         model.addAttribute("discounts", discountRepository.findAll());
         return "index"; 
     }
 
-    // ==========================================
-    // 管理員後台 (解決 404 Error 嘅關鍵)
-    // ==========================================
-    
-    // 1. 顯示新增優惠嘅表單
+    // --- 2. 管理員後台 (顯示新增優惠表單) - 解決 404 嘅關鍵！ ---
     @GetMapping("/admin")
     public String adminPage(Model model) {
         model.addAttribute("discount", new Discount());
         return "admin"; 
     }
 
-    // 2. 接收表單資料，並存入 Database
+    // --- 3. 管理員後台 (接收並儲存表單資料) ---
     @PostMapping("/admin/add")
     public String addDiscount(@ModelAttribute Discount discount) {
         discountRepository.save(discount);
-        return "redirect:/"; // 成功新增後跳轉返去首頁
+        return "redirect:/"; // 儲存完自動彈返去首頁
     }
 
-    // ==========================================
-    // 其他導航頁面
-    // ==========================================
+    // --- 4. 分類導航頁面 ---
     @GetMapping("/supermarket")
     public String supermarket() { return "supermarket"; }
 
