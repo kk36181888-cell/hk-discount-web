@@ -13,7 +13,6 @@
             <a href="/" class="btn btn-outline-secondary">🏠 返回首頁</a>
         </div>
 
-        <!-- 上半部：新增優惠表單 -->
         <div class="card shadow-sm mb-5 border-0">
             <div class="card-header bg-dark text-white">
                 <h5 class="mb-0">⚙️ 新增優惠</h5>
@@ -21,18 +20,28 @@
             <div class="card-body">
                 <form th:action="@{/admin/add}" th:object="${discount}" method="post">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label fw-bold">優惠標題</label>
-                            <input type="text" class="form-control" th:field="*{title}" placeholder="例: 麥當勞 $10 漢堡" required>
+                            <input type="text" class="form-control" th:field="*{title}" required>
                         </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-4 mb-3">
                             <label class="form-label fw-bold">優惠期限</label>
-                            <input type="text" class="form-control" th:field="*{promoPeriod}" placeholder="例: 1/10 - 31/10" required>
+                            <input type="text" class="form-control" th:field="*{promoPeriod}" required>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold">所屬分類</label>
+                            <select class="form-select" th:field="*{category}" required>
+                                <option value="" selected>請選擇分類...</option>
+                                <option value="supermarket">超市情報</option>
+                                <option value="dining">飲食優惠</option>
+                                <option value="warehouse">倉儲特賣</option>
+                                <option value="others">其他</option>
+                            </select>
                         </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">圖片網址</label>
-                        <input type="text" class="form-control" th:field="*{imageUrl}" placeholder="貼上圖片 Link" required>
+                        <input type="text" class="form-control" th:field="*{imageUrl}" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">詳細內容</label>
@@ -45,7 +54,6 @@
             </div>
         </div>
 
-        <!-- 下半部：現有優惠管理清單 -->
         <div class="card shadow-sm border-0">
             <div class="card-header bg-secondary text-white">
                 <h5 class="mb-0">📋 現有優惠管理</h5>
@@ -55,7 +63,8 @@
                     <thead class="table-light">
                         <tr>
                             <th width="5%" class="text-center">ID</th>
-                            <th width="35%">標題</th>
+                            <th width="10%">分類</th>
+                            <th width="25%">標題</th>
                             <th width="25%">期限</th>
                             <th width="20%">圖片 (預覽)</th>
                             <th width="15%" class="text-center">操作</th>
@@ -64,6 +73,7 @@
                     <tbody>
                         <tr th:each="d : ${discounts}">
                             <td class="text-center fw-bold" th:text="${d.id}"></td>
+                            <td th:text="${d.category}"></td>
                             <td th:text="${d.title}"></td>
                             <td th:text="${d.promoPeriod}"></td>
                             <td>
@@ -76,13 +86,12 @@
                             </td>
                         </tr>
                         <tr th:if="${#lists.isEmpty(discounts)}">
-                            <td colspan="5" class="text-center text-muted py-4">暫時未有任何優惠</td>
+                            <td colspan="6" class="text-center text-muted py-4">暫時未有任何優惠</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
         </div>
-
     </div>
 </body>
 </html>

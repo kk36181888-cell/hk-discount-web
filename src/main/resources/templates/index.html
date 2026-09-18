@@ -25,7 +25,6 @@
         .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
         .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
 
-        /* 圖片分類卡片設計 */
         .categories-section { margin-bottom: 40px; }
         .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .category-header h4 { font-weight: bold; margin: 0; color: #000; }
@@ -80,7 +79,6 @@
 
         .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
         
-        /* 你原本嘅 Banner 樣式 */
         .wellcome-banner-card {
             border-radius: 16px;
             overflow: hidden;
@@ -107,7 +105,6 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
             </div>
-            <!-- 加返個隱蔽少少嘅後台入口喺右上角 -->
             <div class="col-md-3 text-end">
                 <a href="/admin" class="text-dark text-decoration-none fw-bold"><i class="fa-solid fa-gear me-1"></i>後台</a>
             </div>
@@ -122,14 +119,12 @@
         </div>
     </nav>
 
-    <!-- 分類卡片區 (保留你原本嘅設計) -->
     <div class="container categories-section">
         <div class="category-header">
             <h4>熱門分類</h4>
             <a href="#">查看全部 <i class="fa-solid fa-arrow-right ms-1"></i></a>
         </div>
         <div class="row g-4">
-            <!-- 分類 1: 超市情報 -->
             <div class="col-md-3">
                 <a href="/supermarket" class="text-decoration-none">
                     <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=600&auto=format&fit=crop');">
@@ -138,7 +133,6 @@
                     </div>
                 </a>
             </div>
-            <!-- 分類 2: 飲食優惠情報 -->
             <div class="col-md-3">
                 <a href="/dining" class="text-decoration-none">
                     <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop');">
@@ -147,7 +141,6 @@
                     </div>
                 </a>
             </div>
-            <!-- 分類 3: 開倉大減價 -->
             <div class="col-md-3">
                 <a href="/warehouse" class="text-decoration-none">
                     <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop');">
@@ -156,7 +149,6 @@
                     </div>
                 </a>
             </div>
-            <!-- 分類 4: 其他著數 -->
             <div class="col-md-3">
                 <a href="/others" class="text-decoration-none">
                     <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?q=80&w=600&auto=format&fit=crop');">
@@ -168,32 +160,25 @@
         </div>
     </div>
 
-    <!-- 最新著數優惠 (從資料庫載入) -->
     <div class="container mb-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
             <h4 class="section-title mb-0">🔥 最新著數優惠</h4>
         </div>
 
-        <!-- Thymeleaf 迴圈：由 Database 抽出所有優惠並顯示成你設計嘅卡片 -->
         <div th:each="discount : ${discounts}" class="wellcome-banner-card">
             <div class="p-2 bg-danger text-white fw-bold px-3">
                 <i class="fa-solid fa-fire me-2"></i><span th:text="${discount.title}">優惠標題</span>
             </div>
-            <!-- 將 Database 嘅圖片 URL 綁定落 src -->
             <img th:src="${discount.imageUrl}" class="w-100" alt="優惠圖片" style="max-height: 380px; object-fit: cover;">
             <div class="p-3 bg-light text-muted small">
-                <!-- 顯示優惠期同詳情 -->
                 <span class="text-danger fw-bold me-2">🕒 優惠期: <span th:text="${discount.promoPeriod}"></span></span><br>
                 <span th:text="${discount.description}">優惠詳細內容...</span>
             </div>
         </div>
 
-        <!-- 如果 Database 係空嘅，會顯示呢句提示 -->
         <div th:if="${#lists.isEmpty(discounts)}" class="text-center mt-5 text-muted">
             <h4>暫時未有優惠，快啲去 <a href="/admin" class="text-decoration-none">後台管理</a> 加啲啦！</h4>
         </div>
-
     </div>
-
 </body>
 </html>

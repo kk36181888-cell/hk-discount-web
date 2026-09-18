@@ -24,9 +24,7 @@ public class PageController {
 
     @GetMapping("/admin")
     public String adminPage(Model model) {
-        // 準備一個空物件畀「新增表單」
         model.addAttribute("discount", new Discount());
-        // 準備 Database 所有資料畀「刪除清單」
         model.addAttribute("discounts", discountRepository.findAll()); 
         return "admin"; 
     }
@@ -34,24 +32,37 @@ public class PageController {
     @PostMapping("/admin/add")
     public String addDiscount(@ModelAttribute Discount discount) {
         discountRepository.save(discount);
-        return "redirect:/admin"; // 加完之後留返喺後台
+        return "redirect:/admin"; 
     }
 
     @PostMapping("/admin/delete/{id}")
     public String deleteDiscount(@PathVariable Long id) {
         discountRepository.deleteById(id);
-        return "redirect:/admin"; // 刪完之後留返喺後台
+        return "redirect:/admin"; 
     }
 
+    // --- 分類導航 (載入特定分類並共用 index 頁面) ---
     @GetMapping("/supermarket")
-    public String supermarket() { return "supermarket"; }
+    public String supermarket(Model model) { 
+        model.addAttribute("discounts", discountRepository.findByCategory("supermarket"));
+        return "index"; 
+    }
 
     @GetMapping("/dining")
-    public String dining() { return "dining"; }
+    public String dining(Model model) { 
+        model.addAttribute("discounts", discountRepository.findByCategory("dining"));
+        return "index"; 
+    }
 
     @GetMapping("/warehouse")
-    public String warehouse() { return "warehouse"; }
+    public String warehouse(Model model) { 
+        model.addAttribute("discounts", discountRepository.findByCategory("warehouse"));
+        return "index"; 
+    }
 
     @GetMapping("/others")
-    public String others() { return "others"; }
+    public String others(Model model) { 
+        model.addAttribute("discounts", discountRepository.findByCategory("others"));
+        return "index"; 
+    }
 }

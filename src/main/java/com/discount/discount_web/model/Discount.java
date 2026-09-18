@@ -18,9 +18,10 @@ public class Discount {
     private String description;
     private String imageUrl;
     private String promoPeriod;
-
-    // --- 以下係手動加入嘅 Getters 同 Setters，保證編譯 100% 成功 ---
     
+    // 新增：分類欄位
+    private String category;
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -35,4 +36,7 @@ public class Discount {
 
     public String getPromoPeriod() { return promoPeriod; }
     public void setPromoPeriod(String promoPeriod) { this.promoPeriod = promoPeriod; }
+
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }
