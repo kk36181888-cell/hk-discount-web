@@ -52,9 +52,9 @@ public class ScraperService {
                             }
                         }
 
-                        // 🛡️ 防禦機制：如果抓到嘅係假圖(data:image) 或者抓唔到，強制使用惠康真實相片
+                        // 🛡️ 防禦機制：如果抓到嘅係假圖(data:image) 或者抓唔到，強制使用無防盜連真實相片
                         if (finalImgUrl.isEmpty() || finalImgUrl.startsWith("data:image")) {
-                            finalImgUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Wellcome_supermarket_in_Hong_Kong.jpg/800px-Wellcome_supermarket_in_Hong_Kong.jpg";
+                            finalImgUrl = "https://images.pexels.com/photos/264636/pexels-photo-264636.jpeg?auto=compress&cs=tinysrgb&w=800";
                         }
 
                         discount.setImageUrl(finalImgUrl);
@@ -79,6 +79,7 @@ public class ScraperService {
         }
     }
 
+    // 🛡️ 防重複檢查輔助方法
     private boolean isTitleExists(String title) {
         List<Discount> allDiscounts = discountRepository.findAll();
         for (Discount d : allDiscounts) {
@@ -89,11 +90,12 @@ public class ScraperService {
         return false;
     }
 
+    // 📸 備用方案：轉用無防盜連嘅真實超市高清圖片 (Pexels)
     private void saveFallbackWellcomeOffers() {
         saveIfNotExist(
             "🛒 惠康超級市場 Wellcome - 網店新客獨家 85折",
             "優惠期至2026年9月30日。新客首單滿$360即享85折及免運費優惠！",
-            "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Wellcome_supermarket_in_Hong_Kong.jpg/800px-Wellcome_supermarket_in_Hong_Kong.jpg",
+            "https://images.pexels.com/photos/264636/pexels-photo-264636.jpeg?auto=compress&cs=tinysrgb&w=800",
             "即日起至 9/30",
             "supermarket"
         );
@@ -101,7 +103,7 @@ public class ScraperService {
         saveIfNotExist(
             "🛒 惠康超級市場 Wellcome - 9月週末狂賞低至半價",
             "精選零食、飲品及新鮮蔬果新人價低至半價，萬勿錯過！",
-            "https://upload.wikimedia.org/wikipedia/zh/thumb/4/4e/Wellcome_Supermarket_logo.svg/800px-Wellcome_Supermarket_logo.svg.png",
+            "https://images.pexels.com/photos/1367243/pexels-photo-1367243.jpeg?auto=compress&cs=tinysrgb&w=800",
             "9月限定",
             "supermarket"
         );
