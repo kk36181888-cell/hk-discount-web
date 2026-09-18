@@ -1,65 +1,194 @@
 <!DOCTYPE html>
-<html lang="zh-HK" xmlns:th="http://www.thymeleaf.org">
+<html lang="zh-HK">
 <head>
     <meta charset="UTF-8">
-    <title>DayBuy - 優惠大放送</title>
-    <!-- 引入 Bootstrap 5 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DayBuy 抵Buy - 全港著數導航</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { 
+            background-color: #ffffff; 
+            color: #333333; 
+            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; 
+        }
+        
+        .top-header { background-color: #FFDE00; padding: 15px 0; border-bottom: 1px solid #e0c200; }
+        .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
+        .brand-logo i { color: #000; }
+        
+        .search-bar { background-color: #fff; border-radius: 6px; border: 2px solid #000; display: flex; align-items: center; padding: 2px 15px; }
+        .search-bar input { border: none; outline: none; width: 100%; padding: 10px; color: #333; font-size: 1rem; }
+        .search-bar i { color: #555; font-size: 1.2rem; }
 
-    <!-- 頂部導航列 -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="/">🛒 DayBuy</a>
-            <div class="navbar-nav flex-row gap-3">
-                <a class="nav-link" href="/supermarket">超市情報</a>
-                <a class="nav-link" href="/dining">飲食優惠</a>
-                <a class="nav-link" href="/warehouse">倉儲特賣</a>
-                <a class="nav-link" href="/others">其他</a>
-                <!-- 捷徑：去管理員後台 -->
-                <a class="nav-link text-warning fw-bold ms-3" href="/admin">⚙️ 後台管理</a>
+        .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
+        .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
+        .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
+
+        /* 圖片分類卡片設計 */
+        .categories-section { margin-bottom: 40px; }
+        .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .category-header h4 { font-weight: bold; margin: 0; color: #000; }
+        .category-header a { color: #666; text-decoration: none; font-size: 0.95rem; }
+        .category-header a:hover { color: #000; }
+        
+        .category-card {
+            height: 280px;
+            border-radius: 12px;
+            position: relative;
+            background-size: cover;
+            background-position: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .category-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 50%;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        }
+        .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
+        
+        .category-title {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+            z-index: 2;
+            margin: 0;
+        }
+        .category-arrow {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            color: black;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
+        
+        /* 惠康 Banner 樣式 */
+        .wellcome-banner-card {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+            background: #fff;
+            margin-bottom: 25px;
+        }
+        .wellcome-banner-card:hover {
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="container d-flex flex-wrap align-items-center justify-content-between">
+            <div class="col-md-3">
+                <a href="/" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
             </div>
+            <div class="col-md-6">
+                <div class="search-bar">
+                    <input type="text" placeholder="搜尋例如：可口可樂、百佳、壽司郎...">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </header>
+
+    <nav class="sub-nav text-center">
+        <div class="container">
+            <a href="/" class="active"><i class="fa-solid fa-house me-2"></i>首頁</a>
+            <a href="/supermarket"><i class="fa-solid fa-fire me-2"></i>超市著數</a>
+            <a href="#"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
         </div>
     </nav>
 
-    <!-- 主要內容區 -->
-    <div class="container">
-        <h2 class="mb-4 text-center fw-bold text-primary">🔥 最新著數優惠</h2>
-        
-        <div class="row row-cols-1 row-cols-md-3 g-4">
-            
-            <!-- Thymeleaf 迴圈：由 Database 抽出所有優惠並顯示成卡片 -->
-            <div class="col" th:each="discount : ${discounts}">
-                <div class="card h-100 shadow-sm border-0">
-                    <!-- 優惠圖片 -->
-                    <img th:src="${discount.imageUrl}" class="card-img-top" alt="優惠圖片" style="height: 200px; object-fit: cover;">
-                    
-                    <div class="card-body d-flex flex-column">
-                        <!-- 標題 -->
-                        <h5 class="card-title fw-bold" th:text="${discount.title}">優惠標題</h5>
-                        <!-- 期限 -->
-                        <p class="text-danger fw-bold mb-2">
-                            🕒 優惠期: <span th:text="${discount.promoPeriod}"></span>
-                        </p>
-                        <!-- 內容 -->
-                        <p class="card-text text-muted flex-grow-1" th:text="${discount.description}">優惠詳細內容...</p>
-                        
-                        <!-- 🗑️ 刪除按鈕 (帶有防錯彈窗確認機制) -->
-                        <form th:action="@{/admin/delete/{id}(id=${discount.id})}" method="post" onsubmit="return confirm('確定要刪除呢個優惠嗎？');" class="mt-3">
-                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">🗑️ 刪除優惠</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-
+    <!-- 分類卡片區 -->
+    <div class="container categories-section">
+        <div class="category-header">
+            <h4>熱門分類</h4>
+            <a href="#">查看全部 <i class="fa-solid fa-arrow-right ms-1"></i></a>
         </div>
-        
-        <!-- 如果 Database 係空嘅，會顯示呢句提示 -->
-        <div th:if="${#lists.isEmpty(discounts)}" class="text-center mt-5 text-muted">
-            <h4>暫時未有優惠，快啲去 <a href="/admin" class="text-decoration-none">後台管理</a> 加啲啦！</h4>
+        <div class="row g-4">
+            <!-- 分類 1: 超市情報 -->
+            <div class="col-md-3">
+                <a href="/supermarket" class="text-decoration-none">
+                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=600&auto=format&fit=crop');">
+                        <p class="category-title">超市情報</p>
+                        <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                    </div>
+                </a>
+            </div>
+            <!-- 分類 2: 飲食優惠情報 -->
+            <div class="col-md-3">
+                <a href="/dining" class="text-decoration-none">
+                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop');">
+                        <p class="category-title">飲食優惠情報</p>
+                        <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                    </div>
+                </a>
+            </div>
+            <!-- 分類 3: 開倉大減價 -->
+            <div class="col-md-3">
+                <a href="/warehouse" class="text-decoration-none">
+                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop');">
+                        <p class="category-title">開倉大減價</p>
+                        <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                    </div>
+                </a>
+            </div>
+            <!-- 分類 4: 其他著數 -->
+            <div class="col-md-3">
+                <a href="/others" class="text-decoration-none">
+                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?q=80&w=600&auto=format&fit=crop');">
+                        <p class="category-title">其他著數</p>
+                        <div class="category-arrow"><i class="fa-solid fa-arrow-up-right"></i></div>
+                    </div>
+                </a>
+            </div>
         </div>
     </div>
 
+    <!-- 今日精選 (惠康專屬優惠) -->
+    <div class="container mb-5">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+            <h4 class="section-title mb-0">今日精選 - 惠康 (Wellcome) 超市獨家優惠</h4>
+            <span class="badge bg-danger fs-6 px-3 py-2">🔥 9月限定</span>
+        </div>
+
+        <div class="wellcome-banner-card">
+            <div class="p-2 bg-danger text-white fw-bold px-3"><i class="fa-solid fa-store me-2"></i>惠康超級市場 Wellcome - 新客優惠 85折</div>
+            <img src="https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=1200&auto=format&fit=crop" class="w-100" alt="惠康新客優惠 85折" style="max-height: 380px; object-fit: cover;">
+            <div class="p-3 bg-light text-muted small">
+                優惠期至2026年9月30日。*新客優惠只限未曾於 Market Place / 惠康 / yuu 網店購物之新用戶 ^最高可享$100優惠。
+            </div>
+        </div>
+
+        <div class="wellcome-banner-card">
+            <div class="p-2 bg-danger text-white fw-bold px-3"><i class="fa-solid fa-store me-2"></i>惠康超級市場 Wellcome - 新客 3 重賞</div>
+            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop" class="w-100" alt="惠康新客3重賞" style="max-height: 380px; object-fit: cover;">
+            <div class="p-3 bg-light text-muted small">
+                包羅萬有：指定產品新人價低至半價、首單滿$360*享85折及免運費三重賞！
+            </div>
+        </div>
+    </div>
+<!-- 刪除按鈕 (帶有防錯彈窗確認) -->
+
 </body>
-</html>>
+</html>
