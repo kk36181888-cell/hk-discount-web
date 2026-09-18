@@ -41,7 +41,6 @@ public class PageController {
         return "redirect:/admin"; 
     }
 
-    // --- 分類導航 (載入特定分類並共用 index 頁面) ---
     @GetMapping("/supermarket")
     public String supermarket(Model model) { 
         model.addAttribute("discounts", discountRepository.findByCategory("supermarket"));
@@ -64,5 +63,11 @@ public class PageController {
     public String others(Model model) { 
         model.addAttribute("discounts", discountRepository.findByCategory("others"));
         return "index"; 
+    }
+
+    // 新增：常見問題頁面導航
+    @GetMapping("/faq")
+    public String faq() { 
+        return "faq"; 
     }
 }

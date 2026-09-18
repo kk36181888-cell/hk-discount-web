@@ -17,6 +17,11 @@
         .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
         .brand-logo i { color: #000; }
         
+        /* 搜尋列 CSS */
+        .search-bar { background-color: #fff; border-radius: 6px; border: 2px solid #000; display: flex; align-items: center; padding: 2px 15px; }
+        .search-bar input { border: none; outline: none; width: 100%; padding: 10px; color: #333; font-size: 1rem; }
+        .search-bar i { color: #555; font-size: 1.2rem; }
+
         .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
         .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
         .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
@@ -91,9 +96,20 @@
 <body>
 
     <header class="top-header">
-        <div class="container d-flex flex-wrap align-items-center justify-content-start">
-            <div>
+        <div class="container d-flex flex-wrap align-items-center justify-content-between">
+            <div class="col-md-3">
                 <a href="/" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
+            </div>
+            <!-- 加返搜尋列 -->
+            <div class="col-md-6">
+                <div class="search-bar">
+                    <input type="text" placeholder="搜尋例如：可口可樂、百佳、壽司郎...">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+            </div>
+            <!-- 隱蔽嘅後台入口 -->
+            <div class="col-md-3 text-end">
+                <a href="/admin" class="text-dark text-decoration-none fw-bold"><i class="fa-solid fa-gear me-1"></i>後台</a>
             </div>
         </div>
     </header>
@@ -102,7 +118,8 @@
         <div class="container">
             <a href="/" class="active"><i class="fa-solid fa-house me-2"></i>首頁</a>
             <a href="/supermarket"><i class="fa-solid fa-fire me-2"></i>超市著數</a>
-            <a href="#"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
+            <!-- 已經改去 /faq -->
+            <a href="/faq"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
         </div>
     </nav>
 

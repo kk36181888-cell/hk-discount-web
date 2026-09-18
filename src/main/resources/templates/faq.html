@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="zh-HK" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DayBuy 抵Buy - 常見問題</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body { 
+            background-color: #ffffff; 
+            color: #333333; 
+            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; 
+        }
+        .top-header { background-color: #FFDE00; padding: 15px 0; border-bottom: 1px solid #e0c200; }
+        .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
+        .brand-logo i { color: #000; }
+        .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
+        .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
+        .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
+        .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
+        
+        /* FAQ 專用樣式 */
+        .accordion-button:not(.collapsed) {
+            background-color: #fff9cc;
+            color: #000;
+            font-weight: bold;
+            box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
+        }
+        .accordion-button:focus { box-shadow: none; border-color: rgba(0,0,0,.125); }
+    </style>
+</head>
+<body>
+
+    <!-- 頂部 Header -->
+    <header class="top-header">
+        <div class="container d-flex flex-wrap align-items-center justify-content-start">
+            <div>
+                <a href="/" class="brand-logo"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- 導航列 (將「常見問題」設為 active) -->
+    <nav class="sub-nav text-center">
+        <div class="container">
+            <a href="/"><i class="fa-solid fa-house me-2"></i>首頁</a>
+            <a href="/supermarket"><i class="fa-solid fa-fire me-2"></i>超市著數</a>
+            <a href="/faq" class="active"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
+        </div>
+    </nav>
+
+    <!-- FAQ 內容區 -->
+    <div class="container mb-5" style="max-width: 800px;">
+        <h4 class="section-title mb-4">常見問題解答 (FAQ)</h4>
+        
+        <div class="accordion shadow-sm" id="faqAccordion">
+            
+            <!-- 問題 1 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                        Q1: DayBuy 抵Buy 係一個咩網站？
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse show" aria-labelledby="headingOne" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        <strong>DayBuy 抵Buy</strong> 係一個專為香港人而設嘅全港著數導航平台。我哋會每日為大家搜羅最新嘅超市情報、飲食優惠同埋開倉大減價資訊，幫大家慳到盡！
+                    </div>
+                </div>
+            </div>
+
+            <!-- 問題 2 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                        Q2: 網站上面嘅優惠資訊係點樣收集返嚟㗎？
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        我哋有專門嘅管理員每日人手更新，未來亦會引入自動化系統，直接由各大商戶網站（例如惠康、百佳、各大餐廳）收集最準確、最新鮮嘅優惠情報。
+                    </div>
+                </div>
+            </div>
+
+            <!-- 問題 3 -->
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                        Q3: 我可以點樣聯絡 DayBuy 團隊或者報料提供優惠？
+                    </button>
+                </h2>
+                <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#faqAccordion">
+                    <div class="accordion-body">
+                        目前聯絡功能同埋用戶報料系統仲喺開發階段，敬請期待！如果有任何緊急事項，暫時只能夠用心電感應同我哋嘅開發人員聯絡 😆。
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>
