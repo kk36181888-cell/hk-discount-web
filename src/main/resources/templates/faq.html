@@ -21,7 +21,6 @@
         .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
         .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
         
-        /* FAQ 專用樣式 */
         .accordion-button:not(.collapsed) {
             background-color: #fff9cc;
             color: #000;
@@ -33,7 +32,6 @@
 </head>
 <body>
 
-    <!-- 頂部 Header -->
     <header class="top-header">
         <div class="container d-flex flex-wrap align-items-center justify-content-start">
             <div>
@@ -42,7 +40,6 @@
         </div>
     </header>
 
-    <!-- 導航列 (將「常見問題」設為 active) -->
     <nav class="sub-nav text-center">
         <div class="container">
             <a href="/"><i class="fa-solid fa-house me-2"></i>首頁</a>
@@ -51,16 +48,15 @@
         </div>
     </nav>
 
-    <!-- FAQ 內容區 -->
     <div class="container mb-5" style="max-width: 800px;">
         <h4 class="section-title mb-4">常見問題解答 (FAQ)</h4>
         
         <div class="accordion shadow-sm" id="faqAccordion">
             
-            <!-- 問題 1 -->
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingOne">
-                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                    <!-- 呢度已經修正咗，得返一個 data-bs-toggle -->
+                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                         Q1: DayBuy 抵Buy 係一個咩網站？
                     </button>
                 </h2>
@@ -71,7 +67,6 @@
                 </div>
             </div>
 
-            <!-- 問題 2 -->
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingTwo">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
@@ -85,7 +80,6 @@
                 </div>
             </div>
 
-            <!-- 問題 3 -->
             <div class="accordion-item">
                 <h2 class="accordion-header" id="headingThree">
                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
