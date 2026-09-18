@@ -7,24 +7,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { 
-            background-color: #f8f9fa; 
-            color: #333333; 
-            font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; 
-        }
+        body { background-color: #f8f9fa; color: #333333; font-family: Arial, sans-serif; }
         
-        /* 頂部與導航 */
         .top-header { background-color: #FFDE00; padding: 15px 0; border-bottom: 1px solid #e0c200; }
         .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
         .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
         .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
         .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
 
-        /* 分類卡片 */
         .categories-section { margin-bottom: 40px; }
         .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .category-header h4 { font-weight: bold; margin: 0; color: #000; }
-        .category-header a { color: #666; text-decoration: none; font-size: 0.95rem; }
         
         .category-card {
             height: 180px;
@@ -37,64 +30,28 @@
         }
         .category-card::after {
             content: '';
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-            height: 60%;
+            position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
             background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
         }
         .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
         .category-title { position: absolute; bottom: 15px; left: 15px; color: white; font-weight: bold; font-size: 1.1rem; z-index: 2; margin: 0; }
 
-        /* 🌟 UX 升級：優惠卡片 (使用 Flexbox 實現完美對齊) */
         .wellcome-banner-card {
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.06);
+            border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.06);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            background: #fff;
-            border: 2px solid #ebebeb;
-            display: flex;
-            flex-direction: column;
-            height: 100%; /* 確保同一行嘅卡片高度一致 */
+            background: #fff; border: 2px solid #ebebeb; display: flex; flex-direction: column; height: 100%;
         }
-        .wellcome-banner-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 30px rgba(255, 222, 0, 0.4);
-            border-color: #FFDE00;
-        }
+        .wellcome-banner-card:hover { transform: translateY(-8px); box-shadow: 0 12px 30px rgba(255, 222, 0, 0.4); border-color: #FFDE00; }
         
-        /* 🌟 UX 升級：固定圖片畫框 (防止高低不平) */
         .card-img-wrapper {
-            height: 220px;
-            background-color: #f1f1f1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid #f1f1f1;
+            height: 220px; background-color: #f1f1f1; display: flex; align-items: center; justify-content: center; border-bottom: 1px solid #f1f1f1;
         }
-        .card-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain; /* 保留全圖唔會被裁切 */
-        }
+        .card-img-wrapper img { width: 100%; height: 100%; object-fit: contain; }
 
-        /* 🌟 UX 升級：文字內容區域 (自動推按鈕到底部) */
-        .card-content {
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1; /* 佔用所有剩餘空間，推按鈕落去 */
-        }
-
+        .card-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
         .carved-title-bar {
-            background-color: #FFDE00;
-            color: #000000;
-            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.7);
-            border-bottom: 2px solid #b39b00;
-            font-size: 1.2rem;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis; /* 標題太長會變... */
+            background-color: #FFDE00; color: #000000; text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.7);
+            border-bottom: 2px solid #b39b00; font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
     </style>
 </head>
@@ -114,7 +71,6 @@
         </div>
     </nav>
 
-    <!-- 頂部四格小分類 -->
     <div class="container categories-section">
         <div class="category-header">
             <h4>熱門分類</h4>
@@ -154,45 +110,63 @@
     <div class="container mb-5">
         <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">🔥 最新著數優惠</h4>
 
-        <!-- 🌟 UX 升級：引入 Grid 系統，電腦版 3 格，平板 2 格，手機 1 格 -->
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            
-            <div class="col" th:each="discount : ${discounts}">
+            <!-- 🌟 升級：由 discountPage 裡面抽出資料 -->
+            <div class="col" th:each="discount : ${discountPage.content}">
                 <a th:href="@{/discount/{id}(id=${discount.id})}" target="_blank" class="text-decoration-none text-dark d-block h-100">
                     <div class="wellcome-banner-card">
-                        
-                        <!-- 標題 -->
                         <div class="p-3 fw-bold px-3 carved-title-bar">
                             <i class="fa-solid fa-tag me-2"></i><span th:text="${discount.title}">優惠標題</span>
                         </div>
-                        
-                        <!-- 統一畫框 -->
                         <div class="card-img-wrapper">
                             <img th:src="${discount.imageUrl}" alt="優惠圖片">
                         </div>
-                        
-                        <!-- 內容與置底按鈕 -->
                         <div class="card-content bg-white">
                             <div class="text-danger fw-bold fs-6 mb-2">
                                 <i class="fa-regular fa-clock me-1"></i> 優惠期: <span th:text="${discount.promoPeriod}"></span>
                             </div>
-                            
-                            <!-- 只顯示兩行，多出嚟變點點點 -->
                             <div class="text-muted mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.95rem;" th:utext="${discount.description}"></div>
                             
-                            <!-- mt-auto 魔法：自動將按鈕推到最底 -->
                             <button class="btn btn-warning w-100 fw-bold mt-auto" style="box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                 👉 查看圖文詳情
                             </button>
                         </div>
-
                     </div>
                 </a>
             </div>
-
-        </div> <!-- Grid Row End -->
+        </div>
         
-        <div th:if="${#lists.isEmpty(discounts)}" class="text-center py-5 text-muted">
+        <!-- 🌟 升級：全新精美分頁按鈕 (Pagination) -->
+        <nav th:if="${discountPage.totalPages > 1}" aria-label="Page navigation" class="mt-5">
+            <ul class="pagination justify-content-center pagination-lg shadow-sm" style="border-radius: 8px;">
+                
+                <!-- 上一頁 -->
+                <li class="page-item" th:classappend="${discountPage.first} ? 'disabled'">
+                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number - 1})}" tabindex="-1">
+                        <i class="fa-solid fa-angle-left me-2"></i>上一頁
+                    </a>
+                </li>
+                
+                <!-- 數字頁碼 -->
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, discountPage.totalPages - 1)}" 
+                    th:classappend="${i == discountPage.number} ? 'active'">
+                    <a class="page-link fw-bold" 
+                       th:style="${i == discountPage.number} ? 'background-color: #FFDE00; border-color: #FFDE00; color: #000;' : 'color: #333;'" 
+                       th:href="@{${currentUrl}(page=${i})}" th:text="${i + 1}">1</a>
+                </li>
+                
+                <!-- 下一頁 -->
+                <li class="page-item" th:classappend="${discountPage.last} ? 'disabled'">
+                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number + 1})}">
+                        下一頁<i class="fa-solid fa-angle-right ms-2"></i>
+                    </a>
+                </li>
+                
+            </ul>
+        </nav>
+
+        <!-- 如果完全冇資料先顯示 -->
+        <div th:if="${discountPage.empty}" class="text-center py-5 text-muted">
             <h4><i class="fa-solid fa-box-open me-2"></i>目前未有最新優惠</h4>
         </div>
     </div>
