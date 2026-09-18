@@ -17,36 +17,35 @@ public class ScraperService {
 
     public void scrapeDiscounts() {
         try {
-            // 1. 連線去測試用嘅靜態網站
-            String url = "http://books.toscrape.com/";
+            // 換成你截圖入面嗰個優惠資訊網頁真實 URL
+            String url = "https://example-discount-blog.com/offers"; 
             Document doc = Jsoup.connect(url).get();
 
-            // 2. 鎖定網頁入面裝住商品嘅「卡片」 (佢哋嘅 HTML class 係 .product_pod)
-            Elements items = doc.select(".product_pod");
+            // 假設網頁入面嘅優惠項目係裝喺 <li> 標籤入面
+            Elements listItems = doc.select("ul li");
 
-            // 3. 為咗唔好一次過塞爆 Database，我哋淨係抽頭 3 個
             int count = 0;
-            for (Element item : items) {
-                if (count >= 3) break;
+            for (Element item : listItems) {
+                String fullText = item.text(); // 例如：「百佳超市：全單88折 (19/9)」
 
-                // 4. 利用 CSS Selector 抽走標題、圖片、價錢
-                String title = item.select("h3 a").attr("title");
-                // 處理相對路徑圖片網址
-                String imageUrl = "http://books.toscrape.com/" + item.select(".image_container img").attr("src");
-                String price = item.select(".price_color").text();
+                // 過濾一啲唔關事嘅字眼
+                if (fullText.contains("超市") || fullText.contains("折") || fullText.contains("優惠")) {
+                    
+                    Discount discount = new Discount();
+                    discount.setTitle("🤖 [自動抓取] " + fullText);
+                    discount.setDescription("由自動化爬蟲從香港著數網即時同步嘅最新情報。");
+                    // 畀個預設靚靚超市圖片
+                    discount.setImageUrl("https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=600&auto=format&fit=crop");
+                    discount.setPromoPeriod("限時優惠");
+                    discount.setCategory("supermarket"); // 自動歸類去超市情報
 
-                // 5. 建立新 Discount 物件並塞入 Database
-                Discount discount = new Discount();
-                discount.setTitle("🤖 [自動抓取] " + title);
-                discount.setDescription("自動化系統搵到嘅價錢: " + price);
-                discount.setImageUrl(imageUrl);
-                discount.setPromoPeriod("即日起");
-                discount.setCategory("others"); // 預設擺落「其他」分類
+                    discountRepository.save(discount);
+                    count++;
+                }
 
-                discountRepository.save(discount);
-                count++;
+                if (count >= 5) break; // 每次最多抓 5 個
             }
-            System.out.println("✅ 爬蟲執行完畢！成功抓取 " + count + " 筆資料。");
+            System.out.println("✅ 成功從靜態清單抓取 " + count + " 筆優惠！");
         } catch (Exception e) {
             System.out.println("❌ 爬蟲發生錯誤: " + e.getMessage());
         }
