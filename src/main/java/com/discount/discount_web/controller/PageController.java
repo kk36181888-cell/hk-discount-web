@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
@@ -22,7 +23,7 @@ public class PageController {
         return "index"; 
     }
 
-    // --- 2. 管理員後台 (顯示新增優惠表單) - 解決 404 嘅關鍵！ ---
+    // --- 2. 管理員後台 (顯示新增優惠表單) ---
     @GetMapping("/admin")
     public String adminPage(Model model) {
         model.addAttribute("discount", new Discount());
@@ -33,10 +34,18 @@ public class PageController {
     @PostMapping("/admin/add")
     public String addDiscount(@ModelAttribute Discount discount) {
         discountRepository.save(discount);
-        return "redirect:/"; // 儲存完自動彈返去首頁
+        return "redirect:/"; 
     }
 
-    // --- 4. 分類導航頁面 ---
+    // --- 4. 管理員後台 (刪除指定 ID 嘅優惠) ---
+    @PostMapping("/admin/delete/{id}")
+    public String deleteDiscount(@PathVariable Long id) {
+        // 叫 Database 根據 ID 搵張卡出嚟，然後 Delete 佢
+        discountRepository.deleteById(id);
+        return "redirect:/"; // 刪完自動重新載入首頁
+    }
+
+    // --- 5. 分類導航頁面 ---
     @GetMapping("/supermarket")
     public String supermarket() { return "supermarket"; }
 
