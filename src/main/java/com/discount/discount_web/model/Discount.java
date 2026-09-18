@@ -18,14 +18,9 @@ public class Discount {
     @Column(length = 1000)
     private String imageUrl;
 
-    // 🆕 新增：用嚟裝超連結嘅欄位
-    @Column(length = 1000)
-    private String linkUrl; 
-
     private String promoPeriod;
     private String category;
 
-    // --- 以下係 Getters 同 Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -37,9 +32,6 @@ public class Discount {
 
     public String getImageUrl() { return imageUrl; }
     public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
-
-    public String getLinkUrl() { return linkUrl; }
-    public void setLinkUrl(String linkUrl) { this.linkUrl = linkUrl; }
 
     public String getPromoPeriod() { return promoPeriod; }
     public void setPromoPeriod(String promoPeriod) { this.promoPeriod = promoPeriod; }

@@ -40,22 +40,18 @@
                         </div>
                     </div>
                     <div class="row mb-3">
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">圖片網址</label>
                             <input type="url" th:field="*{imageUrl}" class="form-control" required>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold text-primary">🔗 點擊跳轉超連結 (新功能)</label>
-                            <input type="url" th:field="*{linkUrl}" class="form-control" placeholder="例如: https://..." required>
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label fw-bold">優惠期限</label>
                             <input type="text" th:field="*{promoPeriod}" class="form-control" required>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold">詳細內容</label>
-                        <textarea th:field="*{description}" class="form-control" rows="2"></textarea>
+                        <label class="form-label fw-bold">詳細內容 (支援 HTML 排版及加圖)</label>
+                        <textarea th:field="*{description}" class="form-control" rows="4"></textarea>
                     </div>
                     <div class="text-end">
                         <button type="submit" class="btn btn-success fw-bold">發佈優惠</button>
