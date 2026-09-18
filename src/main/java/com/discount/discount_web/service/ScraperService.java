@@ -37,15 +37,27 @@ public class ScraperService {
                         discount.setTitle(title);
                         discount.setDescription("由自動化爬蟲即時從香港著數平台同步之惠康超級市場最新情報。");
                         
-                        // 📸 升級：自動尋找網頁入面嘅真實圖片
+                        // 📸 終極圖片抓取邏輯 (對付 Lazy Loading)
                         Element imgTag = item.selectFirst("img");
-                        if (imgTag != null && !imgTag.absUrl("src").isEmpty()) {
-                            discount.setImageUrl(imgTag.absUrl("src")); // 抓取真圖網址
-                        } else {
-                            // 如果冇圖，就用真實嘅惠康 Logo 頂上
-                            discount.setImageUrl("https://upload.wikimedia.org/wikipedia/zh/thumb/4/4e/Wellcome_Supermarket_logo.svg/800px-Wellcome_Supermarket_logo.svg.png");
+                        String finalImgUrl = "";
+                        
+                        if (imgTag != null) {
+                            // 優先搵 data-src 或 data-original (真正圖片嘅藏身之處)
+                            if (imgTag.hasAttr("data-src")) {
+                                finalImgUrl = imgTag.absUrl("data-src");
+                            } else if (imgTag.hasAttr("data-original")) {
+                                finalImgUrl = imgTag.absUrl("data-original");
+                            } else {
+                                finalImgUrl = imgTag.absUrl("src");
+                            }
                         }
 
+                        // 🛡️ 防禦機制：如果抓到嘅係假圖(data:image) 或者抓唔到，強制使用惠康真實相片
+                        if (finalImgUrl.isEmpty() || finalImgUrl.startsWith("data:image")) {
+                            finalImgUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Wellcome_supermarket_in_Hong_Kong.jpg/800px-Wellcome_supermarket_in_Hong_Kong.jpg";
+                        }
+
+                        discount.setImageUrl(finalImgUrl);
                         discount.setPromoPeriod("9月限定優惠");
                         discount.setCategory("supermarket");
 
@@ -77,7 +89,6 @@ public class ScraperService {
         return false;
     }
 
-    // 📸 備用方案亦全面換晒做真實嘅惠康店舖相 / Logo
     private void saveFallbackWellcomeOffers() {
         saveIfNotExist(
             "🛒 惠康超級市場 Wellcome - 網店新客獨家 85折",
