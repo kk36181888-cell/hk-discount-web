@@ -2,15 +2,18 @@ package com.discount.discount_web.controller;
 
 import com.discount.discount_web.model.Discount;
 import com.discount.discount_web.repository.DiscountRepository;
-// 新增引入 ScraperService
 import com.discount.discount_web.service.ScraperService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.server.ResponseStatusException;
 
 @Controller
 public class PageController {
@@ -18,9 +21,11 @@ public class PageController {
     @Autowired
     private DiscountRepository discountRepository;
 
-    // 新增：注入爬蟲服務
     @Autowired
     private ScraperService scraperService;
+
+    // 🔐 設置你專屬嘅極長私密鑰匙 (你可以自己改埋入面嘅字)
+    private static final String SECRET_KEY = "DayBuy_Super_Secret_Key_2026_xyz";
 
     @GetMapping("/")
     public String index(Model model) {
@@ -28,31 +33,48 @@ public class PageController {
         return "index"; 
     }
 
+    // --- 嚴密保護嘅後台路由 ---
+
     @GetMapping("/admin")
-    public String adminPage(Model model) {
+    public String adminPage(Model model, HttpSession session, @RequestParam(required = false) String key) {
+        
+        // 1. 如果網址帶有正確嘅私密 key，自動授予管理員權限
+        if (SECRET_KEY.equals(key)) {
+            session.setAttribute("isAdmin", true);
+        }
+
+        // 2. 如果未獲授權，直接回傳 404 Not Found (扮作完全冇呢個網頁，外人連登入框都見唔到)
+        if (session.getAttribute("isAdmin") == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
+        }
+
         model.addAttribute("discount", new Discount());
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
         return "admin"; 
     }
 
     @PostMapping("/admin/add")
-    public String addDiscount(@ModelAttribute Discount discount) {
+    public String addDiscount(@ModelAttribute Discount discount, HttpSession session) {
+        if (session.getAttribute("isAdmin") == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         discountRepository.save(discount);
         return "redirect:/admin"; 
     }
 
     @PostMapping("/admin/delete/{id}")
-    public String deleteDiscount(@PathVariable Long id) {
+    public String deleteDiscount(@PathVariable Long id, HttpSession session) {
+        if (session.getAttribute("isAdmin") == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         discountRepository.deleteById(id);
         return "redirect:/admin"; 
     }
 
-    // 新增：觸發爬蟲嘅按鈕對接點
     @PostMapping("/admin/scrape")
-    public String runScraper() {
+    public String runScraper(HttpSession session) {
+        if (session.getAttribute("isAdmin") == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         scraperService.scrapeDiscounts();
-        return "redirect:/admin"; // 爬完自動彈返去後台，等你可以即刻見到結果
+        return "redirect:/admin"; 
     }
+
+    // --- 前台公開路由 ---
 
     @GetMapping("/supermarket")
     public String supermarket(Model model) { 
