@@ -24,7 +24,7 @@ public class PageController {
     @Autowired
     private ScraperService scraperService;
 
-    // 🔐 設置你專屬嘅極長私密鑰匙 (你可以自己改埋入面嘅字)
+    // 🔐 專屬私密鑰匙
     private static final String SECRET_KEY = "DayBuy_Super_Secret_Key_2026_xyz";
 
     @GetMapping("/")
@@ -33,17 +33,18 @@ public class PageController {
         return "index"; 
     }
 
-    // --- 嚴密保護嘅後台路由 ---
+    // ==========================================
+    // 🛡️ 嚴密保護嘅後台路由
+    // ==========================================
 
     @GetMapping("/admin")
     public String adminPage(Model model, HttpSession session, @RequestParam(required = false) String key) {
-        
-        // 1. 如果網址帶有正確嘅私密 key，自動授予管理員權限
+        // 1. 如果網址帶有正確嘅私密 key，自動授予管理員權限 (Session)
         if (SECRET_KEY.equals(key)) {
             session.setAttribute("isAdmin", true);
         }
 
-        // 2. 如果未獲授權，直接回傳 404 Not Found (扮作完全冇呢個網頁，外人連登入框都見唔到)
+        // 2. 如果未獲授權，直接回傳 404 Not Found (隱形防護)
         if (session.getAttribute("isAdmin") == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
         }
@@ -60,10 +61,19 @@ public class PageController {
         return "redirect:/admin"; 
     }
 
+    // 呢段就係你頭先可能唔小心洗咗嘅「單獨刪除」功能！
     @PostMapping("/admin/delete/{id}")
     public String deleteDiscount(@PathVariable Long id, HttpSession session) {
         if (session.getAttribute("isAdmin") == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         discountRepository.deleteById(id);
+        return "redirect:/admin"; 
+    }
+
+    // 呢段係最新加嘅「一鍵清空」大絕招
+    @PostMapping("/admin/delete-all")
+    public String deleteAllDiscounts(HttpSession session) {
+        if (session.getAttribute("isAdmin") == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        discountRepository.deleteAll();
         return "redirect:/admin"; 
     }
 
@@ -74,7 +84,9 @@ public class PageController {
         return "redirect:/admin"; 
     }
 
-    // --- 前台公開路由 ---
+    // ==========================================
+    // 🌐 前台公開路由
+    // ==========================================
 
     @GetMapping("/supermarket")
     public String supermarket(Model model) { 
