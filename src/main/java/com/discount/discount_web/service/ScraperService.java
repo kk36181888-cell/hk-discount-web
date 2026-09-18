@@ -32,12 +32,20 @@ public class ScraperService {
                 if (text.contains("惠康") || text.contains("Wellcome")) {
                     String title = "🛒 [惠康自動抓取] " + (text.length() > 30 ? text.substring(0, 30) + "..." : text);
                     
-                    // 🛡️ 檢查資料庫係咪已經有呢個標題，冇先至儲存（防止重複）
                     if (!isTitleExists(title)) {
                         Discount discount = new Discount();
                         discount.setTitle(title);
                         discount.setDescription("由自動化爬蟲即時從香港著數平台同步之惠康超級市場最新情報。");
-                        discount.setImageUrl("https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=1200&auto=format&fit=crop");
+                        
+                        // 📸 升級：自動尋找網頁入面嘅真實圖片
+                        Element imgTag = item.selectFirst("img");
+                        if (imgTag != null && !imgTag.absUrl("src").isEmpty()) {
+                            discount.setImageUrl(imgTag.absUrl("src")); // 抓取真圖網址
+                        } else {
+                            // 如果冇圖，就用真實嘅惠康 Logo 頂上
+                            discount.setImageUrl("https://upload.wikimedia.org/wikipedia/zh/thumb/4/4e/Wellcome_Supermarket_logo.svg/800px-Wellcome_Supermarket_logo.svg.png");
+                        }
+
                         discount.setPromoPeriod("9月限定優惠");
                         discount.setCategory("supermarket");
 
@@ -48,35 +56,33 @@ public class ScraperService {
                 }
             }
 
-            // 如果爬蟲抓唔到，行備用方案，同樣會做防重檢查
             if (count == 0) {
                 saveFallbackWellcomeOffers();
             }
 
-            System.out.println("✅ 惠康爬蟲同步完成（已自動過濾重複資料）！");
+            System.out.println("✅ 惠康真實圖片爬蟲同步完成！");
         } catch (Exception e) {
-            System.out.println("⚠️ 外部連線受阻，已自動啟動備用資料同步引擎。");
+            System.out.println("⚠️ 外部連線受阻，已自動啟動真圖備用資料同步引擎。");
             saveFallbackWellcomeOffers();
         }
     }
 
-    // 輔助方法：檢查資料庫是否已存在相同標題
     private boolean isTitleExists(String title) {
         List<Discount> allDiscounts = discountRepository.findAll();
         for (Discount d : allDiscounts) {
             if (d.getTitle().equals(title)) {
-                return true; // 已經存在
+                return true;
             }
         }
-        return false; // 唔存在
+        return false;
     }
 
-    // 備用方法：確保隨時都能成功入優惠，且帶防重檢查
+    // 📸 備用方案亦全面換晒做真實嘅惠康店舖相 / Logo
     private void saveFallbackWellcomeOffers() {
         saveIfNotExist(
             "🛒 惠康超級市場 Wellcome - 網店新客獨家 85折",
             "優惠期至2026年9月30日。新客首單滿$360即享85折及免運費優惠！",
-            "https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=1200&auto=format&fit=crop",
+            "https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Wellcome_supermarket_in_Hong_Kong.jpg/800px-Wellcome_supermarket_in_Hong_Kong.jpg",
             "即日起至 9/30",
             "supermarket"
         );
@@ -84,7 +90,7 @@ public class ScraperService {
         saveIfNotExist(
             "🛒 惠康超級市場 Wellcome - 9月週末狂賞低至半價",
             "精選零食、飲品及新鮮蔬果新人價低至半價，萬勿錯過！",
-            "https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop",
+            "https://upload.wikimedia.org/wikipedia/zh/thumb/4/4e/Wellcome_Supermarket_logo.svg/800px-Wellcome_Supermarket_logo.svg.png",
             "9月限定",
             "supermarket"
         );
