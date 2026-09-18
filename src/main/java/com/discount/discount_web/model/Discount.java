@@ -5,10 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.Data;
 
 @Entity
-@Data
 @Table(name = "discounts")
 public class Discount {
 
@@ -16,8 +14,25 @@ public class Discount {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String title;       // 優惠標題 (例如: "新客優惠 85折")
-    private String description; // 優惠描述
-    private String imageUrl;    // 圖片網址
-    private String promoPeriod; // 優惠期限 (例如: "1/9 - 30/9")
+    private String title;
+    private String description;
+    private String imageUrl;
+    private String promoPeriod;
+
+    // --- 以下係手動加入嘅 Getters 同 Setters，保證編譯 100% 成功 ---
+    
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
+
+    public String getPromoPeriod() { return promoPeriod; }
+    public void setPromoPeriod(String promoPeriod) { this.promoPeriod = promoPeriod; }
 }
