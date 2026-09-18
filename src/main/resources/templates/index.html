@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-HK" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -80,7 +80,7 @@
 
         .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
         
-        /* 惠康 Banner 樣式 */
+        /* 你原本嘅 Banner 樣式 */
         .wellcome-banner-card {
             border-radius: 16px;
             overflow: hidden;
@@ -107,7 +107,10 @@
                     <i class="fa-solid fa-magnifying-glass"></i>
                 </div>
             </div>
-            <div class="col-md-3"></div>
+            <!-- 加返個隱蔽少少嘅後台入口喺右上角 -->
+            <div class="col-md-3 text-end">
+                <a href="/admin" class="text-dark text-decoration-none fw-bold"><i class="fa-solid fa-gear me-1"></i>後台</a>
+            </div>
         </div>
     </header>
 
@@ -119,7 +122,7 @@
         </div>
     </nav>
 
-    <!-- 分類卡片區 -->
+    <!-- 分類卡片區 (保留你原本嘅設計) -->
     <div class="container categories-section">
         <div class="category-header">
             <h4>熱門分類</h4>
@@ -165,30 +168,32 @@
         </div>
     </div>
 
-    <!-- 今日精選 (惠康專屬優惠) -->
+    <!-- 最新著數優惠 (從資料庫載入) -->
     <div class="container mb-5">
         <div class="d-flex align-items-center justify-content-between mb-3">
-            <h4 class="section-title mb-0">今日精選 - 惠康 (Wellcome) 超市獨家優惠</h4>
-            <span class="badge bg-danger fs-6 px-3 py-2">🔥 9月限定</span>
+            <h4 class="section-title mb-0">🔥 最新著數優惠</h4>
         </div>
 
-        <div class="wellcome-banner-card">
-            <div class="p-2 bg-danger text-white fw-bold px-3"><i class="fa-solid fa-store me-2"></i>惠康超級市場 Wellcome - 新客優惠 85折</div>
-            <img src="https://images.unsplash.com/photo-1534723452862-4c874018d66d?q=80&w=1200&auto=format&fit=crop" class="w-100" alt="惠康新客優惠 85折" style="max-height: 380px; object-fit: cover;">
+        <!-- Thymeleaf 迴圈：由 Database 抽出所有優惠並顯示成你設計嘅卡片 -->
+        <div th:each="discount : ${discounts}" class="wellcome-banner-card">
+            <div class="p-2 bg-danger text-white fw-bold px-3">
+                <i class="fa-solid fa-fire me-2"></i><span th:text="${discount.title}">優惠標題</span>
+            </div>
+            <!-- 將 Database 嘅圖片 URL 綁定落 src -->
+            <img th:src="${discount.imageUrl}" class="w-100" alt="優惠圖片" style="max-height: 380px; object-fit: cover;">
             <div class="p-3 bg-light text-muted small">
-                優惠期至2026年9月30日。*新客優惠只限未曾於 Market Place / 惠康 / yuu 網店購物之新用戶 ^最高可享$100優惠。
+                <!-- 顯示優惠期同詳情 -->
+                <span class="text-danger fw-bold me-2">🕒 優惠期: <span th:text="${discount.promoPeriod}"></span></span><br>
+                <span th:text="${discount.description}">優惠詳細內容...</span>
             </div>
         </div>
 
-        <div class="wellcome-banner-card">
-            <div class="p-2 bg-danger text-white fw-bold px-3"><i class="fa-solid fa-store me-2"></i>惠康超級市場 Wellcome - 新客 3 重賞</div>
-            <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=1200&auto=format&fit=crop" class="w-100" alt="惠康新客3重賞" style="max-height: 380px; object-fit: cover;">
-            <div class="p-3 bg-light text-muted small">
-                包羅萬有：指定產品新人價低至半價、首單滿$360*享85折及免運費三重賞！
-            </div>
+        <!-- 如果 Database 係空嘅，會顯示呢句提示 -->
+        <div th:if="${#lists.isEmpty(discounts)}" class="text-center mt-5 text-muted">
+            <h4>暫時未有優惠，快啲去 <a href="/admin" class="text-decoration-none">後台管理</a> 加啲啦！</h4>
         </div>
+
     </div>
-<!-- 刪除按鈕 (帶有防錯彈窗確認) -->
 
 </body>
 </html>
