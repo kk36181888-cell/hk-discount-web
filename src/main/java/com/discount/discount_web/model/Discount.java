@@ -21,6 +21,11 @@ public class Discount {
     private String promoPeriod;
     private String category;
 
+    // 🚀 BI 數據收集升級：新增瀏覽量追蹤欄位 (預設為 0)
+    @Column(columnDefinition = "integer default 0")
+    private int viewCount = 0;
+
+    // Getters and Setters
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -38,4 +43,8 @@ public class Discount {
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
+
+    // 🚀 新增 ViewCount 嘅 Getter 同 Setter (就係爭咗呢兩行搞到 Error！)
+    public int getViewCount() { return viewCount; }
+    public void setViewCount(int viewCount) { this.viewCount = viewCount; }
 }
