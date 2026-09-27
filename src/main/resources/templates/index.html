@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 🚀 SEO 升級：網站描述 (Google 搜尋結果下面嗰行字) -->
+    <meta name="description" content="DayBuy 抵Buy - 為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
+    
+    <!-- 🏷️ 專業升級：加入 Favicon 分頁小圖示 (直接用 SVG 唔使上載圖片) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>">
+    
     <title>DayBuy 抵Buy - 全港著數導航</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { background-color: #f8f9fa; color: #333333; font-family: Arial, sans-serif; }
-        
         .top-header { background-color: #FFDE00; padding: 15px 0; border-bottom: 1px solid #e0c200; }
         .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
         .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
@@ -52,8 +58,6 @@
     <header class="top-header">
         <div class="container d-flex flex-wrap align-items-center justify-content-between">
             <a href="/" class="brand-logo mb-2 mb-md-0"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
-            
-            <!-- 🔍 搜尋列 -->
             <form class="d-flex" action="/search" method="get">
                 <input class="form-control me-2" type="search" name="keyword" th:value="${searchKeyword}" placeholder="搵優惠 (例: 百佳)..." required>
                 <button class="btn btn-dark fw-bold" type="submit" style="white-space: nowrap;"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -61,7 +65,7 @@
         </div>
     </header>
 
-    <nav class="sub-nav text-center">
+    <nav class="sub-nav text-center" aria-label="主導航">
         <div class="container">
             <a href="/" th:classappend="${currentUrl == '/'} ? 'active' : ''"><i class="fa-solid fa-house me-2"></i>首頁</a>
             <a href="/supermarket" th:classappend="${currentUrl == '/supermarket'} ? 'active' : ''"><i class="fa-solid fa-cart-shopping me-2"></i>超市著數</a>
@@ -69,58 +73,62 @@
         </div>
     </nav>
 
-    <div class="container categories-section">
-        <div class="category-header">
-            <h4>熱門分類</h4>
-        </div>
-        <div class="row g-3">
-            <div class="col-6 col-md-3">
-                <a href="/supermarket" class="text-decoration-none">
-                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=600&auto=format&fit=crop');">
-                        <p class="category-title">超市情報</p>
-                    </div>
-                </a>
+    <!-- 🏗️ 語意化 HTML：使用 main 包住核心內容 -->
+    <main class="container mb-5 flex-grow-1">
+        
+        <!-- 熱門分類 (如果搜尋緊就隱藏) -->
+        <section th:unless="${searchKeyword != null}" class="categories-section">
+            <div class="category-header">
+                <h4>熱門分類</h4>
             </div>
-            <div class="col-6 col-md-3">
-                <a href="/dining" class="text-decoration-none">
-                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop');">
-                        <p class="category-title">飲食優惠</p>
-                    </div>
-                </a>
+            <div class="row g-3">
+                <div class="col-6 col-md-3">
+                    <a href="/supermarket" class="text-decoration-none">
+                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=600&auto=format&fit=crop');">
+                            <p class="category-title">超市情報</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="/dining" class="text-decoration-none">
+                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop');">
+                            <p class="category-title">飲食優惠</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="/warehouse" class="text-decoration-none">
+                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop');">
+                            <p class="category-title">開倉減價</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-6 col-md-3">
+                    <a href="/others" class="text-decoration-none">
+                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?q=80&w=600&auto=format&fit=crop');">
+                            <p class="category-title">其他著數</p>
+                        </div>
+                    </a>
+                </div>
             </div>
-            <div class="col-6 col-md-3">
-                <a href="/warehouse" class="text-decoration-none">
-                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop');">
-                        <p class="category-title">開倉減價</p>
-                    </div>
-                </a>
-            </div>
-            <div class="col-6 col-md-3">
-                <a href="/others" class="text-decoration-none">
-                    <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?q=80&w=600&auto=format&fit=crop');">
-                        <p class="category-title">其他著數</p>
-                    </div>
-                </a>
-            </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- 主要內容區 (flex-grow-1 推 Footer 到底) -->
-    <div class="container mb-5 flex-grow-1">
         <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">
             <span th:if="${searchKeyword != null}">🔍 搜尋結果: "<span th:text="${searchKeyword}"></span>"</span>
             <span th:unless="${searchKeyword != null}">🔥 最新著數優惠</span>
         </h4>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
-            <div class="col" th:each="discount : ${discountPage.content}">
+            <!-- 🏗️ 語意化 HTML：使用 article 代表獨立文章/優惠 -->
+            <article class="col" th:each="discount : ${discountPage.content}">
                 <a th:href="@{/discount/{id}(id=${discount.id})}" target="_blank" class="text-decoration-none text-dark d-block h-100">
                     <div class="wellcome-banner-card">
                         <div class="p-3 fw-bold px-3 carved-title-bar">
                             <i class="fa-solid fa-tag me-2"></i><span th:text="${discount.title}">優惠標題</span>
                         </div>
                         <div class="card-img-wrapper">
-                            <img th:src="${discount.imageUrl}" alt="優惠圖片">
+                            <!-- 🚀 效能與 SEO 核心升級：加入 loading="lazy" 同埋動態 alt 文字 -->
+                            <img th:src="${discount.imageUrl}" th:alt="${discount.title} + ' 優惠宣傳圖'" loading="lazy">
                         </div>
                         <div class="card-content bg-white">
                             <div class="text-danger fw-bold fs-6 mb-2">
@@ -134,11 +142,10 @@
                         </div>
                     </div>
                 </a>
-            </div>
+            </article>
         </div>
         
-        <!-- 分頁導航 (加入 keyword 防止斷 Link) -->
-        <nav th:if="${discountPage.totalPages > 1}" aria-label="Page navigation" class="mt-5">
+        <nav th:if="${discountPage.totalPages > 1}" aria-label="分頁導航" class="mt-5">
             <ul class="pagination justify-content-center pagination-lg shadow-sm" style="border-radius: 8px;">
                 <li class="page-item" th:classappend="${discountPage.first} ? 'disabled'">
                     <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number - 1}, keyword=${searchKeyword})}" tabindex="-1">
@@ -158,12 +165,13 @@
             </ul>
         </nav>
 
+        <!-- 🛠️ UX 升級：搜尋冇結果嗰陣畀個掣人撳返出去 -->
         <div th:if="${discountPage.empty}" class="text-center py-5 text-muted">
-            <h4><i class="fa-solid fa-box-open me-2"></i>目前未有相關優惠</h4>
+            <h4 class="mb-4"><i class="fa-solid fa-face-frown-open me-2"></i>目前未有相關優惠</h4>
+            <a href="/" class="btn btn-outline-dark btn-lg fw-bold"><i class="fa-solid fa-house me-2"></i>返回所有優惠</a>
         </div>
-    </div>
+    </main>
 
-    <!-- 🛡️ 法律免責聲明 Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
             <p class="mb-1 fw-bold fs-5"><i class="fa-solid fa-tags me-2"></i>DayBuy 抵Buy 著數情報網</p>
