@@ -20,7 +20,9 @@ public class PageController {
     @Autowired
     private DiscountRepository discountRepository;
 
+    // 後台免登入通行證嘅鎖匙
     private static final String SECRET_KEY = "DayBuy_Super_Secret_Key_2026_xyz";
+    // 前台每頁顯示幾多個優惠
     private static final int PAGE_SIZE = 6; 
 
     // ==========================================
@@ -84,7 +86,7 @@ public class PageController {
     public String faq() { return "faq"; }
 
     // ==========================================
-    // 📄 詳情頁
+    // 📄 詳情頁 (🚀 BI 數據追蹤啟動)
     // ==========================================
     @GetMapping("/discount/{id}")
     public String discountDetail(@PathVariable Long id, Model model) {
@@ -92,6 +94,11 @@ public class PageController {
         if (discount == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "搵唔到呢個優惠");
         }
+        
+        // 🚀 數據工程：每次有人瀏覽詳情頁，瀏覽量自動 +1
+        discount.setViewCount(discount.getViewCount() + 1);
+        discountRepository.save(discount);
+        
         model.addAttribute("discount", discount);
         return "detail"; 
     }
@@ -104,6 +111,8 @@ public class PageController {
                             @RequestParam(required = false) String key,
                             @CookieValue(value = "daybuy_admin_pass", defaultValue = "") String adminCookie,
                             HttpServletResponse response) {
+        
+        // 如果網址有正確鎖匙，派發 7 日通行證
         if (SECRET_KEY.equals(key)) {
             Cookie cookie = new Cookie("daybuy_admin_pass", SECRET_KEY);
             cookie.setPath("/");
@@ -111,9 +120,12 @@ public class PageController {
             response.addCookie(cookie);
             adminCookie = SECRET_KEY; 
         }
+        
+        // 檢查有冇通行證，冇就踢走
         if (!SECRET_KEY.equals(adminCookie)) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
         }
+        
         model.addAttribute("discount", new Discount());
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
         return "admin"; 

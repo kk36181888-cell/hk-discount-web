@@ -7,11 +7,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-light">
+    <!-- 頂部導航條 -->
     <div class="bg-dark text-white p-4 mb-4">
         <div class="container d-flex justify-content-between align-items-center">
             <h2 class="mb-0"><i class="fa-solid fa-user-secret me-2"></i>DayBuy 高級控制總部</h2>
             <div class="d-flex gap-2">
-                <form th:action="@{/daybuy-hq/delete-all}" method="post" onsubmit="return confirm('確定清空所有資料？');">
+                <form th:action="@{/daybuy-hq/delete-all}" method="post" onsubmit="return confirm('確定清空所有資料？呢個動作冇得返轉頭！');">
                     <button type="submit" class="btn btn-danger fw-bold">🗑️ 一鍵清空</button>
                 </form>
                 <a href="/" class="btn btn-outline-light">返回首頁</a>
@@ -20,6 +21,7 @@
     </div>
 
     <div class="container">
+        <!-- 新增優惠表格 -->
         <div class="card mb-4 shadow-sm">
             <div class="card-header bg-secondary text-white fw-bold">➕ 新增優惠</div>
             <div class="card-body">
@@ -60,22 +62,34 @@
             </div>
         </div>
 
+        <!-- 優惠列表及數據顯示 -->
         <div class="card shadow-sm">
             <div class="card-body p-0">
                 <table class="table table-hover mb-0">
-                    <thead class="table-light">
+                    <thead class="table-dark">
                         <tr>
-                            <th>ID</th><th>標題</th><th>圖片</th><th>操作</th>
+                            <th>ID</th>
+                            <th>標題</th>
+                            <th>圖片</th>
+                            <th>🔥 瀏覽量</th> <!-- BI 數據欄位 -->
+                            <th>操作</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr th:each="d : ${discounts}">
                             <td th:text="${d.id}"></td>
                             <td th:text="${d.title}"></td>
-                            <td><img th:src="${d.imageUrl}" style="height:40px;"></td>
+                            <td><img th:src="${d.imageUrl}" style="height:40px; border-radius:4px;"></td>
+                            
+                            <!-- 顯示收集到嘅點擊數據 -->
+                            <td class="fw-bold text-danger">
+                                <i class="fa-solid fa-eye me-1"></i> 
+                                <span th:text="${d.viewCount}">0</span>
+                            </td>
+                            
                             <td>
                                 <form th:action="@{/daybuy-hq/delete/{id}(id=${d.id})}" method="post">
-                                    <button class="btn btn-sm btn-danger">刪除</button>
+                                    <button class="btn btn-sm btn-outline-danger fw-bold">刪除</button>
                                 </form>
                             </td>
                         </tr>
