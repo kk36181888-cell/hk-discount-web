@@ -5,11 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${discount.title} + ' - DayBuy 著數詳情'"></title>
     
-    <!-- 🚀 SEO 及社交媒體預覽圖設定 (WhatsApp 專用) -->
+    <!-- 🏷️ 加入 Favicon 分頁小圖示 -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>">
+    
+    <!-- 🚀 SEO 及社交媒體預覽圖設定 -->
+    <meta name="description" th:content="'DayBuy 最新著數情報：' + ${discount.title} + '。即撳入嚟睇詳情，千祈唔好錯過！'">
     <meta property="og:title" th:content="${discount.title} + ' - DayBuy'" />
     <meta property="og:description" content="DayBuy 最新著數情報：即撳入嚟睇詳情，千祈唔好錯過！" />
     <meta property="og:image" th:content="${discount.imageUrl}" />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content="article" /> <!-- 升級為 article 類型 -->
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,12 +31,13 @@
         </div>
     </header>
 
-    <div class="container mb-5 flex-grow-1">
+    <main class="container mb-5 flex-grow-1">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <div class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <article class="card shadow-lg border-0 rounded-4 overflow-hidden">
                     
-                    <img th:src="${discount.imageUrl}" class="w-100" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1;" alt="優惠圖片">
+                    <!-- 💡 LCP 核心圖：唔加 lazy，但加返準確 alt 提升 SEO -->
+                    <img th:src="${discount.imageUrl}" th:alt="${discount.title} + ' 優惠海報詳情'" class="w-100" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1;">
                     
                     <div class="card-body p-5">
                         <span class="badge bg-danger mb-3 fs-6" th:if="${discount.category == 'supermarket'}">超市著數</span>
@@ -52,20 +57,17 @@
                         </div>
                         
                         <div class="d-grid gap-3 mt-5">
-                            <!-- 🟢 一鍵 WhatsApp 分享按鈕 -->
                             <button onclick="shareWhatsApp()" class="btn btn-success btn-lg fw-bold py-3">
                                 <i class="fa-brands fa-whatsapp me-2"></i>分享呢個優惠畀 WhatsApp 朋友
                             </button>
-                            
                             <a href="/" class="btn btn-outline-secondary btn-lg fw-bold py-3">🏠 返回著數列表</a>
                         </div>
                     </div>
-                </div>
+                </article>
             </div>
         </div>
-    </div>
+    </main>
 
-    <!-- 🛡️ Footer -->
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
             <p class="mb-1 fw-bold fs-5"><i class="fa-solid fa-tags me-2"></i>DayBuy 抵Buy 著數情報網</p>
@@ -76,7 +78,6 @@
         </div>
     </footer>
 
-    <!-- 觸發 WhatsApp 彈出嘅魔法 -->
     <script>
         function shareWhatsApp() {
             const url = encodeURIComponent(window.location.href);
