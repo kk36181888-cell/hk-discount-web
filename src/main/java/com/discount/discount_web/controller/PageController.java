@@ -2,6 +2,7 @@ package com.discount.discount_web.controller;
 
 import com.discount.discount_web.model.Discount;
 import com.discount.discount_web.repository.DiscountRepository;
+import com.discount.discount_web.security.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +21,9 @@ public class PageController {
     @Autowired
     private DiscountRepository discountRepository;
 
-    // 後台免登入通行證嘅鎖匙
-    private static final String SECRET_KEY = "DayBuy_Super_Secret_Key_2026_xyz";
+    @Autowired
+    private JwtUtil jwtUtil; // 🛡️ 注入 JWT 保安工具
+
     // 前台每頁顯示幾多個優惠
     private static final int PAGE_SIZE = 6; 
 
@@ -90,66 +92,83 @@ public class PageController {
     // ==========================================
     @GetMapping("/discount/{id}")
     public String discountDetail(@PathVariable Long id, Model model) {
+        // 1. 🚀 極速更新 ViewCount，避開全表 Update 及 Jsoup 洗 HTML，徹底解決 Timeout！
+        discountRepository.incrementViewCount(id);
+
+        // 2. 攞最新嘅資料出嚟顯示
         Discount discount = discountRepository.findById(id).orElse(null);
         if (discount == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "搵唔到呢個優惠");
         }
-        
-        // 🚀 數據工程：每次有人瀏覽詳情頁，瀏覽量自動 +1
-        discount.setViewCount(discount.getViewCount() + 1);
-        discountRepository.save(discount);
         
         model.addAttribute("discount", discount);
         return "detail"; 
     }
 
     // ==========================================
-    // 🚀 後台路徑 (7日免登入)
+    // 🛡️ CMS 後台保安系統 (JWT)
     // ==========================================
-    @GetMapping("/daybuy-hq")
-    public String adminPage(Model model, 
-                            @RequestParam(required = false) String key,
-                            @CookieValue(value = "daybuy_admin_pass", defaultValue = "") String adminCookie,
-                            HttpServletResponse response) {
-        
-        // 如果網址有正確鎖匙，派發 7 日通行證
-        if (SECRET_KEY.equals(key)) {
-            Cookie cookie = new Cookie("daybuy_admin_pass", SECRET_KEY);
+    
+    // 顯示登入頁面
+    @GetMapping("/daybuy-hq/login")
+    public String loginPage(@RequestParam(required = false) String error, Model model) {
+        if (error != null) {
+            model.addAttribute("error", "登入失敗，請檢查帳號或密碼。");
+        }
+        return "login"; // 記得喺 templates 入面加返個 login.html
+    }
+
+    // 處理登入請求
+    @PostMapping("/daybuy-hq/doLogin")
+    public String doLogin(@RequestParam String username, @RequestParam String password, HttpServletResponse response) {
+        // 🛑 MVP 階段簡單驗證，請自行更改為高強度密碼
+        if ("admin".equals(username) && "admin2026".equals(password)) {
+            String token = jwtUtil.generateToken(username);
+            Cookie cookie = new Cookie("DAYBUY_ADMIN_TOKEN", token);
+            cookie.setHttpOnly(true); // 防 XSS
             cookie.setPath("/");
-            cookie.setMaxAge(7 * 24 * 60 * 60); 
+            cookie.setMaxAge(7 * 24 * 60 * 60); // 7 日免登入
             response.addCookie(cookie);
-            adminCookie = SECRET_KEY; 
+            return "redirect:/daybuy-hq";
         }
-        
-        // 檢查有冇通行證，冇就踢走
-        if (!SECRET_KEY.equals(adminCookie)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Page not found");
-        }
-        
+        return "redirect:/daybuy-hq/login?error=true";
+    }
+
+    // 安全登出
+    @PostMapping("/daybuy-hq/logout")
+    public String logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("DAYBUY_ADMIN_TOKEN", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 0 秒即刻清除
+        response.addCookie(cookie);
+        return "redirect:/daybuy-hq/login";
+    }
+
+    // ==========================================
+    // 🚀 CMS 後台操作 (由 Interceptor 統一保護，無需再手動查 Cookie)
+    // ==========================================
+    
+    @GetMapping("/daybuy-hq")
+    public String adminPage(Model model) {
         model.addAttribute("discount", new Discount());
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
         return "admin"; 
     }
 
     @PostMapping("/daybuy-hq/add")
-    public String addDiscount(@ModelAttribute Discount discount, 
-                              @CookieValue(value = "daybuy_admin_pass", defaultValue = "") String adminCookie) {
-        if (!SECRET_KEY.equals(adminCookie)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    public String addDiscount(@ModelAttribute Discount discount) {
         discountRepository.save(discount);
         return "redirect:/daybuy-hq"; 
     }
 
     @PostMapping("/daybuy-hq/delete/{id}")
-    public String deleteDiscount(@PathVariable Long id, 
-                                 @CookieValue(value = "daybuy_admin_pass", defaultValue = "") String adminCookie) {
-        if (!SECRET_KEY.equals(adminCookie)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    public String deleteDiscount(@PathVariable Long id) {
         discountRepository.deleteById(id);
         return "redirect:/daybuy-hq"; 
     }
 
     @PostMapping("/daybuy-hq/delete-all")
-    public String deleteAllDiscounts(@CookieValue(value = "daybuy_admin_pass", defaultValue = "") String adminCookie) {
-        if (!SECRET_KEY.equals(adminCookie)) throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    public String deleteAllDiscounts() {
         discountRepository.deleteAll();
         return "redirect:/daybuy-hq"; 
     }
