@@ -18,12 +18,17 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- 🌟 全新引入：專業級 Viewer.js 樣式 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.3/viewer.min.css">
-    
     <style>
         .rich-content img {
             max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        /* 令滑鼠指住圖片時有互動感 */
+        .clickable-img {
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+        .clickable-img:hover {
+            opacity: 0.8;
         }
     </style>
 </head>
@@ -38,20 +43,19 @@
     <main class="container mb-5 flex-grow-1">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <!-- 🌟 整個 Article 變成畫廊容器 (id="discount-gallery") -->
-                <article id="discount-gallery" class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <article class="card shadow-lg border-0 rounded-4 overflow-hidden">
                     
-                    <!-- 🌟 唔使 a 標籤，直接用 img，Viewer.js 會自動接管主圖片 -->
-                    <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="w-100" style="cursor: zoom-in; max-height: 500px; object-fit: contain; background-color: #f1f1f1; transition: opacity 0.3s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
+                    <!-- 🌟 點擊觸發 Bootstrap Modal (留意 onclick 事件) -->
+                    <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="w-100 clickable-img" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1;" onclick="openImageModal(this.src)">
                     
                     <div class="card-body p-5">
                         
-                        <!-- 🌟 多圖縮圖區 (如果有額外圖片先顯示) -->
+                        <!-- 🌟 多圖縮圖區 -->
                         <div th:if="${not #lists.isEmpty(extraImages)}" class="mb-4 p-3 bg-light rounded border">
                             <p class="fw-bold mb-2 text-muted fs-6"><i class="fa-solid fa-images me-2"></i>更多宣傳圖片 (點擊放大)</p>
                             <div class="d-flex gap-2 overflow-auto pb-2">
-                                <!-- 同樣直接用 img -->
-                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; cursor: zoom-in; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <!-- 同樣加入 onclick 事件 -->
+                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="clickable-img" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onclick="openImageModal(this.src)">
                             </div>
                         </div>
 
@@ -93,37 +97,44 @@
         </div>
     </footer>
 
-    <!-- WhatsApp 分享功能 -->
+    <!-- ==========================================
+         🌟 終極還原：Bootstrap 原生圖片彈出視窗 
+         ========================================== -->
+    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl"> <!-- modal-xl 提供超大闊度，方便睇字 -->
+            <div class="modal-content bg-dark text-white">
+                
+                <!-- 黑底、標題置中、白色交叉掣 -->
+                <div class="modal-header border-bottom border-secondary position-relative">
+                    <h5 class="modal-title w-100 text-center fw-bold">更多圖片</h5>
+                    <button type="button" class="btn-close btn-close-white position-absolute" data-bs-dismiss="modal" aria-label="Close" style="right: 15px; top: 15px;"></button>
+                </div>
+                
+                <div class="modal-body p-0 text-center">
+                    <!-- w-100 將圖片撐滿視窗闊度，太長就會自然向下碌 (Scroll)，完美還原影片效果 -->
+                    <img id="modalImageDisplay" src="" class="img-fluid w-100">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🌟 Bootstrap 核心 JS (Modal 必須依賴呢個) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
+        // WhatsApp 分享
         function shareWhatsApp() {
             const url = encodeURIComponent(window.location.href);
             const title = encodeURIComponent(document.title);
             window.open('https://api.whatsapp.com/send?text=喂！睇吓呢個抵買優惠：' + title + ' %0A%0A' + url, '_blank');
         }
-    </script>
-    
-    <!-- 🌟 全新引入：Viewer.js 核心引擎 -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.3/viewer.min.js"></script>
-    <script>
-        // 啟動 Viewer 放大鏡魔法
-        window.addEventListener('DOMContentLoaded', function () {
-            var gallery = document.getElementById('discount-gallery');
-            if (gallery) {
-                new Viewer(gallery, {
-                    toolbar: true,      // 顯示下方放大/縮細/旋轉工具列
-                    zoomRatio: 0.3,     // 每次縮放比例
-                    maxZoomRatio: 5,    // 最大可以放大 5 倍 (睇字一流！)
-                    navbar: true,       // 顯示下方縮圖導航
-                    tooltip: true,      // 顯示目前縮放比例
-                    transition: true,
-                    
-                    // 🔒 針對性防飄走設定：
-                    movable: false,     // 🚫 嚴禁張相週圍移動拖曳
-                    rotatable: false,   // 🚫 嚴禁旋轉，防止唔小心轉歪咗
-                    scalable: false     // 🚫 嚴禁上下左右翻轉
-                });
-            }
-        });
+
+        // 開啟圖片 Modal 嘅功能
+        function openImageModal(imgSrc) {
+            document.getElementById('modalImageDisplay').src = imgSrc;
+            var myModal = new bootstrap.Modal(document.getElementById('imageModal'));
+            myModal.show();
+        }
     </script>
 </body>
 </html>
