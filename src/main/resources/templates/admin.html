@@ -43,12 +43,16 @@
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">圖片網址</label>
-                            <input type="url" th:field="*{imageUrl}" class="form-control" required>
+                            <label class="form-label fw-bold">封面圖片網址 (必填)</label>
+                            <input type="url" th:field="*{imageUrl}" class="form-control" required placeholder="首頁顯示嘅主圖">
+                            
+                            <label class="form-label fw-bold mt-3">優惠期限</label>
+                            <input type="text" th:field="*{promoPeriod}" class="form-control" required>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold">優惠期限</label>
-                            <input type="text" th:field="*{promoPeriod}" class="form-control" required>
+                            <!-- 🌟 全新升級：多圖輸入框 -->
+                            <label class="form-label fw-bold">額外圖片網址 (支援多張)</label>
+                            <textarea th:field="*{additionalImages}" class="form-control" rows="4" placeholder="如果有第 2、第 3 張圖，請喺度貼上網址。&#10;請注意：每行只可以貼一條網址！"></textarea>
                         </div>
                     </div>
                     <div class="mb-3">

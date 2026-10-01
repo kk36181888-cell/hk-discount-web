@@ -14,6 +14,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
+import java.util.List;
+import java.util.ArrayList;
 
 @Controller
 public class PageController {
@@ -88,7 +90,7 @@ public class PageController {
     public String faq() { return "faq"; }
 
     // ==========================================
-    // 📄 詳情頁 (🚀 BI 數據追蹤啟動)
+    // 📄 詳情頁 (🚀 BI 數據追蹤啟動 + 🌟 多圖畫廊支援)
     // ==========================================
     @GetMapping("/discount/{id}")
     public String discountDetail(@PathVariable Long id, Model model) {
@@ -101,7 +103,19 @@ public class PageController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "搵唔到呢個優惠");
         }
         
+        // 🌟 3. 處理額外多張圖片：將 textarea 嘅內容按「換行」斬開做 List
+        List<String> extraImages = new ArrayList<>();
+        if (discount.getAdditionalImages() != null && !discount.getAdditionalImages().trim().isEmpty()) {
+            String[] urls = discount.getAdditionalImages().split("\\r?\\n");
+            for (String url : urls) {
+                if (!url.trim().isEmpty()) {
+                    extraImages.add(url.trim());
+                }
+            }
+        }
+        
         model.addAttribute("discount", discount);
+        model.addAttribute("extraImages", extraImages); // 將多圖清單傳畀前端
         return "detail"; 
     }
 
