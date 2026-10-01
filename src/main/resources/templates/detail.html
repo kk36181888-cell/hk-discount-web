@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${discount.title} + ' - DayBuy 著數詳情'"></title>
     
-    <!-- 🏷️ 加入 Favicon 分頁小圖示 -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️️</text></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷</text></svg>">
     
-    <!-- 🚀 SEO 及社交媒體預覽圖設定 -->
     <meta name="description" th:content="'DayBuy 最新著數情報：' + ${discount.title} + '。即撳入嚟睇詳情，千祈唔好錯過！'">
     <meta property="og:title" th:content="${discount.title} + ' - DayBuy'" />
     <meta property="og:description" content="DayBuy 最新著數情報：即撳入嚟睇詳情，千祈唔好錯過！" />
@@ -36,18 +34,19 @@
             <div class="col-md-8">
                 <article class="card shadow-lg border-0 rounded-4 overflow-hidden">
                     
-                    <!-- 🌟 點擊放大魔法：主圖片 (加上 data-fslightbox 屬性) -->
-                    <a data-fslightbox="gallery" th:href="${discount.imageUrl}" style="cursor: zoom-in;" title="點擊放大圖片">
+                    <!-- 🌟 點擊放大魔法：加入 data-type="image" 強制識別為圖片 -->
+                    <a data-fslightbox="gallery" data-type="image" th:href="${discount.imageUrl}" style="cursor: zoom-in;" title="點擊放大圖片">
                         <img th:src="${discount.imageUrl}" th:alt="${discount.title} + ' 優惠海報詳情'" class="w-100" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1; transition: opacity 0.3s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
                     </a>
                     
                     <div class="card-body p-5">
                         
-                        <!-- 🌟 多圖縮圖區 (如果有額外圖片先會顯示呢一忽) -->
+                        <!-- 🌟 多圖縮圖區 -->
                         <div th:if="${not #lists.isEmpty(extraImages)}" class="mb-4 p-3 bg-light rounded border">
                             <p class="fw-bold mb-2 text-muted fs-6"><i class="fa-solid fa-images me-2"></i>更多宣傳圖片 (點擊放大)</p>
                             <div class="d-flex gap-2 overflow-auto pb-2">
-                                <a th:each="imgUrl : ${extraImages}" data-fslightbox="gallery" th:href="${imgUrl}" style="cursor: zoom-in; flex-shrink: 0;">
+                                <!-- 同樣加入 data-type="image" 強制識別為圖片 -->
+                                <a th:each="imgUrl : ${extraImages}" data-fslightbox="gallery" data-type="image" th:href="${imgUrl}" style="cursor: zoom-in; flex-shrink: 0;">
                                     <img th:src="${imgUrl}" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                                 </a>
                             </div>
@@ -91,7 +90,6 @@
         </div>
     </footer>
 
-    <!-- WhatsApp 分享功能 -->
     <script>
         function shareWhatsApp() {
             const url = encodeURIComponent(window.location.href);
@@ -100,7 +98,6 @@
         }
     </script>
     
-    <!-- 🌟 載入 FsLightbox 放大相簿插件 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.4.1/index.min.js"></script>
 </body>
 </html>
