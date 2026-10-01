@@ -15,6 +15,10 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 🌟 全新引入：專業級 Viewer.js 樣式 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.3/viewer.min.css">
+    
     <style>
         .rich-content img {
             max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
@@ -32,12 +36,11 @@
     <main class="container mb-5 flex-grow-1">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <article class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <!-- 🌟 整個 Article 變成畫廊容器 (id="discount-gallery") -->
+                <article id="discount-gallery" class="card shadow-lg border-0 rounded-4 overflow-hidden">
                     
-                    <!-- 🌟 點擊放大魔法：加入 data-type="image" 強制識別為圖片 -->
-                    <a data-fslightbox="gallery" data-type="image" th:href="${discount.imageUrl}" style="cursor: zoom-in;" title="點擊放大圖片">
-                        <img th:src="${discount.imageUrl}" th:alt="${discount.title} + ' 優惠海報詳情'" class="w-100" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1; transition: opacity 0.3s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
-                    </a>
+                    <!-- 🌟 唔使 a 標籤，直接用 img，Viewer.js 會自動接管 -->
+                    <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="w-100" style="cursor: zoom-in; max-height: 500px; object-fit: contain; background-color: #f1f1f1; transition: opacity 0.3s;" onmouseover="this.style.opacity=0.8" onmouseout="this.style.opacity=1">
                     
                     <div class="card-body p-5">
                         
@@ -45,10 +48,8 @@
                         <div th:if="${not #lists.isEmpty(extraImages)}" class="mb-4 p-3 bg-light rounded border">
                             <p class="fw-bold mb-2 text-muted fs-6"><i class="fa-solid fa-images me-2"></i>更多宣傳圖片 (點擊放大)</p>
                             <div class="d-flex gap-2 overflow-auto pb-2">
-                                <!-- 同樣加入 data-type="image" 強制識別為圖片 -->
-                                <a th:each="imgUrl : ${extraImages}" data-fslightbox="gallery" data-type="image" th:href="${imgUrl}" style="cursor: zoom-in; flex-shrink: 0;">
-                                    <img th:src="${imgUrl}" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-                                </a>
+                                <!-- 同樣直接用 img -->
+                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; cursor: zoom-in; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                             </div>
                         </div>
 
@@ -98,6 +99,23 @@
         }
     </script>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.4.1/index.min.js"></script>
+    <!-- 🌟 全新引入：Viewer.js 核心引擎 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/viewerjs/1.11.3/viewer.min.js"></script>
+    <script>
+        // 啟動 Viewer 放大鏡魔法
+        window.addEventListener('DOMContentLoaded', function () {
+            var gallery = document.getElementById('discount-gallery');
+            if (gallery) {
+                new Viewer(gallery, {
+                    toolbar: true,      // 顯示下方放大/縮細/旋轉工具列
+                    zoomRatio: 0.3,     // 每次縮放比例
+                    maxZoomRatio: 5,    // 最大可以放大 5 倍 (睇字一流！)
+                    navbar: true,       // 顯示下方縮圖導航
+                    tooltip: true,      // 顯示目前縮放比例
+                    transition: true
+                });
+            }
+        });
+    </script>
 </body>
 </html>
