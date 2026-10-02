@@ -45,8 +45,8 @@
             <div class="col-md-8">
                 <article class="card shadow-lg border-0 rounded-4 overflow-hidden">
                     
-                    <!-- 🌟 點擊觸發 Bootstrap Modal -->
-                    <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="w-100 clickable-img" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1;" onclick="openImageModal(this.src)">
+                    <!-- 🌟 點擊觸發 Bootstrap Modal (使用 data-bs-toggle) -->
+                    <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="w-100 clickable-img" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1;" data-bs-toggle="modal" data-bs-target="#imageModal">
                     
                     <div class="card-body p-5">
                         
@@ -54,7 +54,8 @@
                         <div th:if="${not #lists.isEmpty(extraImages)}" class="mb-4 p-3 bg-light rounded border">
                             <p class="fw-bold mb-2 text-muted fs-6"><i class="fa-solid fa-images me-2"></i>更多宣傳圖片 (點擊放大)</p>
                             <div class="d-flex gap-2 overflow-auto pb-2">
-                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="clickable-img" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" onclick="openImageModal(this.src)">
+                                <!-- 同樣點擊打開同一個 Modal -->
+                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="clickable-img" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#imageModal">
                             </div>
                         </div>
 
@@ -97,19 +98,26 @@
     </footer>
 
     <!-- ==========================================
-         🌟 終極還原：Bootstrap 原生圖片彈出視窗 
+         🌟 瀑布流長圖彈出視窗 
          ========================================== -->
     <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
-            <div class="modal-content bg-dark text-white border-0">
+            <div class="modal-content bg-dark border-0">
                 
-                <!-- 🌟 統一品牌視覺：DayBuy 專屬黃色底、加埋條黑邊，保留黑色交叉掣 -->
+                <!-- DayBuy 專屬黃色底、加埋條黑邊，保留黑色交叉掣 -->
                 <div class="modal-header position-relative" style="background-color: #FFDE00; border-bottom: 2px solid #000; height: 50px;">
                     <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close" style="right: 15px; top: 13px;"></button>
                 </div>
                 
-                <div class="modal-body p-0 text-center">
-                    <img id="modalImageDisplay" src="" class="img-fluid w-100">
+                <!-- 🌟 將所有圖片 (封面 + 額外圖片) 以垂直方式一次過排晒出嚟 -->
+                <div class="modal-body p-3 text-center d-flex flex-column gap-3">
+                    <!-- 第一張：封面主圖 -->
+                    <img th:src="${discount.imageUrl}" class="img-fluid w-100 rounded">
+                    
+                    <!-- 第二張起：額外圖片 (如果有) -->
+                    <th:block th:if="${not #lists.isEmpty(extraImages)}">
+                        <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" class="img-fluid w-100 rounded">
+                    </th:block>
                 </div>
             </div>
         </div>
@@ -124,13 +132,6 @@
             const url = encodeURIComponent(window.location.href);
             const title = encodeURIComponent(document.title);
             window.open('https://api.whatsapp.com/send?text=喂！睇吓呢個抵買優惠：' + title + ' %0A%0A' + url, '_blank');
-        }
-
-        // 開啟圖片 Modal 嘅功能
-        function openImageModal(imgSrc) {
-            document.getElementById('modalImageDisplay').src = imgSrc;
-            var myModal = new bootstrap.Modal(document.getElementById('imageModal'));
-            myModal.show();
         }
     </script>
 </body>
