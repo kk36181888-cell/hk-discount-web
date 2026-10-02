@@ -22,14 +22,6 @@
         .rich-content img {
             max-width: 100%; height: auto; border-radius: 8px; margin-top: 15px; margin-bottom: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         }
-        /* 令滑鼠指住圖片時有互動感 */
-        .clickable-img {
-            cursor: pointer;
-            transition: opacity 0.3s;
-        }
-        .clickable-img:hover {
-            opacity: 0.8;
-        }
     </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -43,38 +35,43 @@
     <main class="container mb-5 flex-grow-1">
         <div class="row justify-content-center">
             <div class="col-md-8">
-                <article class="card shadow-lg border-0 rounded-4 overflow-hidden">
+                <article class="card shadow-lg border-0 rounded-4">
                     
-                    <!-- 🌟 點擊觸發 Bootstrap Modal (使用 data-bs-toggle) -->
-                    <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="w-100 clickable-img" style="max-height: 500px; object-fit: contain; background-color: #f1f1f1;" data-bs-toggle="modal" data-bs-target="#imageModal">
-                    
-                    <div class="card-body p-5">
+                    <div class="card-body p-4 p-md-5">
                         
-                        <!-- 🌟 多圖縮圖區 -->
-                        <div th:if="${not #lists.isEmpty(extraImages)}" class="mb-4 p-3 bg-light rounded border">
-                            <p class="fw-bold mb-2 text-muted fs-6"><i class="fa-solid fa-images me-2"></i>更多宣傳圖片 (點擊放大)</p>
-                            <div class="d-flex gap-2 overflow-auto pb-2">
-                                <!-- 同樣點擊打開同一個 Modal -->
-                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="clickable-img" style="height: 80px; width: 80px; object-fit: cover; border-radius: 8px; border: 2px solid #ddd; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" data-bs-toggle="modal" data-bs-target="#imageModal">
-                            </div>
+                        <!-- 1. 分類標籤擺最頂 -->
+                        <div class="mb-3">
+                            <span class="badge bg-danger fs-6" th:if="${discount.category == 'supermarket'}">超市著數</span>
+                            <span class="badge bg-warning text-dark fs-6" th:if="${discount.category == 'dining'}">飲食優惠</span>
+                            <span class="badge bg-danger fs-6" th:if="${discount.category == 'warehouse'}">開倉大減價</span>
+                            <span class="badge bg-secondary fs-6" th:if="${discount.category == 'others'}">其他著數</span>
                         </div>
-
-                        <span class="badge bg-danger mb-3 fs-6" th:if="${discount.category == 'supermarket'}">超市著數</span>
-                        <span class="badge bg-warning text-dark mb-3 fs-6" th:if="${discount.category == 'dining'}">飲食優惠</span>
-                        <span class="badge bg-danger mb-3 fs-6" th:if="${discount.category == 'warehouse'}">開倉大減價</span>
-                        <span class="badge bg-secondary mb-3 fs-6" th:if="${discount.category == 'others'}">其他著數</span>
                         
+                        <!-- 2. 標題緊接其後 -->
                         <h1 class="fw-bold mb-4" th:text="${discount.title}">優惠標題</h1>
                         
-                        <div class="alert alert-warning fw-bold fs-5 mb-4 border-warning">
+                        <!-- 3. 優惠期提示 -->
+                        <div class="alert alert-warning fw-bold fs-5 mb-5 border-warning">
                             <i class="fa-regular fa-clock me-2"></i>優惠期: <span th:text="${discount.promoPeriod}"></span>
                         </div>
+
+                        <!-- 4. 🌟 直接展示所有單張圖片 (封面 + 額外)，由上至下排列，唔使撳 -->
+                        <div class="d-flex flex-column gap-4 mb-5">
+                            <!-- 第一張：封面主圖 -->
+                            <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm">
+                            
+                            <!-- 第二張起：額外圖片 (如果有) -->
+                            <th:block th:if="${not #lists.isEmpty(extraImages)}">
+                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="img-fluid w-100 rounded shadow-sm">
+                            </th:block>
+                        </div>
                         
+                        <!-- 5. 詳細文字內容 -->
                         <h4 class="fw-bold border-bottom pb-2 mb-4">優惠詳細圖文內容</h4>
-                        
                         <div class="fs-5 text-dark mb-5 rich-content" style="line-height: 1.8; word-wrap: break-word;" th:utext="${discount.description}">
                         </div>
                         
+                        <!-- 6. 按鈕 -->
                         <div class="d-grid gap-3 mt-5">
                             <button onclick="shareWhatsApp()" class="btn btn-success btn-lg fw-bold py-3">
                                 <i class="fa-brands fa-whatsapp me-2"></i>分享呢個優惠畀 WhatsApp 朋友
@@ -96,32 +93,6 @@
             </small>
         </div>
     </footer>
-
-    <!-- ==========================================
-         🌟 瀑布流長圖彈出視窗 
-         ========================================== -->
-    <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
-            <div class="modal-content bg-dark border-0">
-                
-                <!-- DayBuy 專屬黃色底、加埋條黑邊，保留黑色交叉掣 -->
-                <div class="modal-header position-relative" style="background-color: #FFDE00; border-bottom: 2px solid #000; height: 50px;">
-                    <button type="button" class="btn-close position-absolute" data-bs-dismiss="modal" aria-label="Close" style="right: 15px; top: 13px;"></button>
-                </div>
-                
-                <!-- 🌟 將所有圖片 (封面 + 額外圖片) 以垂直方式一次過排晒出嚟 -->
-                <div class="modal-body p-3 text-center d-flex flex-column gap-3">
-                    <!-- 第一張：封面主圖 -->
-                    <img th:src="${discount.imageUrl}" class="img-fluid w-100 rounded">
-                    
-                    <!-- 第二張起：額外圖片 (如果有) -->
-                    <th:block th:if="${not #lists.isEmpty(extraImages)}">
-                        <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" class="img-fluid w-100 rounded">
-                    </th:block>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Bootstrap 核心 JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
