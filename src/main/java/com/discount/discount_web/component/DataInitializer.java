@@ -1,11 +1,12 @@
 package com.discount.discount_web.component;
 
-import com.discount.discount_web.model.Discount;
-import com.discount.discount_web.repository.DiscountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
+
+import com.discount.discount_web.model.Discount;
+import com.discount.discount_web.repository.DiscountRepository;
 
 @Component
 public class DataInitializer {
