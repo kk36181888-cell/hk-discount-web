@@ -12,19 +12,22 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 public interface DiscountRepository extends JpaRepository<Discount, Long> {
-    
-    List<Discount> findAllByOrderByIdDesc();
-    
-    Page<Discount> findAllByOrderByIdDesc(Pageable pageable);
-    
-    Page<Discount> findByCategoryOrderByIdDesc(String category, Pageable pageable);
-    
-    // 🔍 全新搜尋功能：無視大細階搵標題
-    Page<Discount> findByTitleContainingIgnoreCaseOrderByIdDesc(String keyword, Pageable pageable);
 
-    // 🚀 高效能瀏覽量 +1 方法，避開全欄位更新及 Jsoup 攔截
+    // 🌐 前台分頁與分類查詢
+    Page<Discount> findAllByOrderByIdDesc(Pageable pageable);
+    Page<Discount> findByTitleContainingIgnoreCaseOrderByIdDesc(String keyword, Pageable pageable);
+    Page<Discount> findByCategoryOrderByIdDesc(String category, Pageable pageable);
+
+    // 🚀 後台管理列表查詢
+    List<Discount> findAllByOrderByIdDesc();
+
+    // ⚡ 極速更新 ViewCount (直接喺 DB 層面 +1)
     @Modifying
     @Transactional
     @Query("UPDATE Discount d SET d.viewCount = d.viewCount + 1 WHERE d.id = :id")
     void incrementViewCount(@Param("id") Long id);
+
+    // 🌟 效能優化核心：由 PostgreSQL 直接隨機抽 3 個其他優惠，唔使 Load 爆 Java RAM
+    @Query(value = "SELECT * FROM discounts WHERE id != :currentId ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
+    List<Discount> findRandomRelatedDiscounts(@Param("currentId") Long currentId);
 }
