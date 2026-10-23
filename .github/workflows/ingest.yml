@@ -1,1 +1,37 @@
-# placeholder - replaced by upload of granted ingest.ymlname: ingest
+name: Daily Ingest
+
+# 每日 08:00 HKT (= 00:00 UTC) 自動入貨；亦可在 Actions 頁手動觸發測試
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Wake up Render service
+        run: |
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://daybuy2.onrender.com/ || true)
+            echo "wake attempt $i -> HTTP $code"
+            if [ "$code" = "200" ]; then break; fi
+            sleep 20
+          done
+
+      - name: Trigger ingest endpoint
+        env:
+          INGEST_KEY: ${{ secrets.INGEST_KEY }}
+        run: |
+          for i in 1 2 3; do
+            echo "ingest attempt $i"
+            response=$(curl -s --max-time 300 -X POST https://daybuy2.onrender.com/api/ingest/run -H "X-Ingest-Key: $INGEST_KEY" || true)
+            echo "$response"
+            if echo "$response" | grep -q '"sources"'; then
+              echo "Ingest OK"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "Ingest failed after retries"
+          exit 1
