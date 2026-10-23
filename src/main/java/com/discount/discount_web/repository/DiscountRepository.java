@@ -15,18 +15,24 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
     // 🌐 前台分頁與分類查詢
     // 📅 2026-10-23 升級：前台自動隱藏已過期優惠 (endDate 已過)；冇填 endDate 嘅照常顯示。
-    //    後台列表 (下面 List 版本) 唔加呢個條件，管理員要見到過期項目先可以管理。
-    @Query("SELECT d FROM Discount d WHERE d.endDate IS NULL OR d.endDate >= CURRENT_DATE ORDER BY d.id DESC")
+    // 🤖 同日再升級：前台只顯示已發佈 (status = PUBLISHED 或未填)；待審草稿 (PENDING) 唔出街。
+    //    後台列表 (下面 List 版本) 唔加呢啲條件，管理員要見到晒先可以管理。
+    @Query("SELECT d FROM Discount d WHERE (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
     Page<Discount> findAllByOrderByIdDesc(Pageable pageable);
 
-    @Query("SELECT d FROM Discount d WHERE LOWER(d.title) LIKE LOWER(CONCAT('%', :keyword, '%')) AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
+    @Query("SELECT d FROM Discount d WHERE LOWER(d.title) LIKE LOWER(CONCAT('%', :keyword, '%')) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
     Page<Discount> findByTitleContainingIgnoreCaseOrderByIdDesc(@Param("keyword") String keyword, Pageable pageable);
 
-    @Query("SELECT d FROM Discount d WHERE d.category = :category AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
+    @Query("SELECT d FROM Discount d WHERE d.category = :category AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
     Page<Discount> findByCategoryOrderByIdDesc(@Param("category") String category, Pageable pageable);
 
     // 🚀 後台管理列表查詢
     List<Discount> findAllByOrderByIdDesc();
+
+    // 🤖 自動入貨：去重 + 待審清單
+    boolean existsBySourceKey(String sourceKey);
+    List<Discount> findByStatusOrderByScrapedAtDesc(String status);
+    long countByStatus(String status);
 
     // ⚡ 極速更新 ViewCount (直接喺 DB 層面 +1)
     @Modifying
@@ -35,6 +41,6 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
     void incrementViewCount(@Param("id") Long id);
 
     // 🌟 效能優化核心：由 PostgreSQL 直接隨機抽 3 個其他優惠，唔使 Load 爆 Java RAM
-    @Query(value = "SELECT * FROM discounts WHERE id != :currentId AND (end_date IS NULL OR end_date >= CURRENT_DATE) ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
+    @Query(value = "SELECT * FROM discounts WHERE id != :currentId AND (status IS NULL OR status = 'PUBLISHED') AND (end_date IS NULL OR end_date >= CURRENT_DATE) ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
     List<Discount> findRandomRelatedDiscounts(@Param("currentId") Long currentId);
 }
