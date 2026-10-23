@@ -34,7 +34,6 @@ public class PageController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // ☁️ 1. 補返注入 Cloudinary 雲端圖床服務
     @Autowired
     private CloudinaryService cloudinaryService;
 
@@ -161,15 +160,13 @@ public class PageController {
         if (adminUsername.equals(username) && passwordEncoder.matches(password, encodedAdminPassword)) {
             String token = jwtUtil.generateToken(username);
             Cookie cookie = new Cookie("DAYBUY_ADMIN_TOKEN", token);
-            cookie.setHttpOnly(true); // 防範 XSS 竊取 Cookie
+            cookie.setHttpOnly(true);
             cookie.setPath("/");
-            // 🛠️ 2. 修復返呢行嘅語法錯誤 (7日 = 604800秒)
             cookie.setMaxAge(7 * 24 * 60 * 60);
 
-            // 🛡️ 智能判斷：喺 Render (HTTPS) 自動啟用 Secure，喺 Localhost (HTTP) 亦能正常測試
             boolean isHttps = request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto"));
             cookie.setSecure(isHttps);
-            cookie.setAttribute("SameSite", "Lax"); // 防範 CSRF 跨站請求偽造攻擊
+            cookie.setAttribute("SameSite", "Lax");
 
             response.addCookie(cookie);
             return "redirect:/daybuy-hq";
@@ -192,7 +189,7 @@ public class PageController {
     // ==========================================
     @GetMapping("/daybuy-hq")
     public String adminPage(Model model) {
-        model.addAttribute("discount", new Discount()); // 預設空白表單 (新增模式)
+        model.addAttribute("discount", new Discount()); 
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
         return "admin"; 
     }
@@ -203,12 +200,11 @@ public class PageController {
         if (existingDiscount == null) {
             return "redirect:/daybuy-hq";
         }
-        model.addAttribute("discount", existingDiscount); // 將舊資料塞入表單
+        model.addAttribute("discount", existingDiscount); 
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc());
         return "admin";
     }
 
-    // 🌟 3. 升級版：同時支援「Cloudinary 直接揀相上載」與「手動貼 Link」
     @PostMapping("/daybuy-hq/add")
     public String saveOrUpdateDiscount(
             @ModelAttribute Discount discount,
@@ -216,13 +212,11 @@ public class PageController {
             @RequestParam(value = "extraImageFiles", required = false) MultipartFile[] extraImageFiles) {
 
         try {
-            // ☁️ 處理封面圖片：如果有揀檔案，直接 Upload 去 Cloudinary 並覆蓋 imageUrl
             if (coverImageFile != null && !coverImageFile.isEmpty()) {
                 String uploadedCoverUrl = cloudinaryService.uploadImage(coverImageFile);
                 discount.setImageUrl(uploadedCoverUrl);
             }
 
-            // ☁️ 處理額外多張單張：支援一次過揀幾張圖批量 Upload
             if (extraImageFiles != null && extraImageFiles.length > 0) {
                 List<String> uploadedExtraUrls = new ArrayList<>();
                 if (discount.getAdditionalImages() != null && !discount.getAdditionalImages().trim().isEmpty()) {
@@ -240,13 +234,32 @@ public class PageController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "圖片上載去 Cloudinary 失敗，請檢查 API Key 設定：" + e.getMessage());
         }
 
-        // 🧹 Jsoup 防 XSS 消毒
         if (discount.getDescription() != null) {
             Safelist customSafelist = Safelist.relaxed().addAttributes(":all", "style", "class");
             String safeHtml = Jsoup.clean(discount.getDescription(), customSafelist);
             discount.setDescription(safeHtml);
         }
 
-        // 📊 如果係編輯舊優惠，保留原本嘅 ViewCount 瀏覽量
         if (discount.getId() != null) {
-            Discount existing = discount
+            Discount existing = discountRepository.findById(discount.getId()).orElse(null);
+            if (existing != null) {
+                discount.setViewCount(existing.getViewCount());
+            }
+        }
+        
+        discountRepository.save(discount);
+        return "redirect:/daybuy-hq"; 
+    }
+
+    @PostMapping("/daybuy-hq/delete/{id}")
+    public String deleteDiscount(@PathVariable Long id) {
+        discountRepository.deleteById(id);
+        return "redirect:/daybuy-hq"; 
+    }
+
+    @PostMapping("/daybuy-hq/delete-all")
+    public String deleteAllDiscounts() {
+        discountRepository.deleteAll();
+        return "redirect:/daybuy-hq"; 
+    }
+}
