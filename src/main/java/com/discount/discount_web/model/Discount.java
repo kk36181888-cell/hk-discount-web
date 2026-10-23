@@ -17,7 +17,9 @@ public class Discount {
 
     private String title;
     
-    @Column(length = 2000)
+    // ⚠️ 線上舊表欄位曾停喺 varchar(255) (ddl-auto=update 唔會改既有欄位闊度)，
+    //    由 DbColumnFixer 喺開機時 ALTER 拉闊到 5000，呢度同步返避免新裝環境唔一致。
+    @Column(length = 5000)
     private String description;
 
     @Column(length = 1000)
