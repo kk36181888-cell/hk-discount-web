@@ -32,13 +32,23 @@ public class WellcomeParser {
                 .timeout(20000)
                 .get();
 
-        // 1) 從首頁收集活動頁連結 (/d/*.html)，保持出現次序去重
+        // 1) 從首頁收集活動頁連結，保持出現次序去重
+        //    ⚠️ 2026-10-23 第一次實跑修正：官網實際連結形態係
+        //    /zh-hant/wellcome/d/XXXX.html?venderBrandIds=...&flowDeliveryTimeType=1
+        //    即 path 先係 /d/*.html，後面仲有 query string；舊寫法用完整網址 endsWith(".html")
+        //    同 "wellcome.com.hk/d/" 比對，兩樣都唔中，結果 found=0。
+        //    改為：抽 path 嚟比對，並去掉 query string 令來源網址乾淨、去重鍵穩定。
         Set<String> campaignUrls = new LinkedHashSet<>();
         Elements links = home.select("a[href]");
         for (Element a : links) {
             String href = a.absUrl("href");
-            if (href.contains("wellcome.com.hk/d/") && href.endsWith(".html")) {
-                campaignUrls.add(href);
+            try {
+                String path = URI.create(href).getPath();
+                if (path != null && path.contains("/d/") && path.endsWith(".html")) {
+                    campaignUrls.add("https://www.wellcome.com.hk" + path);
+                }
+            } catch (Exception ignored) {
+                // 唔合規格嘅連結跳過
             }
             if (campaignUrls.size() >= MAX_CAMPAIGNS_PER_RUN) break;
         }
