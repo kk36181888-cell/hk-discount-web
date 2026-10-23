@@ -13,6 +13,10 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+            // 🤖 自動入貨 endpoint 豁免 CSRF：佢係俾 GitHub Actions 用密鑰標頭 (X-Ingest-Key) 認證嘅機器對機器呼叫，
+            //    冇瀏覽器 session 亦冇 CSRF token；唔豁免嘅話所有入貨請求都會被 CSRF 擋住 (403)。
+            .csrf(csrf -> csrf.ignoringRequestMatchers("/api/ingest/run"))
+
             // 1. 授權規則：全部網址放行 (因為後台已經有我哋嘅 JWT Interceptor 把關)
             .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
             
