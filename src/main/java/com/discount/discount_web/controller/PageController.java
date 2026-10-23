@@ -3,6 +3,7 @@ package com.discount.discount_web.controller;
 import com.discount.discount_web.model.Discount;
 import com.discount.discount_web.repository.DiscountRepository;
 import com.discount.discount_web.security.JwtUtil;
+import com.discount.discount_web.service.CloudinaryService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -18,6 +19,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -31,6 +33,10 @@ public class PageController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    // ☁️ 1. 補返注入 Cloudinary 雲端圖床服務
+    @Autowired
+    private CloudinaryService cloudinaryService;
 
     @Value("${daybuy.admin.username:admin}")
     private String adminUsername;
@@ -157,6 +163,7 @@ public class PageController {
             Cookie cookie = new Cookie("DAYBUY_ADMIN_TOKEN", token);
             cookie.setHttpOnly(true); // 防範 XSS 竊取 Cookie
             cookie.setPath("/");
+            // 🛠️ 2. 修復返呢行嘅語法錯誤 (7日 = 604800秒)
             cookie.setMaxAge(7 * 24 * 60 * 60);
 
             // 🛡️ 智能判斷：喺 Render (HTTPS) 自動啟用 Secure，喺 Localhost (HTTP) 亦能正常測試
@@ -181,7 +188,7 @@ public class PageController {
     }
 
     // ==========================================
-    // 🚀 CMS 後台操作 (支援新增、編輯、刪除與 XSS 消毒)
+    // 🚀 CMS 後台操作 (支援 Cloudinary 上載、編輯、刪除與 XSS 消毒)
     // ==========================================
     @GetMapping("/daybuy-hq")
     public String adminPage(Model model) {
@@ -190,7 +197,6 @@ public class PageController {
         return "admin"; 
     }
 
-    // 🌟 新增：載入指定優惠資料到左邊表單進入「編輯模式」
     @GetMapping("/daybuy-hq/edit/{id}")
     public String editDiscountPage(@PathVariable Long id, Model model) {
         Discount existingDiscount = discountRepository.findById(id).orElse(null);
@@ -202,37 +208,45 @@ public class PageController {
         return "admin";
     }
 
-    // 🌟 升級：同時處理「新增」與「修改更新」
+    // 🌟 3. 升級版：同時支援「Cloudinary 直接揀相上載」與「手動貼 Link」
     @PostMapping("/daybuy-hq/add")
-    public String saveOrUpdateDiscount(@ModelAttribute Discount discount) {
-        // 1. 🧹 Jsoup 防 XSS 消毒
+    public String saveOrUpdateDiscount(
+            @ModelAttribute Discount discount,
+            @RequestParam(value = "coverImageFile", required = false) MultipartFile coverImageFile,
+            @RequestParam(value = "extraImageFiles", required = false) MultipartFile[] extraImageFiles) {
+
+        try {
+            // ☁️ 處理封面圖片：如果有揀檔案，直接 Upload 去 Cloudinary 並覆蓋 imageUrl
+            if (coverImageFile != null && !coverImageFile.isEmpty()) {
+                String uploadedCoverUrl = cloudinaryService.uploadImage(coverImageFile);
+                discount.setImageUrl(uploadedCoverUrl);
+            }
+
+            // ☁️ 處理額外多張單張：支援一次過揀幾張圖批量 Upload
+            if (extraImageFiles != null && extraImageFiles.length > 0) {
+                List<String> uploadedExtraUrls = new ArrayList<>();
+                if (discount.getAdditionalImages() != null && !discount.getAdditionalImages().trim().isEmpty()) {
+                    uploadedExtraUrls.add(discount.getAdditionalImages().trim());
+                }
+                for (MultipartFile file : extraImageFiles) {
+                    if (file != null && !file.isEmpty()) {
+                        uploadedExtraUrls.add(cloudinaryService.uploadImage(file));
+                    }
+                }
+                discount.setAdditionalImages(String.join("\n", uploadedExtraUrls));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "圖片上載去 Cloudinary 失敗，請檢查 API Key 設定：" + e.getMessage());
+        }
+
+        // 🧹 Jsoup 防 XSS 消毒
         if (discount.getDescription() != null) {
             Safelist customSafelist = Safelist.relaxed().addAttributes(":all", "style", "class");
             String safeHtml = Jsoup.clean(discount.getDescription(), customSafelist);
             discount.setDescription(safeHtml);
         }
 
-        // 2. 📊 如果係編輯舊優惠，保留原本嘅 ViewCount 瀏覽量，避免被重置為 0
+        // 📊 如果係編輯舊優惠，保留原本嘅 ViewCount 瀏覽量
         if (discount.getId() != null) {
-            Discount existing = discountRepository.findById(discount.getId()).orElse(null);
-            if (existing != null) {
-                discount.setViewCount(existing.getViewCount());
-            }
-        }
-        
-        discountRepository.save(discount);
-        return "redirect:/daybuy-hq"; 
-    }
-
-    @PostMapping("/daybuy-hq/delete/{id}")
-    public String deleteDiscount(@PathVariable Long id) {
-        discountRepository.deleteById(id);
-        return "redirect:/daybuy-hq"; 
-    }
-
-    @PostMapping("/daybuy-hq/delete-all")
-    public String deleteAllDiscounts() {
-        discountRepository.deleteAll();
-        return "redirect:/daybuy-hq"; 
-    }
-}
+            Discount existing = discount

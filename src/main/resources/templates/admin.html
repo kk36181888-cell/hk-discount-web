@@ -54,7 +54,8 @@
                         <span th:text="${discount.id == null ? '發佈新著數優惠' : '正在編輯優惠 (ID: ' + discount.id + ')'}"></span>
                     </div>
                     <div class="card-body p-4">
-                        <form th:action="@{/daybuy-hq/add}" th:object="${discount}" method="post">
+                        <!-- 🌟 關鍵 1：加入 enctype="multipart/form-data" 支援檔案上傳 -->
+                        <form th:action="@{/daybuy-hq/add}" th:object="${discount}" method="post" enctype="multipart/form-data">
                             <!-- 🌟 關鍵隱藏欄位：儲存 ID 用於判斷新增定更新 -->
                             <input type="hidden" th:field="*{id}">
                             
@@ -78,15 +79,24 @@
                                 <input type="text" class="form-control" th:field="*{promoPeriod}" placeholder="例：即日起至 10 月 31 日" required>
                             </div>
 
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">封面圖片網址 (Image URL)</label>
-                                <input type="url" class="form-control" th:field="*{imageUrl}" placeholder="請貼上 .jpg / .png 直接連結" required>
+                            <!-- 🌟 關鍵 2：封面圖片（直接揀檔案 OR 貼網址二選一） -->
+                            <div class="mb-3 p-3 bg-white border border-success rounded-3">
+                                <label class="form-label fw-bold text-success">
+                                    <i class="fa-solid fa-cloud-arrow-up me-1"></i>封面圖片：直接揀相上載 (推薦)
+                                </label>
+                                <input type="file" name="coverImageFile" class="form-control mb-2" accept="image/*">
+                                <small class="text-muted d-block mb-1">或者手動貼上圖片網址 (如已揀檔案，系統會自動用上載嘅相)：</small>
+                                <input type="url" class="form-control form-control-sm" th:field="*{imageUrl}" placeholder="https://... (選填)">
                             </div>
                             
-                            <div class="mb-3">
-                                <label class="form-label fw-bold text-primary"><i class="fa-regular fa-images me-1"></i>額外圖片網址 (可選)</label>
-                                <textarea class="form-control border-primary" th:field="*{additionalImages}" rows="3" placeholder="每行貼一條圖片直連網址"></textarea>
-                                <small class="text-muted">支援多頁超市單張，前台會自動排成直立式瀑布流。</small>
+                            <!-- 🌟 關鍵 3：額外多張單張（支援撳住 Ctrl 一次過揀多張相！） -->
+                            <div class="mb-3 p-3 bg-white border border-primary rounded-3">
+                                <label class="form-label fw-bold text-primary">
+                                    <i class="fa-regular fa-images me-1"></i>額外單張圖片：批量揀選多張檔案 (可選)
+                                </label>
+                                <input type="file" name="extraImageFiles" class="form-control mb-2" accept="image/*" multiple>
+                                <small class="text-muted d-block mb-1">已儲存或額外手動貼上嘅圖片網址 (每行一條)：</small>
+                                <textarea class="form-control form-control-sm" th:field="*{additionalImages}" rows="3" placeholder="每行貼一條圖片直連網址"></textarea>
                             </div>
 
                             <div class="mb-4">
@@ -98,7 +108,7 @@
                                 <button type="submit" class="btn fw-bold py-2" 
                                         th:classappend="${discount.id == null ? 'btn-success' : 'btn-primary'}">
                                     <i class="fa-solid fa-cloud-arrow-up me-2"></i>
-                                    <span th:text="${discount.id == null ? '確認儲存並發佈' : '儲存修改更新'}"></span>
+                                    <span th:text="${discount.id == null ? '確認上載並發佈' : '儲存修改更新'}"></span>
                                 </button>
                                 <!-- 編輯模式下顯示「取消編輯」掣 -->
                                 <a href="/daybuy-hq" class="btn btn-outline-secondary fw-bold" th:if="${discount.id != null}">
