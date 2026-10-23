@@ -19,6 +19,12 @@
 	<dependencies>
 	<!-- JWT (JSON Web Token) 安全驗證 -->
         <dependency>
+		<!-- ☁️ Cloudinary 官方 Java SDK：用於直接上載圖片到雲端圖床 -->
+        <dependency>
+            <groupId>com.cloudinary</groupId>
+            <artifactId>cloudinary-http44</artifactId>
+            <version>1.38.0</version>
+        </dependency>
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
             <version>0.11.5</version>
