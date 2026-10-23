@@ -7,15 +7,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-    <!-- 🌟 TinyMCE 專業級富文本編輯器 -->
-    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <!-- 🌟 TinyMCE 富文本編輯器 (改用 jsDelivr 自托管開源版，唔使 API 金鑰)
+         ⚠️ 之前用 cdn.tiny.cloud/1/no-api-key/ 會被官方鎖死編輯區 (顯示 "A valid API key is required")，後台一直入唔到描述，2026-10-23 修復 -->
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@6.8.3/tinymce.min.js" referrerpolicy="origin"></script>
     <script>
       tinymce.init({
         selector: '#description',
+        license_key: 'gpl',
         height: 380,
         plugins: 'lists link image preview code',
         toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
-        language: 'zh_TW',
         branding: false,
         promotion: false
       });
