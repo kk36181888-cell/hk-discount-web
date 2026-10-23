@@ -2,105 +2,174 @@
 <html lang="zh-HK" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>DayBuy - 高級控制總部</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DayBuy 著數後台管理系統</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- 🌟 TinyMCE 專業級富文本編輯器 -->
+    <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/6/tinymce.min.js" referrerpolicy="origin"></script>
+    <script>
+      tinymce.init({
+        selector: '#description',
+        height: 380,
+        plugins: 'lists link image preview code',
+        toolbar: 'undo redo | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
+        language: 'zh_TW',
+        branding: false,
+        promotion: false
+      });
+    </script>
 </head>
 <body class="bg-light">
-    <!-- 頂部導航條 -->
-    <div class="bg-dark text-white p-4 mb-4">
-        <div class="container d-flex justify-content-between align-items-center">
-            <h2 class="mb-0"><i class="fa-solid fa-user-secret me-2"></i>DayBuy 高級控制總部</h2>
-            <div class="d-flex gap-2">
-                <form th:action="@{/daybuy-hq/delete-all}" method="post" onsubmit="return confirm('確定清空所有資料？呢個動作冇得返轉頭！');">
-                    <button type="submit" class="btn btn-danger fw-bold">🗑️ 一鍵清空</button>
+    
+    <!-- 頂部管理導航列 -->
+    <nav class="navbar navbar-dark bg-dark mb-4 shadow-sm">
+        <div class="container">
+            <a href="/daybuy-hq" class="navbar-brand mb-0 h1 text-decoration-none">
+                <i class="fa-solid fa-gear me-2 text-warning"></i>DayBuy 後台管理系統 (HQ)
+            </a>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="/" class="btn btn-outline-light btn-sm fw-bold" target="_blank">
+                    <i class="fa-solid fa-eye me-1"></i>預覽前台
+                </a>
+                <form th:action="@{/daybuy-hq/logout}" method="post" class="m-0">
+                    <button type="submit" class="btn btn-danger btn-sm fw-bold">
+                        <i class="fa-solid fa-right-from-bracket me-1"></i>安全登出
+                    </button>
                 </form>
-                <a href="/" class="btn btn-outline-light">返回首頁</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        <div class="row">
+            <!-- 左邊：新增 / 編輯優惠表單 -->
+            <div class="col-lg-5 mb-4">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <!-- 根據 id 判斷係「發佈新優惠」定係「編輯模式」 -->
+                    <div class="card-header fw-bold fs-5 py-3" 
+                         th:classappend="${discount.id == null ? 'bg-warning text-dark' : 'bg-primary text-white'}">
+                        <i class="fa-solid me-2" th:classappend="${discount.id == null ? 'fa-plus-circle' : 'fa-pen-to-square'}"></i>
+                        <span th:text="${discount.id == null ? '發佈新著數優惠' : '正在編輯優惠 (ID: ' + discount.id + ')'}"></span>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/daybuy-hq/add}" th:object="${discount}" method="post">
+                            <!-- 🌟 關鍵隱藏欄位：儲存 ID 用於判斷新增定更新 -->
+                            <input type="hidden" th:field="*{id}">
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">分類標籤</label>
+                                <select class="form-select" th:field="*{category}" required>
+                                    <option value="supermarket">🛒 超市著數 (Supermarket)</option>
+                                    <option value="dining">🍽️ 飲食優惠 (Dining)</option>
+                                    <option value="warehouse">📦 開倉大減價 (Warehouse)</option>
+                                    <option value="others">🎁 其他著數 (Others)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">優惠標題</label>
+                                <input type="text" class="form-control" th:field="*{title}" placeholder="例：百佳超級市場 本週激抵優惠" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">優惠期 (Promo Period)</label>
+                                <input type="text" class="form-control" th:field="*{promoPeriod}" placeholder="例：即日起至 10 月 31 日" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">封面圖片網址 (Image URL)</label>
+                                <input type="url" class="form-control" th:field="*{imageUrl}" placeholder="請貼上 .jpg / .png 直接連結" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold text-primary"><i class="fa-regular fa-images me-1"></i>額外圖片網址 (可選)</label>
+                                <textarea class="form-control border-primary" th:field="*{additionalImages}" rows="3" placeholder="每行貼一條圖片直連網址"></textarea>
+                                <small class="text-muted">支援多頁超市單張，前台會自動排成直立式瀑布流。</small>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">詳細圖文內容 (Description)</label>
+                                <textarea id="description" class="form-control" th:field="*{description}" rows="8"></textarea>
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn fw-bold py-2" 
+                                        th:classappend="${discount.id == null ? 'btn-success' : 'btn-primary'}">
+                                    <i class="fa-solid fa-cloud-arrow-up me-2"></i>
+                                    <span th:text="${discount.id == null ? '確認儲存並發佈' : '儲存修改更新'}"></span>
+                                </button>
+                                <!-- 編輯模式下顯示「取消編輯」掣 -->
+                                <a href="/daybuy-hq" class="btn btn-outline-secondary fw-bold" th:if="${discount.id != null}">
+                                    <i class="fa-solid fa-xmark me-1"></i>取消編輯（返回新增模式）
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右邊：已發佈優惠列表 -->
+            <div class="col-lg-7">
+                <div class="card shadow-sm border-0 rounded-4">
+                    <div class="card-header bg-dark text-white fw-bold fs-5 py-3 d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-list me-2"></i>已上架優惠 (<span th:text="${#lists.size(discounts)}">0</span>)</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-3">封面</th>
+                                        <th>標題 / 分類 / 優惠期</th>
+                                        <th>瀏覽量</th>
+                                        <th class="text-end pe-3">管理操作</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="item : ${discounts}" th:classappend="${discount.id == item.id ? 'table-primary' : ''}">
+                                        <td class="ps-3" style="width: 80px;">
+                                            <img th:src="${item.imageUrl}" class="rounded shadow-sm bg-white" style="width: 60px; height: 60px; object-fit: cover;">
+                                        </td>
+                                        <td>
+                                            <div class="fw-bold text-truncate" style="max-width: 260px;" th:text="${item.title}"></div>
+                                            <span class="badge bg-secondary me-1" th:text="${item.category}"></span>
+                                            <small class="text-muted"><i class="fa-regular fa-clock me-1"></i><span th:text="${item.promoPeriod}"></span></small>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-warning text-dark rounded-pill">
+                                                <i class="fa-solid fa-fire text-danger me-1"></i><span th:text="${item.viewCount}">0</span>
+                                            </span>
+                                        </td>
+                                        <td class="text-end pe-3" style="min-width: 130px;">
+                                            <!-- ✏️ 編輯按鈕 -->
+                                            <a th:href="@{/daybuy-hq/edit/{id}(id=${item.id})}" class="btn btn-sm btn-outline-primary me-1" title="編輯此優惠">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </a>
+                                            <!-- 🗑️ 刪除按鈕 (用 POST 表單防止誤觸) -->
+                                            <form th:action="@{/daybuy-hq/delete/{id}(id=${item.id})}" method="post" class="d-inline" onsubmit="return confirm('確定要永久刪除呢個優惠嗎？');">
+                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="刪除">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    <tr th:if="${#lists.isEmpty(discounts)}">
+                                        <td colspan="4" class="text-center py-5 text-muted">
+                                            <i class="fa-solid fa-box-open fs-2 mb-3"></i>
+                                            <p class="mb-0">暫時未有任何優惠，快啲喺左邊發佈第一個啦！</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="container">
-        <!-- 新增優惠表格 -->
-        <div class="card mb-4 shadow-sm">
-            <div class="card-header bg-secondary text-white fw-bold">➕ 新增優惠</div>
-            <div class="card-body">
-                <form th:action="@{/daybuy-hq/add}" th:object="${discount}" method="post">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">優惠標題</label>
-                            <input type="text" th:field="*{title}" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">優惠類別</label>
-                            <select th:field="*{category}" class="form-select">
-                                <option value="supermarket">超市著數</option>
-                                <option value="dining">飲食優惠</option>
-                                <option value="warehouse">開倉大減價</option>
-                                <option value="others">其他著數</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold">封面圖片網址 (必填)</label>
-                            <input type="url" th:field="*{imageUrl}" class="form-control" required placeholder="首頁顯示嘅主圖">
-                            
-                            <label class="form-label fw-bold mt-3">優惠期限</label>
-                            <input type="text" th:field="*{promoPeriod}" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <!-- 🌟 全新升級：多圖輸入框 -->
-                            <label class="form-label fw-bold">額外圖片網址 (支援多張)</label>
-                            <textarea th:field="*{additionalImages}" class="form-control" rows="4" placeholder="如果有第 2、第 3 張圖，請喺度貼上網址。&#10;請注意：每行只可以貼一條網址！"></textarea>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">詳細內容 (支援 HTML 排版及加圖)</label>
-                        <textarea th:field="*{description}" class="form-control" rows="4"></textarea>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-success fw-bold">發佈優惠</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- 優惠列表及數據顯示 -->
-        <div class="card shadow-sm">
-            <div class="card-body p-0">
-                <table class="table table-hover mb-0">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>標題</th>
-                            <th>圖片</th>
-                            <th>🔥 瀏覽量</th> <!-- BI 數據欄位 -->
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="d : ${discounts}">
-                            <td th:text="${d.id}"></td>
-                            <td th:text="${d.title}"></td>
-                            <td><img th:src="${d.imageUrl}" style="height:40px; border-radius:4px;"></td>
-                            
-                            <!-- 顯示收集到嘅點擊數據 -->
-                            <td class="fw-bold text-danger">
-                                <i class="fa-solid fa-eye me-1"></i> 
-                                <span th:text="${d.viewCount}">0</span>
-                            </td>
-                            
-                            <td>
-                                <form th:action="@{/daybuy-hq/delete/{id}(id=${d.id})}" method="post">
-                                    <button class="btn btn-sm btn-outline-danger fw-bold">刪除</button>
-                                </form>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -5,6 +5,7 @@ import com.discount.discount_web.repository.DiscountRepository;
 import com.discount.discount_web.security.JwtUtil;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
@@ -31,18 +32,15 @@ public class PageController {
     @Autowired
     private JwtUtil jwtUtil;
 
-    // 🛡️ 從設定檔或雲端環境變數讀取帳號密碼，告別 Hardcode！
     @Value("${daybuy.admin.username:admin}")
     private String adminUsername;
 
     @Value("${daybuy.admin.password:admin2026}")
     private String rawAdminPassword;
 
-    // 🔒 BCrypt 密碼加密器與加密後嘅 Hash
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private String encodedAdminPassword;
 
-    // 系統啟動時，自動將密碼轉化為不可逆嘅 BCrypt Hash 存入記憶體
     @PostConstruct
     public void initSecurity() {
         this.encodedAdminPassword = passwordEncoder.encode(rawAdminPassword);
@@ -111,7 +109,7 @@ public class PageController {
     public String faq() { return "faq"; }
 
     // ==========================================
-    // 📄 詳情頁 (🚀 BI 數據追蹤 + 🌟 多圖畫廊 + ⚡ 極速隨機推介)
+    // 📄 詳情頁
     // ==========================================
     @GetMapping("/discount/{id}")
     public String discountDetail(@PathVariable Long id, Model model) {
@@ -141,7 +139,7 @@ public class PageController {
     }
 
     // ==========================================
-    // 🛡️ CMS 後台保安系統 (JWT + BCrypt 雜湊驗證)
+    // 🛡️ CMS 後台保安系統 (JWT + BCrypt + Cookie 加固)
     // ==========================================
     @GetMapping("/daybuy-hq/login")
     public String loginPage(@RequestParam(required = false) String error, Model model) {
@@ -152,14 +150,20 @@ public class PageController {
     }
 
     @PostMapping("/daybuy-hq/doLogin")
-    public String doLogin(@RequestParam String username, @RequestParam String password, HttpServletResponse response) {
-        // 🔒 使用 BCrypt 安全比對密碼 Hash，防範明文洩漏與時序攻擊
+    public String doLogin(@RequestParam String username, @RequestParam String password, 
+                          HttpServletRequest request, HttpServletResponse response) {
         if (adminUsername.equals(username) && passwordEncoder.matches(password, encodedAdminPassword)) {
             String token = jwtUtil.generateToken(username);
             Cookie cookie = new Cookie("DAYBUY_ADMIN_TOKEN", token);
-            cookie.setHttpOnly(true); // 防範 JavaScript 竊取 Cookie
+            cookie.setHttpOnly(true); // 防範 XSS 竊取 Cookie
             cookie.setPath("/");
             cookie.setMaxAge(7 * 24 * 60 * 60);
+
+            // 🛡️ 智能判斷：喺 Render (HTTPS) 自動啟用 Secure，喺 Localhost (HTTP) 亦能正常測試
+            boolean isHttps = request.isSecure() || "https".equalsIgnoreCase(request.getHeader("X-Forwarded-Proto"));
+            cookie.setSecure(isHttps);
+            cookie.setAttribute("SameSite", "Lax"); // 防範 CSRF 跨站請求偽造攻擊
+
             response.addCookie(cookie);
             return "redirect:/daybuy-hq";
         }
@@ -169,6 +173,7 @@ public class PageController {
     @PostMapping("/daybuy-hq/logout")
     public String logout(HttpServletResponse response) {
         Cookie cookie = new Cookie("DAYBUY_ADMIN_TOKEN", null);
+        cookie.setHttpOnly(true);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
@@ -176,22 +181,43 @@ public class PageController {
     }
 
     // ==========================================
-    // 🚀 CMS 後台操作 (加入 Jsoup 防 XSS 消毒機制)
+    // 🚀 CMS 後台操作 (支援新增、編輯、刪除與 XSS 消毒)
     // ==========================================
     @GetMapping("/daybuy-hq")
     public String adminPage(Model model) {
-        model.addAttribute("discount", new Discount());
+        model.addAttribute("discount", new Discount()); // 預設空白表單 (新增模式)
         model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
         return "admin"; 
     }
 
+    // 🌟 新增：載入指定優惠資料到左邊表單進入「編輯模式」
+    @GetMapping("/daybuy-hq/edit/{id}")
+    public String editDiscountPage(@PathVariable Long id, Model model) {
+        Discount existingDiscount = discountRepository.findById(id).orElse(null);
+        if (existingDiscount == null) {
+            return "redirect:/daybuy-hq";
+        }
+        model.addAttribute("discount", existingDiscount); // 將舊資料塞入表單
+        model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc());
+        return "admin";
+    }
+
+    // 🌟 升級：同時處理「新增」與「修改更新」
     @PostMapping("/daybuy-hq/add")
-    public String addDiscount(@ModelAttribute Discount discount) {
-        // 🧹 儲存前消毒：過濾所有 <script> 等惡意 XSS 標籤，同時保留 TinyMCE 安全排版與 style 屬性
+    public String saveOrUpdateDiscount(@ModelAttribute Discount discount) {
+        // 1. 🧹 Jsoup 防 XSS 消毒
         if (discount.getDescription() != null) {
             Safelist customSafelist = Safelist.relaxed().addAttributes(":all", "style", "class");
             String safeHtml = Jsoup.clean(discount.getDescription(), customSafelist);
             discount.setDescription(safeHtml);
+        }
+
+        // 2. 📊 如果係編輯舊優惠，保留原本嘅 ViewCount 瀏覽量，避免被重置為 0
+        if (discount.getId() != null) {
+            Discount existing = discountRepository.findById(discount.getId()).orElse(null);
+            if (existing != null) {
+                discount.setViewCount(existing.getViewCount());
+            }
         }
         
         discountRepository.save(discount);
