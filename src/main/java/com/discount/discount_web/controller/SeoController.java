@@ -53,7 +53,8 @@ public class SeoController {
         addUrl(xml, base() + "/faq", today, "0.5");
 
         for (Discount d : discountRepository.findAllByOrderByIdDesc()) {
-            if (!d.isExpired()) {
+            // 待審草稿 (PENDING) 唔好入 sitemap
+            if (!d.isExpired() && d.isPublished()) {
                 addUrl(xml, base() + "/discount/" + d.getId(), null, "0.8");
             }
         }

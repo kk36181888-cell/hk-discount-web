@@ -189,9 +189,35 @@ public class PageController {
     // ==========================================
     @GetMapping("/daybuy-hq")
     public String adminPage(Model model) {
-        model.addAttribute("discount", new Discount()); 
-        model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc()); 
-        return "admin"; 
+        model.addAttribute("discount", new Discount());
+        model.addAttribute("discounts", discountRepository.findAllByOrderByIdDesc());
+        model.addAttribute("pendingCount", discountRepository.countByStatus("PENDING"));
+        return "admin";
+    }
+
+    // ==========================================
+    // 🤖 自動入貨待審清單 (PENDING 草稿：批准先出街)
+    // ==========================================
+    @GetMapping("/daybuy-hq/review")
+    public String reviewPage(Model model) {
+        model.addAttribute("pendingDiscounts", discountRepository.findByStatusOrderByScrapedAtDesc("PENDING"));
+        return "review";
+    }
+
+    @PostMapping("/daybuy-hq/review/approve/{id}")
+    public String approveDiscount(@PathVariable Long id) {
+        Discount d = discountRepository.findById(id).orElse(null);
+        if (d != null) {
+            d.setStatus("PUBLISHED");
+            discountRepository.save(d);
+        }
+        return "redirect:/daybuy-hq/review";
+    }
+
+    @PostMapping("/daybuy-hq/review/reject/{id}")
+    public String rejectDiscount(@PathVariable Long id) {
+        discountRepository.deleteById(id);
+        return "redirect:/daybuy-hq/review";
     }
 
     @GetMapping("/daybuy-hq/edit/{id}")
@@ -244,7 +270,18 @@ public class PageController {
             Discount existing = discountRepository.findById(discount.getId()).orElse(null);
             if (existing != null) {
                 discount.setViewCount(existing.getViewCount());
+                // 🤖 表單冇嘅欄位要保留原值，唔好俾編輯一次就洗走入貨來源資料/狀態
+                if (discount.getStatus() == null) {
+                    discount.setStatus(existing.getStatus());
+                }
+                discount.setSourceName(existing.getSourceName());
+                discount.setSourceUrl(existing.getSourceUrl());
+                discount.setSourceKey(existing.getSourceKey());
+                discount.setScrapedAt(existing.getScrapedAt());
             }
+        }
+        if (discount.getStatus() == null) {
+            discount.setStatus("PUBLISHED");
         }
         
         discountRepository.save(discount);
