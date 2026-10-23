@@ -13,13 +13,14 @@ import java.util.Map;
 @Service
 public class CloudinaryService {
 
-    @Value("${cloudinary.cloud-name}")
+    // 🛡️ 加上冒號同預設字串做 fallback，避免找不到變數時 App 直接 Crash
+    @Value("${cloudinary.cloud-name:default_cloud}")
     private String cloudName;
 
-    @Value("${cloudinary.api-key}")
+    @Value("${cloudinary.api-key:default_key}")
     private String apiKey;
 
-    @Value("${cloudinary.api-secret}")
+    @Value("${cloudinary.api-secret:default_secret}")
     private String apiSecret;
 
     private Cloudinary cloudinary;
@@ -30,13 +31,10 @@ public class CloudinaryService {
                 "cloud_name", cloudName,
                 "api_key", apiKey,
                 "api_secret", apiSecret,
-                "secure", true // 強制回傳 https:// 安全網址
+                "secure", true 
         ));
     }
 
-    /**
-     * 將單張圖片上載到 Cloudinary 嘅 daybuy_discounts 資料夾，並回傳永久圖片網址
-     */
     public String uploadImage(MultipartFile file) throws IOException {
         if (file == null || file.isEmpty()) {
             return null;
