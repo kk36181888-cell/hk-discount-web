@@ -256,8 +256,12 @@ public class PageController {
                 discount.setAdditionalImages(String.join("\n", uploadedExtraUrls));
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "圖片上載去 Cloudinary 失敗，請檢查 API Key 設定：" + e.getMessage());
+            // ⚠️ 2026-10-23 修復：Cloudinary 從未設定過帳號 (Render 環境冇 cloudinary 變數，
+            // 一直用緊程式嘅 placeholder 值)，上載必然失敗；之前 catch 完照 throw 500，
+            // 搞到成條優惠入唔到 (2026-10-23 後台入 OSAMU GOODS 優惠實測中招)。
+            // 改為：上載失敗只記低，保留表單填嘅圖片網址繼續存檔，唔好成單死火。
+            // (封面若已上載成功先失敗，imageUrl 已 set 好；附加圖未完成就保留原值。)
+            System.out.println("⚠️ Cloudinary 圖片上載失敗，改用表單圖片網址存檔: " + e.getMessage());
         }
 
         if (discount.getDescription() != null) {
