@@ -70,6 +70,14 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label fw-bold">發佈狀態</label>
+                                <select class="form-select" th:field="*{status}">
+                                    <option value="PUBLISHED">✅ 公開中 (PUBLISHED)</option>
+                                    <option value="PENDING">📥 待審草稿 (PENDING)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label fw-bold">優惠標題</label>
                                 <input type="text" class="form-control" th:field="*{title}" placeholder="例：百佳超級市場 本週激抵優惠" required>
                             </div>
@@ -131,6 +139,10 @@
                 <div class="card shadow-sm border-0 rounded-4">
                     <div class="card-header bg-dark text-white fw-bold fs-5 py-3 d-flex justify-content-between align-items-center">
                         <span><i class="fa-solid fa-list me-2"></i>已上架優惠 (<span th:text="${#lists.size(discounts)}">0</span>)</span>
+                        <a href="/daybuy-hq/review" class="btn btn-warning btn-sm fw-bold">
+                            <i class="fa-solid fa-robot me-1"></i>待審入貨
+                            <span class="badge bg-danger" th:if="${pendingCount != null and pendingCount > 0}" th:text="${pendingCount}">0</span>
+                        </a>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
@@ -154,6 +166,8 @@
                                             <small class="text-muted"><i class="fa-regular fa-clock me-1"></i><span th:text="${item.promoPeriod}"></span></small>
                                             <span class="badge bg-dark ms-1" th:if="${item.endDate != null}" th:text="'至 ' + ${#temporals.format(item.endDate, 'dd/MM/yyyy')}"></span>
                                             <span class="badge bg-danger ms-1" th:if="${item.expired}">已過期（前台已隱藏）</span>
+                                            <span class="badge bg-warning text-dark ms-1" th:if="${item.status == 'PENDING'}">待審</span>
+                                            <span class="badge bg-success ms-1" th:if="${item.status == null or item.status == 'PUBLISHED'}">公開中</span>
                                         </td>
                                         <td>
                                             <span class="badge bg-warning text-dark rounded-pill">
