@@ -45,4 +45,18 @@ public class CloudinaryService {
         );
         return uploadResult.get("secure_url").toString();
     }
+
+    // 🤖 自動入貨用：將外部圖片網址轉存入 Cloudinary (Cloudinary 會自己去抓原圖)
+    //    失敗會 throw，呼叫方要 catch 住並決定用返原網址定丟棄
+    public String uploadImageFromUrl(String imageUrl) throws IOException {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return null;
+        }
+        Map<?, ?> uploadResult = cloudinary.uploader().upload(
+                imageUrl,
+                ObjectUtils.asMap("folder", "daybuy_discounts")
+        );
+        Object secureUrl = uploadResult.get("secure_url");
+        return secureUrl != null ? secureUrl.toString() : null;
+    }
 }
