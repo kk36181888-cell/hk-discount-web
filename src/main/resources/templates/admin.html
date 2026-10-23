@@ -79,6 +79,12 @@
                                 <input type="text" class="form-control" th:field="*{promoPeriod}" placeholder="例：即日起至 10 月 31 日" required>
                             </div>
 
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">📅 優惠結束日期 (End Date)</label>
+                                <input type="date" class="form-control" th:field="*{endDate}">
+                                <small class="text-muted">填咗先識計「剩 X 日」同過期自動隱藏；長期優惠可以留空。</small>
+                            </div>
+
                             <!-- 🌟 關鍵 2：封面圖片（直接揀檔案 OR 貼網址二選一） -->
                             <div class="mb-3 p-3 bg-white border border-success rounded-3">
                                 <label class="form-label fw-bold text-success">
@@ -146,6 +152,8 @@
                                             <div class="fw-bold text-truncate" style="max-width: 260px;" th:text="${item.title}"></div>
                                             <span class="badge bg-secondary me-1" th:text="${item.category}"></span>
                                             <small class="text-muted"><i class="fa-regular fa-clock me-1"></i><span th:text="${item.promoPeriod}"></span></small>
+                                            <span class="badge bg-dark ms-1" th:if="${item.endDate != null}" th:text="'至 ' + ${#temporals.format(item.endDate, 'dd/MM/yyyy')}"></span>
+                                            <span class="badge bg-danger ms-1" th:if="${item.expired}">已過期（前台已隱藏）</span>
                                         </td>
                                         <td>
                                             <span class="badge bg-warning text-dark rounded-pill">

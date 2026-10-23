@@ -6,7 +6,16 @@
     
     <!-- 🚀 SEO 升級：網站描述 (Google 搜尋結果下面嗰行字) -->
     <meta name="description" content="DayBuy 抵Buy - 為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
-    
+
+    <!-- 📣 社交分享預覽 (2026-10-23 補上：之前首頁完全冇 OG，分享去 FB/WhatsApp 冇圖冇題) -->
+    <meta property="og:title" content="DayBuy 抵Buy - 全港著數導航">
+    <meta property="og:description" content="為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
+    <meta property="og:type" content="website">
+    <meta property="og:image" th:if="${discountPage != null and !discountPage.content.isEmpty()}" th:content="${discountPage.content[0].imageUrl}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="DayBuy 抵Buy - 全港著數導航">
+    <meta name="twitter:description" content="為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
+
     <!-- 🏷️ 專業升級：加入 Favicon 分頁小圖示 (直接用 SVG 唔使上載圖片) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>">
     
@@ -70,6 +79,9 @@
             <a href="/" th:classappend="${currentUrl == '/'} ? 'active' : ''"><i class="fa-solid fa-house me-2"></i>首頁</a>
             <a href="/supermarket" th:classappend="${currentUrl == '/supermarket'} ? 'active' : ''"><i class="fa-solid fa-cart-shopping me-2"></i>超市著數</a>
             <a href="/dining" th:classappend="${currentUrl == '/dining'} ? 'active' : ''"><i class="fa-solid fa-utensils me-2"></i>飲食優惠</a>
+            <a href="/warehouse" th:classappend="${currentUrl == '/warehouse'} ? 'active' : ''"><i class="fa-solid fa-box-open me-2"></i>開倉減價</a>
+            <a href="/others" th:classappend="${currentUrl == '/others'} ? 'active' : ''"><i class="fa-solid fa-gift me-2"></i>其他著數</a>
+            <a href="/faq"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
         </div>
     </nav>
 
@@ -133,6 +145,12 @@
                         <div class="card-content bg-white">
                             <div class="text-danger fw-bold fs-6 mb-2">
                                 <i class="fa-regular fa-clock me-1"></i> 優惠期: <span th:text="${discount.promoPeriod}"></span>
+                            </div>
+                            <!-- 📅 到期提示 (有填結束日期先顯示)：最後今日/剩 X 日行紅色，日子充裕就灰色顯示結束日期 -->
+                            <div class="mb-2" th:if="${discount.endDate != null}">
+                                <span class="badge bg-danger" th:if="${discount.daysRemaining == 0}">🔥 最後今日</span>
+                                <span class="badge bg-danger" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0 and discount.daysRemaining <= 3}" th:text="'⏰ 剩返 ' + ${discount.daysRemaining} + ' 日咋'"></span>
+                                <span class="badge bg-secondary" th:if="${discount.daysRemaining != null and discount.daysRemaining > 3}" th:text="'📅 至 ' + ${#temporals.format(discount.endDate, 'dd/MM/yyyy')} + ' 止'"></span>
                             </div>
                             <div class="text-muted mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.95rem;" th:utext="${discount.description}"></div>
                             
