@@ -1,6 +1,10 @@
 package com.discount.discount_web.model;
 
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "discounts")
@@ -19,6 +23,12 @@ public class Discount {
     private String imageUrl;
 
     private String promoPeriod;
+
+    // 📅 優惠結束日期 (俾系統判斷過期/計剩餘日數用；promoPeriod 繼續做顯示文字)
+    // 冇填 = 長期/未知，前台照常顯示，唔會被當過期
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private LocalDate endDate;
+
     private String category;
 
     // 🌟 全新升級：額外圖片網址 (支援多張，用換行符號隔開)
@@ -44,6 +54,22 @@ public class Discount {
 
     public String getPromoPeriod() { return promoPeriod; }
     public void setPromoPeriod(String promoPeriod) { this.promoPeriod = promoPeriod; }
+
+    public LocalDate getEndDate() { return endDate; }
+    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+
+    // ⏰ 係咪已經過期 (冇結束日期 = 未過期)
+    @Transient
+    public boolean isExpired() {
+        return endDate != null && endDate.isBefore(LocalDate.now());
+    }
+
+    // ⏰ 距離結束仲剩幾多日 (今日完 = 0；冇結束日期/已過期 = null)
+    @Transient
+    public Long getDaysRemaining() {
+        if (endDate == null || isExpired()) { return null; }
+        return ChronoUnit.DAYS.between(LocalDate.now(), endDate);
+    }
 
     public String getCategory() { return category; }
     public void setCategory(String category) { this.category = category; }
