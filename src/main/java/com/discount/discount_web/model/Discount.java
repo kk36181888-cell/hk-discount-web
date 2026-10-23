@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
 @Entity
@@ -38,6 +39,25 @@ public class Discount {
     // 🚀 BI 數據收集：瀏覽量
     @Column(columnDefinition = "integer default 0")
     private int viewCount = 0;
+
+    // 🤖 自動入貨欄位 (2026-10-23 爬蟲 v1)：狀態 PUBLISHED=公開 / PENDING=待審草稿
+    //    columnDefinition 帶 default，現有資料加欄時會自動填 PUBLISHED，唔會突然消失
+    @Column(columnDefinition = "varchar(20) default 'PUBLISHED'")
+    private String status = "PUBLISHED";
+
+    // 來源顯示名 (例：惠康官方網店)；人手入嘅優惠可留空
+    private String sourceName;
+
+    // 官方來源頁連結 (詳情頁標示 + 查核用)
+    @Column(length = 1000)
+    private String sourceUrl;
+
+    // 去重鍵 (例：wellcome:/d/abc123.html)，unique 保證同一活動唔會重複入貨
+    @Column(unique = true, length = 500)
+    private String sourceKey;
+
+    // 抓取時間 (人手入嘅為 null)
+    private LocalDateTime scrapedAt;
 
     // Getters and Setters
     public Long getId() { return id; }
@@ -81,4 +101,26 @@ public class Discount {
     // 🚀 瀏覽量嘅 Getter 同 Setter
     public int getViewCount() { return viewCount; }
     public void setViewCount(int viewCount) { this.viewCount = viewCount; }
+
+    // 🤖 自動入貨欄位 Getter / Setter
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    public String getSourceName() { return sourceName; }
+    public void setSourceName(String sourceName) { this.sourceName = sourceName; }
+
+    public String getSourceUrl() { return sourceUrl; }
+    public void setSourceUrl(String sourceUrl) { this.sourceUrl = sourceUrl; }
+
+    public String getSourceKey() { return sourceKey; }
+    public void setSourceKey(String sourceKey) { this.sourceKey = sourceKey; }
+
+    public LocalDateTime getScrapedAt() { return scrapedAt; }
+    public void setScrapedAt(LocalDateTime scrapedAt) { this.scrapedAt = scrapedAt; }
+
+    // 係咪公開中 (status 未填當公開，雙重保險配合 DB default)
+    @Transient
+    public boolean isPublished() {
+        return status == null || "PUBLISHED".equals(status);
+    }
 }
