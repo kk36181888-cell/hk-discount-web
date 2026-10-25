@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     <!-- 🚀 SEO 升級：網站描述 (Google 搜尋結果下面嗰行字) -->
-    <meta name="description" content="DayBuy 抵Buy - 為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
+    <meta name="description" content="JetsoBanana - 為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
 
     <!-- 📣 社交分享預覽 (2026-10-23 補上：之前首頁完全冇 OG，分享去 FB/WhatsApp 冇圖冇題) -->
-    <meta property="og:title" content="DayBuy 抵Buy - 全港著數導航">
+    <meta property="og:title" content="JetsoBanana - 全港著數導航">
     <meta property="og:description" content="為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
     <meta property="og:type" content="website">
     <meta property="og:image" th:if="${discountPage != null and !discountPage.content.isEmpty()}" th:content="${discountPage.content[0].imageUrl}">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="DayBuy 抵Buy - 全港著數導航">
+    <meta name="twitter:title" content="JetsoBanana - 全港著數導航">
     <meta name="twitter:description" content="為你搜羅全港最新超市、飲食、開倉大減價及著數優惠情報！每天更新，幫你慳到盡。">
 
     <!-- 🏷️ 專業升級：加入 Favicon 分頁小圖示 (直接用 SVG 唔使上載圖片) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>">
     
-    <title>DayBuy 抵Buy - 全港著數導航</title>
+    <title>JetsoBanana - 全港著數導航</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -66,7 +66,7 @@
 
     <header class="top-header">
         <div class="container d-flex flex-wrap align-items-center justify-content-between">
-            <a href="/" class="brand-logo mb-2 mb-md-0"><i class="fa-solid fa-tags me-2"></i>DayBuy</a>
+            <a href="/" class="brand-logo mb-2 mb-md-0"><i class="fa-solid fa-tags me-2"></i>JetsoBanana</a>
             <form class="d-flex" action="/search" method="get">
                 <input class="form-control me-2" type="search" name="keyword" th:value="${searchKeyword}" placeholder="搵優惠 (例: 百佳)..." required>
                 <button class="btn btn-dark fw-bold" type="submit" style="white-space: nowrap;"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -192,8 +192,8 @@
 
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
-            <p class="mb-1 fw-bold fs-5"><i class="fa-solid fa-tags me-2"></i>DayBuy 抵Buy 著數情報網</p>
-            <p class="mb-2">© 2026 DayBuy. All rights reserved.</p>
+            <p class="mb-1 fw-bold fs-5"><i class="fa-solid fa-tags me-2"></i>JetsoBanana 著數情報網</p>
+            <p class="mb-2">© 2026 JetsoBanana. All rights reserved.</p>
             <small class="text-secondary" style="font-size: 0.8rem;">
                 免責聲明：本網站僅為優惠資訊整合平台，旨在為大眾提供免費著數情報。所有優惠詳情、條款及細則均以官方公佈為準。本站與相關商戶無任何直接交易或從屬關係，亦不對任何交易損失負責。
             </small>
