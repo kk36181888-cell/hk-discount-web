@@ -80,17 +80,49 @@ public class WellcomeParser {
         deal.sourceKey = "wellcome:" + URI.create(url).getPath();
         deal.category = "supermarket";
 
+        // 惠康用 name="og:title" 多過 property，兩樣都試，冇先用 doc.title()
         Element ogTitle = doc.selectFirst("meta[property=og:title]");
+        if (ogTitle == null) { ogTitle = doc.selectFirst("meta[name=og:title]"); }
         String title = ogTitle != null ? ogTitle.attr("content") : doc.title();
         deal.title = cleanTitle(title);
 
         Element ogImage = doc.selectFirst("meta[property=og:image]");
+        if (ogImage == null) { ogImage = doc.selectFirst("meta[name=og:image]"); }
         deal.imageUrl = ogImage != null ? ogImage.attr("content") : "";
+
+        // 🖼️ 2026-10-25 修正 (option B)：活動頁本身冇 og:image（實查原箱夠抵頁 0 個），
+        //    但活動頁入面第一件產品頁有 name="og:image" 實物圖；冇圖就入產品頁攞圖做封面，
+        //    攞唔到先維持空白（由 IngestService 門檻丟棄，行為不變）。
+        if (deal.imageUrl == null || deal.imageUrl.isBlank()) {
+            deal.imageUrl = fetchFirstProductImage(doc);
+        }
 
         String text = doc.text();
         deal.textContent = text.length() > 6000 ? text.substring(0, 6000) : text;
 
         return deal;
+    }
+
+    // 由活動頁抽第一個產品連結，入產品頁攞圖：og:image（name 優先，property 其次，s-img 兜底）
+    private String fetchFirstProductImage(Document doc) {
+        try {
+            Element productLink = doc.selectFirst("a[href*=/p/]");
+            if (productLink == null) { return ""; }
+            String productUrl = productLink.absUrl("href");
+            if (productUrl == null || productUrl.isBlank()) { return ""; }
+            Document product = Jsoup.connect(productUrl)
+                    .userAgent(USER_AGENT)
+                    .timeout(20000)
+                    .get();
+            Element img = product.selectFirst("meta[name=og:image]");
+            if (img == null) { img = product.selectFirst("meta[property=og:image]"); }
+            if (img != null && !img.attr("content").isBlank()) { return img.attr("content"); }
+            Element sImg = product.selectFirst("img.s-img");
+            if (sImg != null && !sImg.absUrl("src").isBlank()) { return sImg.absUrl("src"); }
+        } catch (Exception e) {
+            System.out.println("⚠️ [WellcomeParser] 產品圖抓取失敗，跳過: " + e.getMessage());
+        }
+        return "";
     }
 
     private String cleanTitle(String title) {

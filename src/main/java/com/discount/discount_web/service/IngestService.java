@@ -53,7 +53,8 @@ public class IngestService {
                     continue;
                 }
                 // 品質門檻：冇標題或冇圖 → 丟棄，唔入草稿
-                if (deal.title == null || deal.title.trim().length() < 4
+                // 2026-10-25 放寬：標題下限由 4 字改 2 字（「雙11」呢類短標題本身係有效活動名）
+                if (deal.title == null || deal.title.trim().length() < 2
                         || deal.imageUrl == null || deal.imageUrl.isBlank()) {
                     discarded++;
                     continue;
