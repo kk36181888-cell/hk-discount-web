@@ -81,16 +81,28 @@
                             </span>
                         </div>
 
-                        <!-- 4. 🌟 保留直排展示，但加入 clickable-img 同 onclick 事件 -->
-                        <div class="d-flex flex-column gap-4 mb-5">
-                            <!-- 第一張：封面主圖 -->
-                            <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
-                            
-                            <!-- 第二張起：額外圖片 (如果有) -->
-                            <th:block th:if="${not #lists.isEmpty(extraImages)}">
-                                <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
-                            </th:block>
-                        </div>
+                        <!-- 4. 圖片展示：4 張或以上（封面＋額外）用格仔排列（手機 2 欄、電腦 3 欄一排，好似 7-Eleven 嗰種格式），3 張或以下維持原本直排 -->
+                        <th:block th:if="${#lists.size(extraImages) >= 3}">
+                            <div class="row g-2 mb-5">
+                                <div class="col-6 col-md-4">
+                                    <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
+                                </div>
+                                <div class="col-6 col-md-4" th:each="imgUrl : ${extraImages}">
+                                    <img th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
+                                </div>
+                            </div>
+                        </th:block>
+                        <th:block th:unless="${#lists.size(extraImages) >= 3}">
+                            <div class="d-flex flex-column gap-4 mb-5">
+                                <!-- 第一張：封面主圖 -->
+                                <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
+
+                                <!-- 第二張起：額外圖片 (如果有) -->
+                                <th:block th:if="${not #lists.isEmpty(extraImages)}">
+                                    <img th:each="imgUrl : ${extraImages}" th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
+                                </th:block>
+                            </div>
+                        </th:block>
                         
                         <!-- 5. 詳細文字內容 -->
                         <h4 class="fw-bold border-bottom pb-2 mb-4">優惠詳細圖文內容</h4>
