@@ -19,7 +19,8 @@
     <!-- 🏷️ 專業升級：加入 Favicon 分頁小圖示 (直接用 SVG 唔使上載圖片) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏷️</text></svg>">
     
-    <title>JetsoBanana - 全港著數導航</title>
+    <title th:if="${merchantName != null}" th:text="${merchantName} + ' 全部優惠 - JetsoBanana'">商戶優惠 - JetsoBanana</title>
+    <title th:unless="${merchantName != null}">JetsoBanana - 全港著數導航</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -81,6 +82,7 @@
             <a href="/dining" th:classappend="${currentUrl == '/dining'} ? 'active' : ''"><i class="fa-solid fa-utensils me-2"></i>飲食優惠</a>
             <a href="/warehouse" th:classappend="${currentUrl == '/warehouse'} ? 'active' : ''"><i class="fa-solid fa-box-open me-2"></i>開倉減價</a>
             <a href="/others" th:classappend="${currentUrl == '/others'} ? 'active' : ''"><i class="fa-solid fa-gift me-2"></i>其他著數</a>
+            <a href="/merchants" th:classappend="${currentUrl == '/merchants'} ? 'active' : ''"><i class="fa-solid fa-store me-2"></i>商戶專頁</a>
             <a href="/faq"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
         </div>
     </nav>
@@ -126,9 +128,16 @@
         </section>
 
         <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">
-            <span th:if="${searchKeyword != null}">🔍 搜尋結果: "<span th:text="${searchKeyword}"></span>"</span>
-            <span th:unless="${searchKeyword != null}">🔥 最新著數優惠</span>
+            <span th:if="${merchantName != null}">🏪 <span th:text="${merchantName}"></span> 全部優惠</span>
+            <span th:if="${merchantName == null and searchKeyword != null}">🔍 搜尋結果: "<span th:text="${searchKeyword}"></span>"</span>
+            <span th:if="${merchantName == null and searchKeyword == null}">🔥 最新著數優惠</span>
         </h4>
+
+        <!-- 🔥 排序切換：最新 / 最熱門 (瀏覽量) -->
+        <div class="mb-4 d-flex gap-2">
+            <a th:href="@{${currentUrl}(sort='latest', keyword=${searchKeyword})}" class="btn fw-bold" th:classappend="${sort != 'hot'} ? 'btn-dark' : 'btn-outline-dark'">🆕 最新</a>
+            <a th:href="@{${currentUrl}(sort='hot', keyword=${searchKeyword})}" class="btn fw-bold" th:classappend="${sort == 'hot'} ? 'btn-dark' : 'btn-outline-dark'">🔥 最熱門</a>
+        </div>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <!-- 🏗️ 語意化 HTML：使用 article 代表獨立文章/優惠 -->
@@ -145,6 +154,9 @@
                         <div class="card-content bg-white">
                             <div class="text-danger fw-bold fs-6 mb-2">
                                 <i class="fa-regular fa-clock me-1"></i> 優惠期: <span th:text="${discount.promoPeriod}"></span>
+                            </div>
+                            <div class="text-muted mb-2" style="font-size: 0.9rem;">
+                                <span th:if="${discount.merchantDisplay != null}">🏪 <span th:text="${discount.merchantDisplay}"></span> · </span><span>👁 <span th:text="${discount.viewCount}">0</span> 瀏覽</span>
                             </div>
                             <!-- 📅 到期提示 (有填結束日期先顯示)：最後今日/剩 X 日行紅色，日子充裕就灰色顯示結束日期 -->
                             <div class="mb-2" th:if="${discount.endDate != null}">
@@ -166,17 +178,17 @@
         <nav th:if="${discountPage.totalPages > 1}" aria-label="分頁導航" class="mt-5">
             <ul class="pagination justify-content-center pagination-lg shadow-sm" style="border-radius: 8px;">
                 <li class="page-item" th:classappend="${discountPage.first} ? 'disabled'">
-                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number - 1}, keyword=${searchKeyword})}" tabindex="-1">
+                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number - 1}, keyword=${searchKeyword}, sort=${sort})}" tabindex="-1">
                         <i class="fa-solid fa-angle-left me-2"></i>上一頁
                     </a>
                 </li>
                 <li class="page-item" th:each="i : ${#numbers.sequence(0, discountPage.totalPages - 1)}" th:classappend="${i == discountPage.number} ? 'active'">
                     <a class="page-link fw-bold" 
                        th:style="${i == discountPage.number} ? 'background-color: #FFDE00; border-color: #FFDE00; color: #000;' : 'color: #333;'" 
-                       th:href="@{${currentUrl}(page=${i}, keyword=${searchKeyword})}" th:text="${i + 1}">1</a>
+                       th:href="@{${currentUrl}(page=${i}, keyword=${searchKeyword}, sort=${sort})}" th:text="${i + 1}">1</a>
                 </li>
                 <li class="page-item" th:classappend="${discountPage.last} ? 'disabled'">
-                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number + 1}, keyword=${searchKeyword})}">
+                    <a class="page-link fw-bold" style="color: #000;" th:href="@{${currentUrl}(page=${discountPage.number + 1}, keyword=${searchKeyword}, sort=${sort})}">
                         下一頁<i class="fa-solid fa-angle-right ms-2"></i>
                     </a>
                 </li>

@@ -58,6 +58,12 @@
                             <span class="badge bg-secondary fs-6" th:if="${discount.category == 'others'}">其他著數</span>
                         </div>
                         
+                        <!-- 🏪 商戶及瀏覽量 -->
+                        <div class="mb-3">
+                            <span class="badge bg-dark fs-6" th:if="${discount.merchantDisplay != null}">🏪 <a th:href="@{/merchant/{name}(name=${discount.merchantDisplay})}" th:text="${discount.merchantDisplay}" class="text-white text-decoration-none">商戶</a></span>
+                            <span class="text-muted ms-2">👁 <span th:text="${discount.viewCount}">0</span> 瀏覽</span>
+                        </div>
+
                         <!-- 2. 標題緊接其後 -->
                         <h1 class="fw-bold mb-4" th:text="${discount.title}">優惠標題</h1>
                         
@@ -73,12 +79,6 @@
                                 <span class="badge bg-danger ms-1" th:if="${discount.daysRemaining == 0}">🔥 最後今日</span>
                                 <span class="badge bg-danger ms-1" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0}" th:text="'⏰ 剩返 ' + ${discount.daysRemaining} + ' 日'"></span>
                             </span>
-                        </div>
-
-                        <!-- 🤖 資料來源標示 (自動入貨的優惠會有) -->
-                        <div class="text-muted mb-4" th:if="${discount.sourceName != null}">
-                            <i class="fa-solid fa-circle-info me-1"></i>資料來源：<span th:text="${discount.sourceName}"></span>
-                            <a th:if="${discount.sourceUrl != null}" th:href="${discount.sourceUrl}" target="_blank" rel="noopener" class="ms-1">查看官方活動頁 ↗</a>
                         </div>
 
                         <!-- 4. 🌟 保留直排展示，但加入 clickable-img 同 onclick 事件 -->
@@ -97,6 +97,18 @@
                         <div class="fs-5 text-dark mb-5 rich-content" style="line-height: 1.8; word-wrap: break-word;" th:utext="${discount.description}">
                         </div>
                         
+                        <!-- 📜 資料來源及條款撮要 -->
+                        <h4 class="fw-bold border-bottom pb-2 mb-4">資料來源及條款撮要</h4>
+                        <div class="mb-5">
+                            <p th:if="${discount.terms != null and !discount.terms.trim().isEmpty()}" th:text="${discount.terms}" style="line-height: 1.8;"></p>
+                            <p th:if="${discount.sourceName != null}">
+                                <i class="fa-solid fa-circle-info me-1"></i>資料來源：<span th:text="${discount.sourceName}"></span>
+                                <a th:if="${discount.sourceUrl != null}" th:href="${discount.sourceUrl}" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm ms-2">查看官方活動頁 ↗</a>
+                            </p>
+                            <p class="text-muted" th:if="${(discount.terms == null or discount.terms.trim().isEmpty()) and discount.sourceName == null}">此優惠暫未提供條款撮要及官方來源連結，詳情以商戶官方公佈為準。</p>
+                            <p class="text-muted small">本站僅為優惠資訊整合平台，所有優惠詳情、條款及細則均以官方公佈為準。</p>
+                        </div>
+
                         <!-- 6. 按鈕 -->
                         <div class="d-grid gap-3 mt-5">
                             <button onclick="shareWhatsApp()" class="btn btn-success btn-lg fw-bold py-3">

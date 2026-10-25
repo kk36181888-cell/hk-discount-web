@@ -84,6 +84,11 @@
                             </div>
 
                             <div class="mb-3">
+                                <label class="form-label fw-bold">商戶 (Merchant)</label>
+                                <input type="text" class="form-control" th:field="*{merchant}" placeholder="例：惠康（留空會由標題自動推斷）">
+                            </div>
+
+                            <div class="mb-3">
                                 <label class="form-label fw-bold">優惠期 (Promo Period)</label>
                                 <input type="text" class="form-control" th:field="*{promoPeriod}" placeholder="例：即日起至 10 月 31 日" required>
                             </div>
@@ -114,9 +119,20 @@
                                 <textarea class="form-control form-control-sm" th:field="*{additionalImages}" rows="3" placeholder="每行貼一條圖片直連網址"></textarea>
                             </div>
 
+                            <div class="mb-3 p-3 bg-white border rounded-3">
+                                <label class="form-label fw-bold">官方來源 (有先會喺詳情頁顯示)</label>
+                                <input type="text" class="form-control mb-2" th:field="*{sourceName}" placeholder="例：惠康官方網店">
+                                <input type="url" class="form-control form-control-sm" th:field="*{sourceUrl}" placeholder="官方活動頁連結 https://... (選填)">
+                            </div>
+
                             <div class="mb-4">
                                 <label class="form-label fw-bold">詳細圖文內容 (Description)</label>
                                 <textarea id="description" class="form-control" th:field="*{description}" rows="8"></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">條款撮要 (Terms)</label>
+                                <textarea class="form-control" th:field="*{terms}" rows="4" placeholder="例：每人限換一次；數量有限，換完即止（留空就唔顯示呢區）"></textarea>
                             </div>
 
                             <div class="d-grid gap-2">
