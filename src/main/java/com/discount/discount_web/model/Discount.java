@@ -54,6 +54,13 @@ public class Discount {
     @Column(length = 1000)
     private String sourceUrl;
 
+    // 🏪 商戶名 (例：惠康/百佳；後台填寫，商戶專頁用)
+    private String merchant;
+
+    // 📜 條款撮要 (後台填寫，詳情頁「資料來源及條款撮要」區顯示)
+    @Column(length = 2000)
+    private String terms;
+
     // 去重鍵 (例：wellcome:/d/abc123.html)，unique 保證同一活動唔會重複入貨
     @Column(unique = true, length = 500)
     private String sourceKey;
@@ -113,6 +120,29 @@ public class Discount {
 
     public String getSourceUrl() { return sourceUrl; }
     public void setSourceUrl(String sourceUrl) { this.sourceUrl = sourceUrl; }
+
+    public String getMerchant() { return merchant; }
+    public void setMerchant(String merchant) { this.merchant = merchant; }
+
+    public String getTerms() { return terms; }
+    public void setTerms(String terms) { this.terms = terms; }
+
+    // 🏪 商戶顯示名：後台 merchant 欄優先；舊資料冇填就由標題關鍵字推斷；再冇就用來源名
+    @Transient
+    public String getMerchantDisplay() {
+        if (merchant != null && !merchant.trim().isEmpty()) { return merchant.trim(); }
+        if (title != null) {
+            if (title.contains("惠康")) { return "惠康"; }
+            if (title.contains("百佳")) { return "百佳"; }
+            if (title.contains("759")) { return "759阿信屋"; }
+            if (title.contains("萬寧")) { return "萬寧"; }
+            if (title.contains("屈臣氏")) { return "屈臣氏"; }
+            if (title.contains("AEON")) { return "AEON"; }
+            if (title.contains("Donki") || title.contains("驚安")) { return "Don Don Donki"; }
+        }
+        if (sourceName != null && !sourceName.trim().isEmpty()) { return sourceName.trim(); }
+        return null;
+    }
 
     public String getSourceKey() { return sourceKey; }
     public void setSourceKey(String sourceKey) { this.sourceKey = sourceKey; }
