@@ -51,6 +51,7 @@ public class SeoController {
         addUrl(xml, base() + "/warehouse", today, "0.9");
         addUrl(xml, base() + "/others", today, "0.9");
         addUrl(xml, base() + "/faq", today, "0.5");
+        addUrl(xml, base() + "/merchants", today, "0.9");
 
         for (Discount d : discountRepository.findAllByOrderByIdDesc()) {
             // 待審草稿 (PENDING) 唔好入 sitemap

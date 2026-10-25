@@ -12,6 +12,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.safety.Safelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class PageController {
@@ -51,67 +54,114 @@ public class PageController {
         this.encodedAdminPassword = passwordEncoder.encode(rawAdminPassword);
     }
 
-    private static final int PAGE_SIZE = 6; 
+    private static final int PAGE_SIZE = 6;
+
+    // 🔥 排序參數正規化：只認 latest / hot，其他一律當 latest
+    private String normalizeSort(String sort) {
+        return "hot".equals(sort) ? "hot" : "latest";
+    } 
 
     // ==========================================
     // 🌐 前台分頁與搜尋路由
     // ==========================================
     @GetMapping("/")
-    public String index(@RequestParam(defaultValue = "0") int page, Model model) {
+    public String index(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
+        sort = normalizeSort(sort);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        model.addAttribute("discountPage", discountRepository.findAllByOrderByIdDesc(pageable));
-        model.addAttribute("currentUrl", "/"); 
-        model.addAttribute("searchKeyword", null); 
-        return "index"; 
+        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findAllByOrderByViewCountDesc(pageable) : discountRepository.findAllByOrderByIdDesc(pageable));
+        model.addAttribute("currentUrl", "/");
+        model.addAttribute("searchKeyword", null);
+        model.addAttribute("sort", sort);
+        return "index";
     }
 
     @GetMapping("/search")
-    public String search(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, Model model) {
+    public String search(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
+        sort = normalizeSort(sort);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        model.addAttribute("discountPage", discountRepository.findByTitleContainingIgnoreCaseOrderByIdDesc(keyword, pageable));
+        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByTitleContainingIgnoreCaseOrderByViewCountDesc(keyword, pageable) : discountRepository.findByTitleContainingIgnoreCaseOrderByIdDesc(keyword, pageable));
         model.addAttribute("currentUrl", "/search");
-        model.addAttribute("searchKeyword", keyword); 
+        model.addAttribute("searchKeyword", keyword);
+        model.addAttribute("sort", sort);
         return "index";
     }
 
     @GetMapping("/supermarket")
-    public String supermarket(@RequestParam(defaultValue = "0") int page, Model model) { 
+    public String supermarket(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
+        sort = normalizeSort(sort);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("supermarket", pageable));
+        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("supermarket", pageable) : discountRepository.findByCategoryOrderByIdDesc("supermarket", pageable));
         model.addAttribute("currentUrl", "/supermarket");
         model.addAttribute("searchKeyword", null);
-        return "index"; 
+        model.addAttribute("sort", sort);
+        return "index";
     }
     
     @GetMapping("/dining")
-    public String dining(@RequestParam(defaultValue = "0") int page, Model model) { 
+    public String dining(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
+        sort = normalizeSort(sort);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("dining", pageable));
+        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("dining", pageable) : discountRepository.findByCategoryOrderByIdDesc("dining", pageable));
         model.addAttribute("currentUrl", "/dining");
         model.addAttribute("searchKeyword", null);
-        return "index"; 
+        model.addAttribute("sort", sort);
+        return "index";
     }
     
     @GetMapping("/warehouse")
-    public String warehouse(@RequestParam(defaultValue = "0") int page, Model model) { 
+    public String warehouse(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
+        sort = normalizeSort(sort);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("warehouse", pageable));
+        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("warehouse", pageable) : discountRepository.findByCategoryOrderByIdDesc("warehouse", pageable));
         model.addAttribute("currentUrl", "/warehouse");
         model.addAttribute("searchKeyword", null);
-        return "index"; 
+        model.addAttribute("sort", sort);
+        return "index";
     }
     
     @GetMapping("/others")
-    public String others(@RequestParam(defaultValue = "0") int page, Model model) { 
+    public String others(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
+        sort = normalizeSort(sort);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        model.addAttribute("discountPage", discountRepository.findByCategoryOrderByIdDesc("others", pageable));
+        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("others", pageable) : discountRepository.findByCategoryOrderByIdDesc("others", pageable));
         model.addAttribute("currentUrl", "/others");
         model.addAttribute("searchKeyword", null);
-        return "index"; 
+        model.addAttribute("sort", sort);
+        return "index";
     }
 
     @GetMapping("/faq")
     public String faq() { return "faq"; }
+
+    // ==========================================
+    // 🏪 商戶專頁
+    // ==========================================
+    @GetMapping("/merchants")
+    public String merchants(Model model) {
+        Map<String, Integer> counts = new LinkedHashMap<>();
+        for (Discount d : discountRepository.findAllPublished()) {
+            String m = d.getMerchantDisplay();
+            if (m != null) { counts.put(m, counts.getOrDefault(m, 0) + 1); }
+        }
+        List<Map.Entry<String, Integer>> merchantList = new ArrayList<>(counts.entrySet());
+        merchantList.sort((a, b) -> b.getValue().compareTo(a.getValue()));
+        model.addAttribute("merchantList", merchantList);
+        model.addAttribute("currentUrl", "/merchants");
+        return "merchants";
+    }
+
+    @GetMapping("/merchant/{name}")
+    public String merchant(@PathVariable String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
+        sort = normalizeSort(sort);
+        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Page<Discount> result = "hot".equals(sort) ? discountRepository.findByMerchantOrTitleOrderByViewCountDesc(name, pageable) : discountRepository.findByMerchantOrTitle(name, pageable);
+        model.addAttribute("discountPage", result);
+        model.addAttribute("currentUrl", "/merchant/" + name);
+        model.addAttribute("searchKeyword", null);
+        model.addAttribute("sort", sort);
+        model.addAttribute("merchantName", name);
+        return "index";
+    }
 
     // ==========================================
     // 📄 詳情頁
@@ -278,8 +328,7 @@ public class PageController {
                 if (discount.getStatus() == null) {
                     discount.setStatus(existing.getStatus());
                 }
-                discount.setSourceName(existing.getSourceName());
-                discount.setSourceUrl(existing.getSourceUrl());
+                // 來源名稱/連結而家後台表單有得改，唔好再用舊值覆蓋；去重鍵同抓取時間冇表單欄位，繼續保留原值
                 discount.setSourceKey(existing.getSourceKey());
                 discount.setScrapedAt(existing.getScrapedAt());
             }
