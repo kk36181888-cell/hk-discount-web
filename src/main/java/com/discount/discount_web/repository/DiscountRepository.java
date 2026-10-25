@@ -40,6 +40,27 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
     @Query("UPDATE Discount d SET d.viewCount = d.viewCount + 1 WHERE d.id = :id")
     void incrementViewCount(@Param("id") Long id);
 
+    // 🔥 最熱排序：瀏覽量高到低，同分就新到舊 (前台已發佈 + 未過期)
+    @Query("SELECT d FROM Discount d WHERE (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
+    Page<Discount> findAllByOrderByViewCountDesc(Pageable pageable);
+
+    @Query("SELECT d FROM Discount d WHERE LOWER(d.title) LIKE LOWER(CONCAT('%', :keyword, '%')) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
+    Page<Discount> findByTitleContainingIgnoreCaseOrderByViewCountDesc(@Param("keyword") String keyword, Pageable pageable);
+
+    @Query("SELECT d FROM Discount d WHERE d.category = :category AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
+    Page<Discount> findByCategoryOrderByViewCountDesc(@Param("category") String category, Pageable pageable);
+
+    // 🏪 商戶專頁：商戶欄完全相符，或者標題包含商戶名 (覆蓋未填商戶欄嘅舊資料)
+    @Query("SELECT d FROM Discount d WHERE (d.merchant = :name OR LOWER(d.title) LIKE LOWER(CONCAT('%', :name, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
+    Page<Discount> findByMerchantOrTitle(@Param("name") String name, Pageable pageable);
+
+    @Query("SELECT d FROM Discount d WHERE (d.merchant = :name OR LOWER(d.title) LIKE LOWER(CONCAT('%', :name, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
+    Page<Discount> findByMerchantOrTitleOrderByViewCountDesc(@Param("name") String name, Pageable pageable);
+
+    // 🏪 商戶一覽：前台可見嘅全部優惠 (controller 再按商戶歸納計數；量大時改 distinct 查詢)
+    @Query("SELECT d FROM Discount d WHERE (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
+    List<Discount> findAllPublished();
+
     // 🌟 效能優化核心：由 PostgreSQL 直接隨機抽 3 個其他優惠，唔使 Load 爆 Java RAM
     @Query(value = "SELECT * FROM discounts WHERE id != :currentId AND (status IS NULL OR status = 'PUBLISHED') AND (end_date IS NULL OR end_date >= CURRENT_DATE) ORDER BY RANDOM() LIMIT 3", nativeQuery = true)
     List<Discount> findRandomRelatedDiscounts(@Param("currentId") Long currentId);
