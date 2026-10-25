@@ -32,7 +32,8 @@ public class IngestService {
         summary.put("ranAt", LocalDateTime.now().toString());
 
         List<Map<String, Object>> sources = new ArrayList<>();
-        sources.add(ingestFromWellcome());
+        // 2026-10-25 用戶決定：淨係要 Facebook post，網站入貨來源停用（保留 ingestFromWellcome 方法，日後可再開）
+        // sources.add(ingestFromWellcome());
         summary.put("sources", sources);
         return summary;
     }
