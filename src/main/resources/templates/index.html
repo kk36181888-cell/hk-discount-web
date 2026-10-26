@@ -59,7 +59,10 @@
         .card-content { padding: 20px; display: flex; flex-direction: column; flex-grow: 1; }
         .carved-title-bar {
             background-color: #FFDE00; color: #000000; text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.7);
-            border-bottom: 2px solid #b39b00; font-size: 1.2rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            border-bottom: 2px solid #b39b00; font-size: 1.15rem; line-height: 1.35;
+            /* 標題最多兩行，唔再單行截斷（之前 SuperSoft 標題截到一半）；兩行高度固定，卡片對齊 */
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+            min-height: 2.7em;
         }
     </style>
 </head>
@@ -152,19 +155,21 @@
                             <img th:src="${discount.imageUrl}" th:alt="${discount.title} + ' 優惠宣傳圖'" loading="lazy">
                         </div>
                         <div class="card-content bg-white">
-                            <div class="text-danger fw-bold fs-6 mb-2">
+                            <!-- 卡面只顯示一個日期：有結束日期就只顯示下面嘅統一格式徽章；
+                                 冇結束日期先顯示原有優惠期文字做後備，唔再紅字優惠期＋徽章重複講同一個日期 -->
+                            <div class="text-danger fw-bold fs-6 mb-2" th:if="${discount.endDate == null}">
                                 <i class="fa-regular fa-clock me-1"></i> 優惠期: <span th:text="${discount.promoPeriod}"></span>
                             </div>
-                            <div class="text-muted mb-2" style="font-size: 0.9rem;">
-                                <span th:if="${discount.merchantDisplay != null}">🏪 <span th:text="${discount.merchantDisplay}"></span> · </span><span>👁 <span th:text="${discount.viewCount}">0</span> 瀏覽</span>
+                            <div class="text-muted mb-2" style="font-size: 0.9rem;" th:if="${discount.merchantDisplay != null or (discount.viewCount != null and discount.viewCount > 0)}">
+                                <span th:if="${discount.merchantDisplay != null}">🏪 <span th:text="${discount.merchantDisplay}"></span></span><span th:if="${discount.viewCount != null and discount.viewCount > 0}"> · 👁 <span th:text="${discount.viewCount}">0</span> 瀏覽</span>
                             </div>
-                            <!-- 📅 到期提示 (有填結束日期先顯示)：最後今日/剩 X 日行紅色，日子充裕就灰色顯示結束日期 -->
+                            <!-- 📅 到期提示 (有填結束日期先顯示，統一 dd/MM/yyyy 格式)：最後今日/剩 X 日行紅色，日子充裕就灰色顯示結束日期 -->
                             <div class="mb-2" th:if="${discount.endDate != null}">
                                 <span class="badge bg-danger" th:if="${discount.daysRemaining == 0}">🔥 最後今日</span>
                                 <span class="badge bg-danger" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0 and discount.daysRemaining <= 3}" th:text="'⏰ 剩返 ' + ${discount.daysRemaining} + ' 日咋'"></span>
                                 <span class="badge bg-secondary" th:if="${discount.daysRemaining != null and discount.daysRemaining > 3}" th:text="'📅 至 ' + ${#temporals.format(discount.endDate, 'dd/MM/yyyy')} + ' 止'"></span>
                             </div>
-                            <div class="text-muted mb-4" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: 0.95rem;" th:utext="${discount.description}"></div>
+                            <!-- 卡面描述已移除：全文描述留喺詳情頁，卡面只留標題＋圖＋商戶＋日期，唔再成段貼上嚟斷句 -->
                             
                             <button class="btn btn-warning w-100 fw-bold mt-auto" style="box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                 👉 查看圖文詳情
