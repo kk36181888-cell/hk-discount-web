@@ -20,7 +20,7 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
     @Query("SELECT d FROM Discount d WHERE (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
     Page<Discount> findAllByOrderByIdDesc(Pageable pageable);
 
-    @Query("SELECT d FROM Discount d WHERE LOWER(d.title) LIKE LOWER(CONCAT('%', :keyword, '%')) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
+    @Query("SELECT d FROM Discount d WHERE (LOWER(d.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(d.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
     Page<Discount> findByTitleContainingIgnoreCaseOrderByIdDesc(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT d FROM Discount d WHERE d.category = :category AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
@@ -44,7 +44,7 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
     @Query("SELECT d FROM Discount d WHERE (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
     Page<Discount> findAllByOrderByViewCountDesc(Pageable pageable);
 
-    @Query("SELECT d FROM Discount d WHERE LOWER(d.title) LIKE LOWER(CONCAT('%', :keyword, '%')) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
+    @Query("SELECT d FROM Discount d WHERE (LOWER(d.title) LIKE LOWER(CONCAT('%', :keyword, '%')) OR LOWER(d.description) LIKE LOWER(CONCAT('%', :keyword, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
     Page<Discount> findByTitleContainingIgnoreCaseOrderByViewCountDesc(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT d FROM Discount d WHERE d.category = :category AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
