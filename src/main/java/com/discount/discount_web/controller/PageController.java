@@ -54,7 +54,8 @@ public class PageController {
         this.encodedAdminPassword = passwordEncoder.encode(rawAdminPassword);
     }
 
-    private static final int PAGE_SIZE = 6;
+    // 首頁／分類／搜尋每頁顯示張數：2026-10-26 由 6 改做 18（全站上架 17 張時首頁第一頁就睇晒，唔使再分 3 頁）
+    private static final int PAGE_SIZE = 18;
 
     // 🔥 排序參數正規化：只認 latest / hot，其他一律當 latest
     private String normalizeSort(String sort) {
