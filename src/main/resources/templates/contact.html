@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="zh-HK" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JetsoBanana - 聯絡我們</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body { background-color: #ffffff; color: #333333; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+        .top-header { background-color: #FFDE00; padding: 15px 0; border-bottom: 1px solid #e0c200; }
+        .brand-logo { font-size: 2rem; font-weight: bold; color: #000; text-decoration: none; }
+        .sub-nav { background-color: #FFDE00; border-bottom: 2px solid #000; margin-bottom: 40px; }
+        .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
+        .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
+        .section-title { font-weight: bold; margin-bottom: 25px; color: #000; border-left: 5px solid #FFDE00; padding-left: 12px; }
+    </style>
+</head>
+<body>
+
+    <header class="top-header">
+        <div class="container d-flex flex-wrap align-items-center justify-content-start">
+            <div>
+                <a href="/" class="brand-logo"><span class="me-2">🍌</span>JetsoBanana</a>
+            </div>
+        </div>
+    </header>
+
+    <nav class="sub-nav text-center">
+        <div class="container">
+            <a href="/"><i class="fa-solid fa-house me-2"></i>首頁</a>
+            <a href="/supermarket"><i class="fa-solid fa-cart-shopping me-2"></i>超市著數</a>
+            <a href="/dining"><i class="fa-solid fa-utensils me-2"></i>飲食優惠</a>
+            <a href="/warehouse"><i class="fa-solid fa-box-open me-2"></i>開倉減價</a>
+            <a href="/others"><i class="fa-solid fa-gift me-2"></i>其他著數</a>
+            <a href="/merchants"><i class="fa-solid fa-store me-2"></i>商戶專頁</a>
+            <a href="/faq"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
+            <a href="/guides"><i class="fa-solid fa-book-open me-2"></i>著數攻略</a>
+        </div>
+    </nav>
+
+    <div class="container mb-5" style="max-width: 800px;">
+        <h4 class="section-title mb-4">聯絡我們</h4>
+        <p>如發現本站優惠資料有誤、想提供著數情報，或者對本站有任何意見，歡迎用下面表格留言。稱呼同聯絡方法可留空，但留低聯絡方法站方先覆到你。提交嘅資料只會用於回覆及跟進，詳情請參閱<a href="/privacy">私隱政策</a>。</p>
+        <p class="text-muted">提提你：優惠嘅最終條款、價錢及貨存一律以商戶官方公佈為準；如需即時查詢某個優惠，請直接聯絡相關商戶。</p>
+
+        <div th:if="${sent}" class="alert alert-success" role="alert">
+            <i class="fa-solid fa-circle-check me-2"></i>多謝你嘅留言！本站已經收到，會盡快跟進。
+        </div>
+        <div th:if="${error}" class="alert alert-danger" role="alert">
+            <i class="fa-solid fa-circle-exclamation me-2"></i>主旨同內容唔可以留空，請填返再提交。
+        </div>
+
+        <form th:action="@{/contact}" method="post" th:unless="${sent}" class="shadow-sm p-4 border rounded">
+            <div class="mb-3">
+                <label for="name" class="form-label fw-bold">稱呼（可留空）</label>
+                <input type="text" class="form-control" id="name" name="name" maxlength="200" th:value="${formName}">
+            </div>
+            <div class="mb-3">
+                <label for="contact" class="form-label fw-bold">聯絡方法（可留空，例如電郵）</label>
+                <input type="text" class="form-control" id="contact" name="contact" maxlength="200" th:value="${formContact}">
+            </div>
+            <div class="mb-3">
+                <label for="subject" class="form-label fw-bold">主旨 *</label>
+                <input type="text" class="form-control" id="subject" name="subject" maxlength="200" required th:value="${formSubject}">
+            </div>
+            <div class="mb-3">
+                <label for="message" class="form-label fw-bold">內容 *</label>
+                <textarea class="form-control" id="message" name="message" rows="6" maxlength="2000" required th:text="${formMessage}"></textarea>
+            </div>
+            <div style="display:none;" aria-hidden="true">
+                <label for="website">請留空</label>
+                <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+            </div>
+            <button type="submit" class="btn btn-dark btn-lg fw-bold"><i class="fa-solid fa-paper-plane me-2"></i>提交留言</button>
+        </form>
+    </div>
+
+    <footer class="bg-dark text-white text-center py-4 mt-auto">
+        <div class="container">
+            <p class="mb-1 fw-bold"><span class="me-2">🍌</span>JetsoBanana 著數情報網</p>
+            <p class="mb-2">
+                <a href="/faq" class="text-white-50 me-3">常見問題</a>
+                <a href="/merchants" class="text-white-50 me-3">商戶專頁</a>
+                <a href="/guides" class="text-white-50 me-3">著數攻略</a>
+                <a href="/privacy" class="text-white-50 me-3">私隱政策</a>
+                <a href="/about" class="text-white-50 me-3">關於我們</a>
+                <a href="/contact" class="text-white-50">聯絡我們</a>
+            </p>
+            <p class="mb-0">© 2026 JetsoBanana. All rights reserved.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
