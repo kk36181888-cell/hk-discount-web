@@ -52,6 +52,13 @@ public class SeoController {
         addUrl(xml, base() + "/others", today, "0.9");
         addUrl(xml, base() + "/faq", today, "0.5");
         addUrl(xml, base() + "/merchants", today, "0.9");
+        addUrl(xml, base() + "/privacy", today, "0.5");
+        addUrl(xml, base() + "/about", today, "0.5");
+        addUrl(xml, base() + "/contact", today, "0.5");
+        addUrl(xml, base() + "/guides", today, "0.7");
+        addUrl(xml, base() + "/guides/yuu-stamps", today, "0.6");
+        addUrl(xml, base() + "/guides/pns-codes", today, "0.6");
+        addUrl(xml, base() + "/guides/supermarket-tips", today, "0.6");
 
         for (Discount d : discountRepository.findAllByOrderByIdDesc()) {
             // 待審草稿 (PENDING) 唔好入 sitemap

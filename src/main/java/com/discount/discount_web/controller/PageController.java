@@ -1,6 +1,8 @@
 package com.discount.discount_web.controller;
 
+import com.discount.discount_web.model.ContactMessage;
 import com.discount.discount_web.model.Discount;
+import com.discount.discount_web.repository.ContactMessageRepository;
 import com.discount.discount_web.repository.DiscountRepository;
 import com.discount.discount_web.security.JwtUtil;
 import com.discount.discount_web.service.CloudinaryService;
@@ -33,6 +35,9 @@ public class PageController {
 
     @Autowired
     private DiscountRepository discountRepository;
+
+    @Autowired
+    private ContactMessageRepository contactMessageRepository;
 
     @Autowired
     private JwtUtil jwtUtil;
@@ -133,6 +138,66 @@ public class PageController {
 
     @GetMapping("/faq")
     public String faq() { return "faq"; }
+
+    // ==========================================
+    // 📄 資訊頁（2026-10-27 新增：私隱政策／關於我們／聯絡我們／著數攻略）
+    // ==========================================
+    @GetMapping("/privacy")
+    public String privacy() { return "privacy"; }
+
+    @GetMapping("/about")
+    public String about() { return "about"; }
+
+    @GetMapping("/contact")
+    public String contact(Model model) {
+        model.addAttribute("sent", false);
+        return "contact";
+    }
+
+    @PostMapping("/contact")
+    public String submitContact(@RequestParam(required = false) String name,
+                                @RequestParam(required = false) String contact,
+                                @RequestParam(required = false) String subject,
+                                @RequestParam(required = false) String message,
+                                @RequestParam(required = false) String website,
+                                Model model) {
+        // 🛡️ 蜜罐欄：正常訪客唔會填 website 呢格，填咗就當機械人，直接當成功但唔儲存。
+        if (website != null && !website.isBlank()) {
+            model.addAttribute("sent", true);
+            return "contact";
+        }
+        String cleanSubject = subject == null ? "" : subject.trim();
+        String cleanMessage = message == null ? "" : message.trim();
+        if (cleanSubject.isEmpty() || cleanMessage.isEmpty()) {
+            model.addAttribute("sent", false);
+            model.addAttribute("error", true);
+            model.addAttribute("formName", name);
+            model.addAttribute("formContact", contact);
+            model.addAttribute("formSubject", subject);
+            model.addAttribute("formMessage", message);
+            return "contact";
+        }
+        ContactMessage cm = new ContactMessage();
+        cm.setName(name == null ? null : name.trim());
+        cm.setContact(contact == null ? null : contact.trim());
+        cm.setSubject(cleanSubject.length() > 200 ? cleanSubject.substring(0, 200) : cleanSubject);
+        cm.setMessage(cleanMessage.length() > 2000 ? cleanMessage.substring(0, 2000) : cleanMessage);
+        contactMessageRepository.save(cm);
+        model.addAttribute("sent", true);
+        return "contact";
+    }
+
+    @GetMapping("/guides")
+    public String guides() { return "guides"; }
+
+    @GetMapping("/guides/yuu-stamps")
+    public String guideYuu() { return "guide-yuu"; }
+
+    @GetMapping("/guides/pns-codes")
+    public String guidePns() { return "guide-pns"; }
+
+    @GetMapping("/guides/supermarket-tips")
+    public String guideTips() { return "guide-tips"; }
 
     // ==========================================
     // 🏪 商戶專頁
