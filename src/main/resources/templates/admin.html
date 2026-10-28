@@ -44,6 +44,18 @@
     </nav>
 
     <div class="container mb-5">
+        <!-- 🖼️ 一鍵轉圖結果提示（由 /daybuy-hq/rehost-all-images 轉返嚟先有參數） -->
+        <div th:if="${param.rehosted}" class="alert alert-success fw-bold" role="alert">
+            🖼️ 轉圖完成：轉咗 <span th:text="${param.rehosted[0]}">0</span> 張優惠、
+            <span th:text="${param.rehostedImages[0]}">0</span> 張圖入 Cloudinary（轉唔到嘅圖保留原網址）。
+        </div>
+        <form th:action="@{/daybuy-hq/rehost-all-images}" method="post" class="mb-3">
+            <button type="submit" class="btn btn-outline-success btn-sm fw-bold"
+                    onclick="return confirm('將所有優惠入面仲係外部網址嘅圖一次過轉入 Cloudinary？已經係 Cloudinary 嘅圖唔會重複轉。')">
+                🖼️ 一鍵將全部外部圖片轉入 Cloudinary
+            </button>
+            <span class="text-muted small ms-2">新入嘅草稿同批准時都會自動轉，呢個掣係補返之前已入嘅舊優惠（例如 103、108 號）。</span>
+        </form>
         <div class="row">
             <!-- 左邊：新增 / 編輯優惠表單 -->
             <div class="col-lg-5 mb-4">
