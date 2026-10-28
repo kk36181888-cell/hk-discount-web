@@ -6,6 +6,8 @@ import com.discount.discount_web.repository.ContactMessageRepository;
 import com.discount.discount_web.repository.DiscountRepository;
 import com.discount.discount_web.security.JwtUtil;
 import com.discount.discount_web.service.CloudinaryService;
+import com.discount.discount_web.service.ImageRehostService;
+import com.discount.discount_web.service.SearchService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -29,6 +31,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Controller
 public class PageController {
@@ -45,14 +48,38 @@ public class PageController {
     @Autowired
     private CloudinaryService cloudinaryService;
 
-    @Value("${daybuy.admin.username:admin}")
+    @Autowired
+    private ImageRehostService imageRehostService;
+
+    @Autowired
+    private SearchService searchService;
+
+    @Value("${daybuy.admin.username}")
     private String adminUsername;
 
-    @Value("${daybuy.admin.password:admin2026}")
+    @Value("${daybuy.admin.password}")
     private String rawAdminPassword;
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private String encodedAdminPassword;
+
+    // 🛡️ 登入限流：同一 IP 連續 5 次失敗就鎖 15 分鐘，擋持續在線猜密碼
+    private static final int MAX_LOGIN_ATTEMPTS = 5;
+    private static final long LOGIN_LOCK_MS = 15 * 60 * 1000L;
+    private final Map<String, LoginAttempt> loginAttempts = new ConcurrentHashMap<>();
+
+    private static class LoginAttempt {
+        int failures = 0;
+        long lockUntil = 0;
+    }
+
+    private String clientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
+    }
 
     @PostConstruct
     public void initSecurity() {
@@ -85,7 +112,8 @@ public class PageController {
     public String search(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
         Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByTitleContainingIgnoreCaseOrderByViewCountDesc(keyword, pageable) : discountRepository.findByTitleContainingIgnoreCaseOrderByIdDesc(keyword, pageable));
+        // 🔍 搜尋改行 SearchService：多欄位＋同義詞＋分類詞，唔再淨係逐字對標題同描述
+        model.addAttribute("discountPage", searchService.search(keyword, sort, pageable));
         model.addAttribute("currentUrl", "/search");
         model.addAttribute("searchKeyword", keyword);
         model.addAttribute("sort", sort);
@@ -271,9 +299,16 @@ public class PageController {
     }
 
     @PostMapping("/daybuy-hq/doLogin")
-    public String doLogin(@RequestParam String username, @RequestParam String password, 
+    public String doLogin(@RequestParam String username, @RequestParam String password,
                           HttpServletRequest request, HttpServletResponse response) {
+        String ip = clientIp(request);
+        LoginAttempt attempt = loginAttempts.computeIfAbsent(ip, k -> new LoginAttempt());
+        if (System.currentTimeMillis() < attempt.lockUntil) {
+            System.out.println("🛡️ 登入已鎖定（多次失敗），IP: " + ip);
+            return "redirect:/daybuy-hq/login?error=true";
+        }
         if (adminUsername.equals(username) && passwordEncoder.matches(password, encodedAdminPassword)) {
+            loginAttempts.remove(ip);
             String token = jwtUtil.generateToken(username);
             Cookie cookie = new Cookie("DAYBUY_ADMIN_TOKEN", token);
             cookie.setHttpOnly(true);
@@ -286,6 +321,12 @@ public class PageController {
 
             response.addCookie(cookie);
             return "redirect:/daybuy-hq";
+        }
+        attempt.failures++;
+        if (attempt.failures >= MAX_LOGIN_ATTEMPTS) {
+            attempt.lockUntil = System.currentTimeMillis() + LOGIN_LOCK_MS;
+            attempt.failures = 0;
+            System.out.println("🛡️ 登入多次失敗，已鎖定 IP 15 分鐘: " + ip);
         }
         return "redirect:/daybuy-hq/login?error=true";
     }
@@ -324,6 +365,14 @@ public class PageController {
     public String approveDiscount(@PathVariable Long id) {
         Discount d = discountRepository.findById(id).orElse(null);
         if (d != null) {
+            // 🖼️ 斷尾：批准出街之前，先將未轉存嘅外部圖（例如 fbcdn）轉入 Cloudinary；
+            // 轉唔到嘅圖會保留原網址，唔會阻住批准。
+            int moved = imageRehostService.rehostDiscount(d);
+            if (moved > 0) {
+                System.out.println("🖼️ 批准 ID " + id + " 前轉存咗 " + moved + " 張圖入 Cloudinary");
+            }
+            // 🛡️ 批准時都行一次描述清洗：唔經新增／編輯表單入庫嘅內容（例如 ingest）都唔可以原樣上線
+            d.setDescription(sanitizeDescription(d.getDescription()));
             d.setStatus("PUBLISHED");
             discountRepository.save(d);
         }
@@ -380,11 +429,26 @@ public class PageController {
             System.out.println("⚠️ Cloudinary 圖片上載失敗，改用表單圖片網址存檔: " + e.getMessage());
         }
 
-        if (discount.getDescription() != null) {
-            Safelist customSafelist = Safelist.relaxed().addAttributes(":all", "style", "class");
-            String safeHtml = Jsoup.clean(discount.getDescription(), customSafelist);
-            discount.setDescription(safeHtml);
+        // 🖼️ 斷尾：檔案上載完之後，將表單網址欄入面嘅外部圖（例如 fbcdn）
+        // 即時轉存入 Cloudinary；已經係 Cloudinary 嘅圖會跳過，轉唔到嘅保留原網址。
+        // 咁之後無論人手定排程入嘅草稿，一出世就已經係永久圖，唔使事後逐批轉。
+        imageRehostService.rehostDiscount(discount);
+
+        // 🛡️ 只接受 http／https 圖片同來源連結，擋 javascript: 之類 scheme
+        discount.setImageUrl(onlyHttpUrl(discount.getImageUrl()));
+        discount.setSourceUrl(onlyHttpUrl(discount.getSourceUrl()));
+        if (discount.getAdditionalImages() != null && !discount.getAdditionalImages().isBlank()) {
+            List<String> keptUrls = new ArrayList<>();
+            for (String line : discount.getAdditionalImages().split("\n")) {
+                String keptUrl = onlyHttpUrl(line);
+                if (keptUrl != null) {
+                    keptUrls.add(keptUrl);
+                }
+            }
+            discount.setAdditionalImages(String.join("\n", keptUrls));
         }
+
+        discount.setDescription(sanitizeDescription(discount.getDescription()));
 
         if (discount.getId() != null) {
             Discount existing = discountRepository.findById(discount.getId()).orElse(null);
@@ -405,6 +469,49 @@ public class PageController {
         
         discountRepository.save(discount);
         return "redirect:/daybuy-hq"; 
+    }
+
+    // 🛡️ 描述清洗 choke point：新增／編輯／批准全部行同一套 Jsoup 清洗，唔好俾惡意 HTML 經任何路徑上線
+    private String sanitizeDescription(String html) {
+        if (html == null) {
+            return null;
+        }
+        Safelist customSafelist = Safelist.relaxed().addAttributes(":all", "style", "class");
+        return Jsoup.clean(html, customSafelist);
+    }
+
+    // 🛡️ 只接受 http／https，否則返 null（擋 javascript: 等危險 scheme）
+    private String onlyHttpUrl(String url) {
+        if (url == null) {
+            return null;
+        }
+        String u = url.trim();
+        if (u.isEmpty()) {
+            return null;
+        }
+        if (u.startsWith("http://") || u.startsWith("https://")) {
+            return u;
+        }
+        return null;
+    }
+
+    // 🖼️ 一鍵遷移：將所有已存優惠入面仲係外部網址嘅圖一次過轉入 Cloudinary。
+    // 已經係 Cloudinary 嘅圖會跳過；轉唔到嘅保留原網址。只改圖片網址，唔改其他欄位。
+    // （後台管理員先入到嚟，/daybuy-hq/** 本身已經受管理員登入保護。）
+    @PostMapping("/daybuy-hq/rehost-all-images")
+    public String rehostAllImages() {
+        int deals = 0;
+        int images = 0;
+        for (Discount d : discountRepository.findAll()) {
+            int moved = imageRehostService.rehostDiscount(d);
+            if (moved > 0) {
+                discountRepository.save(d);
+                deals++;
+                images += moved;
+            }
+        }
+        System.out.println("🖼️ 一鍵轉圖完成：轉咗 " + deals + " 張優惠、" + images + " 張圖入 Cloudinary");
+        return "redirect:/daybuy-hq?rehosted=" + deals + "&rehostedImages=" + images;
     }
 
     @PostMapping("/daybuy-hq/delete/{id}")
