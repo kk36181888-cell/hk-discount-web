@@ -33,6 +33,8 @@
         .clickable-img:hover {
             opacity: 0.8;
         }
+        /* 廣告位預留（2026-10-28）：只係佔位標記，未貼 AdSense 代碼前不佔高度、不顯示空盒，訪客睇唔到；日後貼廣告代碼入對應 div 就用得 */
+        .ad-slot { min-height: 0; }
     </style>
 </head>
 <body class="bg-light d-flex flex-column min-vh-100">
@@ -120,6 +122,9 @@
                             <p class="text-muted" th:if="${(discount.terms == null or discount.terms.trim().isEmpty()) and discount.sourceName == null}">此優惠暫未提供條款撮要及官方來源連結，詳情以商戶官方公佈為準。</p>
                             <p class="text-muted small">本站僅為優惠資訊整合平台，所有優惠詳情、條款及細則均以官方公佈為準。</p>
                         </div>
+
+                        <!-- AD SLOT: detail-bottom（資料來源及條款後、分享掣前）——日後貼 AdSense 代碼入呢個 div -->
+                        <div class="ad-slot" data-ad-slot="detail-bottom"></div>
 
                         <!-- 6. 按鈕 -->
                         <div class="d-grid gap-3 mt-5">
