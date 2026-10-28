@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -62,6 +63,36 @@ public class PageController {
 
     private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
     private String encodedAdminPassword;
+
+    // 🛡️ 聯絡表單限流：同一 IP 每小時最多 10 次提交，擋洗版式灌水。
+    // 正常訪客極少一小時內留超過兩次言，10 次係寬鬆上限；蜜罐已先擋 naive bot，
+    // 呢度擋嘅係識避蜜罐但用同一 IP 狂 submit 嘅 flood。
+    private static final int MAX_CONTACT_PER_HOUR = 10;
+    private static final long CONTACT_WINDOW_MS = 3600_000L;
+    private static final Map<String, ArrayDeque<Long>> contactSubmissions = new ConcurrentHashMap<>();
+
+    private static String contactClientIp(HttpServletRequest request) {
+        String forwarded = request.getHeader("X-Forwarded-For");
+        if (forwarded != null && !forwarded.isBlank()) {
+            return forwarded.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
+    }
+
+    private static boolean allowContact(String ip) {
+        long now = System.currentTimeMillis();
+        synchronized (contactSubmissions) {
+            ArrayDeque<Long> times = contactSubmissions.computeIfAbsent(ip, k -> new ArrayDeque<>());
+            while (!times.isEmpty() && now - times.peekFirst() > CONTACT_WINDOW_MS) {
+                times.pollFirst();
+            }
+            if (times.size() >= MAX_CONTACT_PER_HOUR) {
+                return false;
+            }
+            times.addLast(now);
+            return true;
+        }
+    }
 
     // 🛡️ 登入限流：同一 IP 連續 5 次失敗就鎖 15 分鐘，擋持續在線猜密碼
     private static final int MAX_LOGIN_ATTEMPTS = 5;
@@ -188,10 +219,22 @@ public class PageController {
                                 @RequestParam(required = false) String subject,
                                 @RequestParam(required = false) String message,
                                 @RequestParam(required = false) String website,
+                                HttpServletRequest request,
                                 Model model) {
         // 🛡️ 蜜罐欄：正常訪客唔會填 website 呢格，填咗就當機械人，直接當成功但唔儲存。
+        // 蜜罐提交唔計入限流，免得 bot 用假提交塞爆同一 IP 嘅額度。
         if (website != null && !website.isBlank()) {
             model.addAttribute("sent", true);
+            return "contact";
+        }
+        // 🛡️ 限流：超額就當表單錯誤退回，唔儲存，訪客遲啲再試就得。
+        if (!allowContact(contactClientIp(request))) {
+            model.addAttribute("sent", false);
+            model.addAttribute("error", true);
+            model.addAttribute("formName", name);
+            model.addAttribute("formContact", contact);
+            model.addAttribute("formSubject", subject);
+            model.addAttribute("formMessage", message);
             return "contact";
         }
         String cleanSubject = subject == null ? "" : subject.trim();
