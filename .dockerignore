@@ -1,0 +1,9 @@
+# Docker build context: exclude VCS, CI and build outputs so the image build
+# does not ship (or re-copy) stale jars and repo history. Do NOT ignore .mvn
+# or mvnw — the Dockerfile builds with the Maven wrapper.
+.git
+.github
+target/
+*.log
+.idea/
+.vscode/
