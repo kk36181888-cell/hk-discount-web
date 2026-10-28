@@ -3,10 +3,13 @@ package com.discount.discount_web;
 import com.discount.discount_web.repository.ContactMessageRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
+import org.junit.jupiter.api.BeforeEach;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import org.springframework.test.web.servlet.MvcResult;
 
 import java.util.regex.Matcher;
@@ -24,7 +27,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  * tests (which use the default loopback address).
  */
 @SpringBootTest
-@AutoConfigureMockMvc
 class ContactRateLimitTest {
 
     private static final Pattern CSRF_INPUT =
@@ -32,7 +34,14 @@ class ContactRateLimitTest {
     private static final String TEST_IP = "203.0.113.99";
 
     @Autowired
+    private WebApplicationContext webApplicationContext;
+
     private MockMvc mockMvc;
+
+    @BeforeEach
+    void setupMockMvc() {
+        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).apply(springSecurity()).build();
+    }
 
     @Autowired
     private ContactMessageRepository contactMessageRepository;
