@@ -103,7 +103,8 @@ public class IngestService {
             text = text.substring(0, 220) + "…";
         }
         String escaped = text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
-        return escaped + "<br><br>（資料來源：" + deal.sourceName + "，優惠詳情、條款及細則以官方公佈為準。）";
+        String escapedSource = deal.sourceName == null ? "" : deal.sourceName.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+        return escaped + "<br><br>（資料來源：" + escapedSource + "，優惠詳情、條款及細則以官方公佈為準。）";
     }
 
     // 圖片轉存 Cloudinary；失敗就用返原網址，唔好成條入貨死火
