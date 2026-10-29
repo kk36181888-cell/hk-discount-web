@@ -27,6 +27,11 @@
         }
         /* 🌟 重新加入滑鼠互動感，提示用家可以撳落去 */
         .clickable-img {
+
+        /* 無圖後備封面（2026-10-29）：封面連結為空（例如影片帖）時，唔顯示爛圖，改顯示黃色文字格 */
+        .detail-text-cover { background-color: #FFDE00; border-radius: 0.375rem; padding: 32px 24px; text-align: center; }
+        .detail-text-cover .cover-merchant { font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; }
+        .detail-text-cover .cover-title { font-size: 1.25rem; font-weight: bold; line-height: 1.4; }
             cursor: zoom-in;
             transition: opacity 0.3s;
         }
@@ -86,8 +91,12 @@
                         <!-- 4. 圖片展示：4 張或以上（封面＋額外）用格仔排列（手機 2 欄、電腦 3 欄一排，好似 7-Eleven 嗰種格式），3 張或以下維持原本直排 -->
                         <th:block th:if="${#lists.size(extraImages) >= 3}">
                             <div class="row g-2 mb-5">
-                                <div class="col-6 col-md-4">
+                                <div class="col-6 col-md-4" th:if="${discount.imageUrl != null and discount.imageUrl != ''}">
                                     <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
+                                </div>
+                                <div class="col-6 col-md-4 detail-text-cover" th:unless="${discount.imageUrl != null and discount.imageUrl != ''}">
+                                    <div class="cover-merchant">🏪 <span th:text="${discount.merchantDisplay}">商戶</span></div>
+                                    <div class="cover-title" th:text="${discount.title}">優惠標題</div>
                                 </div>
                                 <div class="col-6 col-md-4" th:each="imgUrl : ${extraImages}">
                                     <img th:src="${imgUrl}" th:alt="'額外宣傳圖'" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
@@ -96,8 +105,12 @@
                         </th:block>
                         <th:block th:unless="${#lists.size(extraImages) >= 3}">
                             <div class="d-flex flex-column gap-4 mb-5">
-                                <!-- 第一張：封面主圖 -->
-                                <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
+                                <!-- 第一張：封面主圖（無圖時顯示文字格，唔顯示爛圖） -->
+                                <img th:if="${discount.imageUrl != null and discount.imageUrl != ''}" th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
+                                <div th:unless="${discount.imageUrl != null and discount.imageUrl != ''}" class="detail-text-cover">
+                                    <div class="cover-merchant">🏪 <span th:text="${discount.merchantDisplay}">商戶</span></div>
+                                    <div class="cover-title" th:text="${discount.title}">優惠標題</div>
+                                </div>
 
                                 <!-- 第二張起：額外圖片 (如果有) -->
                                 <th:block th:if="${not #lists.isEmpty(extraImages)}">
