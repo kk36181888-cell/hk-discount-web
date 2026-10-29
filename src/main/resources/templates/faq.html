@@ -28,28 +28,38 @@
             box-shadow: inset 0 -1px 0 rgba(0,0,0,.125);
         }
         .accordion-button:focus { box-shadow: none; border-color: rgba(0,0,0,.125); }
+        .accordion-item { margin-bottom: 12px; border: 1px solid rgba(0,0,0,.125); border-radius: .375rem; overflow: hidden; }
+        .accordion-button { padding: 1rem 1.25rem; }
     </style>
 </head>
 <body>
 
     <header class="top-header">
-        <div class="container d-flex flex-wrap align-items-center justify-content-start">
-            <div>
-                <a href="/" class="brand-logo"><span class="me-2">🍌</span>JetsoBanana</a>
-            </div>
+        <div class="container d-flex flex-wrap align-items-center justify-content-between">
+            <a href="/" class="brand-logo mb-2 mb-md-0"><span class="me-2">🍌</span>JetsoBanana</a>
+            <form class="d-flex" action="/search" method="get">
+                <input class="form-control me-2" type="search" name="keyword" th:value="${searchKeyword}" placeholder="搵優惠 (例: 百佳)..." required>
+                <button class="btn btn-dark fw-bold" type="submit" style="white-space: nowrap;"><i class="fa-solid fa-magnifying-glass"></i></button>
+            </form>
         </div>
     </header>
 
-    <nav class="sub-nav text-center">
+    <nav class="sub-nav text-center" aria-label="主導航">
         <div class="container">
             <a href="/"><i class="fa-solid fa-house me-2"></i>首頁</a>
-            <a href="/supermarket"><i class="fa-solid fa-fire me-2"></i>超市著數</a>
+            <a href="/supermarket"><i class="fa-solid fa-cart-shopping me-2"></i>超市著數</a>
+            <a href="/dining"><i class="fa-solid fa-utensils me-2"></i>飲食優惠</a>
+            <a href="/warehouse"><i class="fa-solid fa-box-open me-2"></i>開倉減價</a>
+            <a href="/others"><i class="fa-solid fa-gift me-2"></i>其他著數</a>
+            <a href="/merchants"><i class="fa-solid fa-store me-2"></i>商戶專頁</a>
             <a href="/faq" class="active"><i class="fa-solid fa-circle-question me-2"></i>常見問題</a>
+            <a href="/guides"><i class="fa-solid fa-book-open me-2"></i>著數攻略</a>
         </div>
     </nav>
 
     <div class="container mb-5" style="max-width: 800px;">
         <h4 class="section-title mb-4">常見問題解答 (FAQ)</h4>
+        <p class="text-secondary mb-4">以下係關於 JetsoBanana 嘅常見問題，㩒問題可以展開睇答案。</p>
         
         <div class="accordion shadow-sm" id="faqAccordion">
             
@@ -94,11 +104,19 @@
             </div>
 
         </div>
+
+        <div class="card shadow-sm mt-4">
+            <div class="card-body text-center py-4">
+                <h5 class="fw-bold mb-2">仲有其他問題？</h5>
+                <p class="text-secondary mb-3">發現優惠資料有誤、想報料提供著數情報，或者對本站有意見，都歡迎聯絡我哋。</p>
+                <a href="/contact" class="btn btn-dark fw-bold">聯絡我們</a>
+            </div>
+        </div>
     </div>
 
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
-            <p class="mb-1 fw-bold"><span class="me-2">🍌</span>JetsoBanana 著數情報網</p>
+            <p class="mb-1 fw-bold fs-5"><span class="me-2">🍌</span>JetsoBanana 著數情報網</p>
             <p class="mb-2">
                 <a href="/faq" class="text-white-50 me-3">常見問題</a>
                 <a href="/merchants" class="text-white-50 me-3">商戶專頁</a>
@@ -107,7 +125,10 @@
                 <a href="/about" class="text-white-50 me-3">關於我們</a>
                 <a href="/contact" class="text-white-50">聯絡我們</a>
             </p>
-            <p class="mb-0">© 2026 JetsoBanana. All rights reserved.</p>
+            <p class="mb-2">© 2026 JetsoBanana. All rights reserved.</p>
+            <small class="text-secondary" style="font-size: 0.8rem;">
+                免責聲明：本網站僅為優惠資訊整合平台，旨在為大眾提供免費著數情報。所有優惠詳情、條款及細則均以官方公佈為準。本站與相關商戶無任何直接交易或從屬關係，亦不對任何交易損失負責。
+            </small>
         </div>
     </footer>
 
