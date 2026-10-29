@@ -172,8 +172,8 @@
                         </div>
                         <div class="card-content bg-white">
                             <!-- 卡面只顯示一個日期：有結束日期就只顯示下面嘅統一格式徽章；
-                                 冇結束日期先顯示原有優惠期文字做後備，唔再紅字優惠期＋徽章重複講同一個日期 -->
-                            <div class="text-danger fw-bold fs-6 mb-2" th:if="${discount.endDate == null}">
+                                 冇結束日期先顯示原有優惠期文字做後備，唔再藍字優惠期＋徽章重複講同一個日期 -->
+                            <div class="text-primary fw-bold fs-6 mb-2" th:if="${discount.endDate == null}">
                                 <i class="fa-regular fa-clock me-1"></i> 優惠期: <span th:text="${discount.promoPeriod}"></span>
                             </div>
                             <div class="text-muted mb-2" style="font-size: 0.9rem;" th:if="${discount.merchantDisplay != null or (discount.viewCount != null and discount.viewCount > 0)}">
