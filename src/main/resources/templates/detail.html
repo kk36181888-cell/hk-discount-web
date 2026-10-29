@@ -28,16 +28,17 @@
         /* 🌟 重新加入滑鼠互動感，提示用家可以撳落去 */
         .clickable-img {
 
-        /* 無圖後備封面（2026-10-29）：封面連結為空（例如影片帖）時，唔顯示爛圖，改顯示黃色文字格 */
-        .detail-text-cover { background-color: #FFDE00; border-radius: 0.375rem; padding: 32px 24px; text-align: center; }
-        .detail-text-cover .cover-merchant { font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; }
-        .detail-text-cover .cover-title { font-size: 1.25rem; font-weight: bold; line-height: 1.4; }
             cursor: zoom-in;
             transition: opacity 0.3s;
         }
         .clickable-img:hover {
             opacity: 0.8;
         }
+
+        /* 無圖後備封面（2026-10-29）：放喺頂層規則（之前誤放入 .clickable-img 規則內，瀏覽器會棄用，詳情頁文字格出唔到黃底） */
+        .detail-text-cover { background-color: #FFDE00; border-radius: 0.375rem; padding: 32px 24px; text-align: center; }
+        .detail-text-cover .cover-merchant { font-size: 1.1rem; font-weight: bold; margin-bottom: 12px; }
+        .detail-text-cover .cover-title { font-size: 1.25rem; font-weight: bold; line-height: 1.4; }
         /* 廣告位預留（2026-10-28）：只係佔位標記，未貼 AdSense 代碼前不佔高度、不顯示空盒，訪客睇唔到；日後貼廣告代碼入對應 div 就用得 */
         .ad-slot { min-height: 0; }
     </style>
