@@ -22,7 +22,7 @@ public class SeoController {
     @Autowired
     private DiscountRepository discountRepository;
 
-    @Value("${daybuy.site.base-url:https://daybuy2.onrender.com}")
+    @Value("${daybuy.site.base-url:https://jetsobanana.com}")
     private String baseUrl;
 
     private String base() {
