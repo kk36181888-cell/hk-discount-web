@@ -34,20 +34,6 @@
         .sub-nav a { color: #000; text-decoration: none; padding: 12px 25px; display: inline-block; font-weight: bold; transition: background-color 0.2s; }
         .sub-nav a:hover, .sub-nav a.active { background-color: #000; color: #FFDE00; }
 
-        .categories-section { margin-bottom: 40px; }
-        .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .category-header h4 { font-weight: bold; margin: 0; color: #000; }
-        
-        .category-card {
-            height: 180px; border-radius: 12px; position: relative; background-size: cover;
-            background-position: center; transition: transform 0.3s ease, box-shadow 0.3s ease; overflow: hidden;
-        }
-        .category-card::after {
-            content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 60%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
-        }
-        .category-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); }
-        .category-title { position: absolute; bottom: 15px; left: 15px; color: white; font-weight: bold; font-size: 1.1rem; z-index: 2; margin: 0; }
 
         .wellcome-banner-card {
             border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.06);
@@ -103,42 +89,6 @@
     <!-- 🏗️ 語意化 HTML：使用 main 包住核心內容 -->
     <main class="container mb-5 flex-grow-1">
         
-        <!-- 熱門分類 (如果搜尋緊就隱藏) -->
-        <section th:unless="${searchKeyword != null}" class="categories-section">
-            <div class="category-header">
-                <h4>熱門分類</h4>
-            </div>
-            <div class="row g-3">
-                <div class="col-6 col-md-3">
-                    <a href="/supermarket" class="text-decoration-none">
-                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1578916171728-46686eac8d58?q=80&w=600&auto=format&fit=crop');">
-                            <p class="category-title">超市情報</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-6 col-md-3">
-                    <a href="/dining" class="text-decoration-none">
-                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1504674900247-0877df9cc836?q=80&w=600&auto=format&fit=crop');">
-                            <p class="category-title">飲食優惠</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-6 col-md-3">
-                    <a href="/warehouse" class="text-decoration-none">
-                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1553413077-190dd305871c?q=80&w=600&auto=format&fit=crop');">
-                            <p class="category-title">開倉減價</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="col-6 col-md-3">
-                    <a href="/others" class="text-decoration-none">
-                        <div class="category-card" style="background-image: url('https://images.unsplash.com/photo-1513161455079-7dc1de15ef3e?q=80&w=600&auto=format&fit=crop');">
-                            <p class="category-title">其他著數</p>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </section>
 
 
         <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">
