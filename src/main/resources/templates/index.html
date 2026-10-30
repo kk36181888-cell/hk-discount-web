@@ -65,7 +65,7 @@
 
     <header class="top-header">
         <div class="container d-flex flex-wrap align-items-center justify-content-between">
-            <a href="/" class="brand-logo mb-2 mb-md-0"><span class="me-2">🍌</span>JetsoBanana</a>
+            <a href="/" class="brand-logo mb-2 mb-md-0">JetsoBanana</a>
             <form class="d-flex" action="/search" method="get">
                 <input class="form-control me-2" type="search" name="keyword" th:value="${searchKeyword}" placeholder="搵優惠 (例: 百佳)..." required>
                 <button class="btn btn-dark fw-bold" type="submit" style="white-space: nowrap;"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -92,15 +92,15 @@
 
 
         <h4 class="fw-bold mb-4" style="border-left: 5px solid #FFDE00; padding-left: 12px; color: #000;">
-            <span th:if="${merchantName != null}">🏪 <span th:text="${merchantName}"></span> 全部優惠</span>
-            <span th:if="${merchantName == null and searchKeyword != null}">🔍 搜尋結果: "<span th:text="${searchKeyword}"></span>"</span>
-            <span th:if="${merchantName == null and searchKeyword == null}">🔥 最新著數優惠</span>
+            <span th:if="${merchantName != null}"><i class="fa-solid fa-store me-2"></i> <span th:text="${merchantName}"></span> 全部優惠</span>
+            <span th:if="${merchantName == null and searchKeyword != null}"><i class="fa-solid fa-magnifying-glass me-2"></i>搜尋結果: "<span th:text="${searchKeyword}"></span>"</span>
+            <span th:if="${merchantName == null and searchKeyword == null}"><i class="fa-solid fa-fire me-2"></i>最新著數優惠</span>
         </h4>
 
         <!-- 🔥 排序切換：最新 / 最熱門 (瀏覽量) -->
         <div class="mb-4 d-flex gap-2">
-            <a th:href="@{${currentUrl}(sort='latest', keyword=${searchKeyword})}" class="btn fw-bold" th:classappend="${sort != 'hot'} ? 'btn-dark' : 'btn-outline-dark'">🆕 最新</a>
-            <a th:href="@{${currentUrl}(sort='hot', keyword=${searchKeyword})}" class="btn fw-bold" th:classappend="${sort == 'hot'} ? 'btn-dark' : 'btn-outline-dark'">🔥 最熱門</a>
+            <a th:href="@{${currentUrl}(sort='latest', keyword=${searchKeyword})}" class="btn fw-bold" th:classappend="${sort != 'hot'} ? 'btn-dark' : 'btn-outline-dark'"><i class="fa-solid fa-clock me-1"></i>最新</a>
+            <a th:href="@{${currentUrl}(sort='hot', keyword=${searchKeyword})}" class="btn fw-bold" th:classappend="${sort == 'hot'} ? 'btn-dark' : 'btn-outline-dark'"><i class="fa-solid fa-fire me-1"></i>最熱門</a>
         </div>
 
         <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
@@ -117,7 +117,7 @@
                             <img th:src="${discount.imageUrl}" th:alt="${discount.title} + ' 優惠宣傳圖'" loading="lazy">
                         </div>
                         <div class="card-text-cover" th:unless="${discount.imageUrl != null and discount.imageUrl != ''}">
-                            <div class="cover-merchant">🏪 <span th:text="${discount.merchantDisplay}">商戶</span></div>
+                            <div class="cover-merchant"><i class="fa-solid fa-store me-2"></i><span th:text="${discount.merchantDisplay}">商戶</span></div>
                             <div class="cover-title" th:text="${discount.title}">優惠標題</div>
                         </div>
                         <div class="card-content bg-white">
@@ -127,18 +127,18 @@
                                 <i class="fa-regular fa-clock me-1"></i> 優惠期: <span th:text="${discount.promoPeriod}"></span>
                             </div>
                             <div class="text-muted mb-2" style="font-size: 0.9rem;" th:if="${discount.merchantDisplay != null}">
-                                <span th:if="${discount.merchantDisplay != null}">🏪 <span th:text="${discount.merchantDisplay}"></span></span>
+                                <span th:if="${discount.merchantDisplay != null}"><i class="fa-solid fa-store me-2"></i> <span th:text="${discount.merchantDisplay}"></span></span>
                             </div>
                             <!-- 📅 到期提示 (有填結束日期先顯示，統一 dd/MM/yyyy 格式)：最後今日/剩 X 日行紅色，日子充裕就灰色顯示結束日期 -->
                             <div class="mb-2" th:if="${discount.endDate != null}">
-                                <span class="badge bg-danger" th:if="${discount.daysRemaining == 0}">🔥 最後今日</span>
-                                <span class="badge bg-danger" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0 and discount.daysRemaining <= 3}" th:text="'⏰ 剩返 ' + ${discount.daysRemaining} + ' 日咋'"></span>
-                                <span class="badge bg-secondary" th:if="${discount.daysRemaining != null and discount.daysRemaining > 3}" th:text="'📅 至 ' + ${#temporals.format(discount.endDate, 'dd/MM/yyyy')} + ' 止'"></span>
+                                <span class="badge bg-danger" th:if="${discount.daysRemaining == 0}"><i class="fa-solid fa-fire me-1"></i>最後今日</span>
+                                <span class="badge bg-danger" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0 and discount.daysRemaining <= 3}"><i class="fa-regular fa-clock me-1"></i><span th:text="'剩返 ' + ${discount.daysRemaining} + ' 日咋'"></span></span>
+                                <span class="badge bg-secondary" th:if="${discount.daysRemaining != null and discount.daysRemaining > 3}"><i class="fa-solid fa-calendar-days me-1"></i><span th:text="'至 ' + ${#temporals.format(discount.endDate, 'dd/MM/yyyy')} + ' 止'"></span></span>
                             </div>
                             <!-- 卡面描述已移除：全文描述留喺詳情頁，卡面只留標題＋圖＋商戶＋日期，唔再成段貼上嚟斷句 -->
                             
                             <button class="btn btn-warning w-100 fw-bold mt-auto" style="box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                                👉 查看圖文詳情
+                                <i class="fa-solid fa-arrow-right me-1"></i>查看圖文詳情
                             </button>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
 
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
-            <p class="mb-1 fw-bold fs-5"><span class="me-2">🍌</span>JetsoBanana 著數情報網</p>
+            <p class="mb-1 fw-bold fs-5">JetsoBanana 著數情報網</p>
             <p class="mb-2">
                 <a href="/faq" class="text-white-50 me-3">常見問題</a>
                 <a href="/merchants" class="text-white-50 me-3">商戶專頁</a>
