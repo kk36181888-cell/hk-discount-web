@@ -153,7 +153,7 @@
                         <div class="mb-5">
                             <p th:if="${discount.terms != null and !discount.terms.trim().isEmpty()}" th:text="${discount.terms}" style="line-height: 1.8;"></p>
                             <p th:if="${discount.sourceName != null}">
-                                <i class="fa-solid fa-circle-info me-1"></i>資料來源：<span th:text="${discount.sourceName}"></span>
+                                <i class="fa-solid fa-circle-info me-1"></i>資料來源：<span th:text="${#strings.containsIgnoreCase(discount.sourceName, 'facebook') ? discount.sourceName : discount.sourceName + ' Facebook'}"></span>
                                 <a th:if="${discount.sourceUrl != null}" th:href="${discount.sourceUrl}" target="_blank" rel="noopener" class="btn btn-outline-dark btn-sm ms-2">查看官方活動頁 ↗</a>
                             </p>
                             <p class="text-muted" th:if="${(discount.terms == null or discount.terms.trim().isEmpty()) and discount.sourceName == null}">此優惠暫未提供條款撮要及官方來源連結，詳情以商戶官方公佈為準。</p>
