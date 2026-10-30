@@ -54,7 +54,7 @@
     
     <header class="top-header">
         <div class="container d-flex flex-wrap align-items-center justify-content-between">
-            <a href="/" class="brand-logo mb-2 mb-md-0"><span class="me-2">🍌</span>JetsoBanana</a>
+            <a href="/" class="brand-logo mb-2 mb-md-0">JetsoBanana</a>
             <form class="d-flex" action="/search" method="get">
                 <input class="form-control me-2" type="search" name="keyword" th:value="${searchKeyword}" placeholder="搵優惠 (例: 百佳)..." required>
                 <button class="btn btn-dark fw-bold" type="submit" style="white-space: nowrap;"><i class="fa-solid fa-magnifying-glass"></i></button>
@@ -92,7 +92,7 @@
                         
                         <!-- 🏪 商戶 -->
                         <div class="mb-3">
-                            <span class="badge bg-dark fs-6" th:if="${discount.merchantDisplay != null}">🏪 <a th:href="@{/merchant/{name}(name=${discount.merchantDisplay})}" th:text="${discount.merchantDisplay}" class="text-white text-decoration-none">商戶</a></span>
+                            <span class="badge bg-dark fs-6" th:if="${discount.merchantDisplay != null}"><i class="fa-solid fa-store me-1"></i> <a th:href="@{/merchant/{name}(name=${discount.merchantDisplay})}" th:text="${discount.merchantDisplay}" class="text-white text-decoration-none">商戶</a></span>
                         </div>
 
                         <!-- 2. 標題緊接其後 -->
@@ -106,9 +106,9 @@
                         <div class="alert alert-warning fw-bold fs-5 mb-5 border-warning">
                             <i class="fa-regular fa-clock me-2"></i>優惠期: <span th:text="${discount.promoPeriod}"></span>
                             <span class="d-block fs-6 mt-1" th:if="${discount.endDate != null and !discount.expired}">
-                                📅 結束日期: <span th:text="${#temporals.format(discount.endDate, 'dd/MM/yyyy')}"></span>
-                                <span class="badge bg-danger ms-1" th:if="${discount.daysRemaining == 0}">🔥 最後今日</span>
-                                <span class="badge bg-danger ms-1" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0}" th:text="'⏰ 剩返 ' + ${discount.daysRemaining} + ' 日'"></span>
+                                <i class="fa-solid fa-calendar-days me-1"></i>結束日期: <span th:text="${#temporals.format(discount.endDate, 'dd/MM/yyyy')}"></span>
+                                <span class="badge bg-danger ms-1" th:if="${discount.daysRemaining == 0}"><i class="fa-solid fa-fire me-1"></i>最後今日</span>
+                                <span class="badge bg-danger ms-1" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0}"><i class="fa-regular fa-clock me-1"></i><span th:text="'剩返 ' + ${discount.daysRemaining} + ' 日'"></span></span>
                             </span>
                         </div>
 
@@ -119,7 +119,7 @@
                                     <img th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
                                 </div>
                                 <div class="col-6 col-md-4 detail-text-cover" th:unless="${discount.imageUrl != null and discount.imageUrl != ''}">
-                                    <div class="cover-merchant">🏪 <span th:text="${discount.merchantDisplay}">商戶</span></div>
+                                    <div class="cover-merchant"><i class="fa-solid fa-store me-2"></i><span th:text="${discount.merchantDisplay}">商戶</span></div>
                                     <div class="cover-title" th:text="${discount.title}">優惠標題</div>
                                 </div>
                                 <div class="col-6 col-md-4" th:each="imgUrl : ${extraImages}">
@@ -132,7 +132,7 @@
                                 <!-- 第一張：封面主圖（無圖時顯示文字格，唔顯示爛圖） -->
                                 <img th:if="${discount.imageUrl != null and discount.imageUrl != ''}" th:src="${discount.imageUrl}" th:alt="${discount.title}" class="img-fluid w-100 rounded shadow-sm clickable-img" title="點擊放大圖片" onclick="openImageModal(this.src)">
                                 <div th:unless="${discount.imageUrl != null and discount.imageUrl != ''}" class="detail-text-cover">
-                                    <div class="cover-merchant">🏪 <span th:text="${discount.merchantDisplay}">商戶</span></div>
+                                    <div class="cover-merchant"><i class="fa-solid fa-store me-2"></i><span th:text="${discount.merchantDisplay}">商戶</span></div>
                                     <div class="cover-title" th:text="${discount.title}">優惠標題</div>
                                 </div>
 
@@ -166,7 +166,7 @@
                             <button onclick="shareWhatsApp()" class="btn btn-success btn-lg fw-bold py-3">
                                 <i class="fa-brands fa-whatsapp me-2"></i>分享呢個優惠畀 WhatsApp 朋友
                             </button>
-                            <a href="/" class="btn btn-outline-secondary btn-lg fw-bold py-3">🏠 返回著數列表</a>
+                            <a href="/" class="btn btn-outline-secondary btn-lg fw-bold py-3"><i class="fa-solid fa-house me-2"></i>返回著數列表</a>
                         </div>
                     </div>
                 </article>
@@ -176,7 +176,7 @@
 
     <footer class="bg-dark text-white text-center py-4 mt-auto">
         <div class="container">
-            <p class="mb-1 fw-bold fs-5"><span class="me-2">🍌</span>JetsoBanana 著數情報網</p>
+            <p class="mb-1 fw-bold fs-5">JetsoBanana 著數情報網</p>
             <p class="mb-2">
                 <a href="/faq" class="text-white-50 me-3">常見問題</a>
                 <a href="/merchants" class="text-white-50 me-3">商戶專頁</a>
