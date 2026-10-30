@@ -90,10 +90,9 @@
                             <span class="badge bg-secondary fs-6" th:if="${discount.category == 'others'}">其他著數</span>
                         </div>
                         
-                        <!-- 🏪 商戶及瀏覽量 -->
+                        <!-- 🏪 商戶 -->
                         <div class="mb-3">
                             <span class="badge bg-dark fs-6" th:if="${discount.merchantDisplay != null}">🏪 <a th:href="@{/merchant/{name}(name=${discount.merchantDisplay})}" th:text="${discount.merchantDisplay}" class="text-white text-decoration-none">商戶</a></span>
-                            <span class="text-muted ms-2">👁 <span th:text="${discount.viewCount}">0</span> 瀏覽</span>
                         </div>
 
                         <!-- 2. 標題緊接其後 -->
