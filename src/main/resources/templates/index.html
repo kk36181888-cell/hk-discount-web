@@ -126,8 +126,8 @@
                             <div class="text-primary fw-bold fs-6 mb-2" th:if="${discount.endDate == null}">
                                 <i class="fa-regular fa-clock me-1"></i> 優惠期: <span th:text="${discount.promoPeriod}"></span>
                             </div>
-                            <div class="text-muted mb-2" style="font-size: 0.9rem;" th:if="${discount.merchantDisplay != null or (discount.viewCount != null and discount.viewCount > 0)}">
-                                <span th:if="${discount.merchantDisplay != null}">🏪 <span th:text="${discount.merchantDisplay}"></span></span><span th:if="${discount.viewCount != null and discount.viewCount > 0}"> · 👁 <span th:text="${discount.viewCount}">0</span> 瀏覽</span>
+                            <div class="text-muted mb-2" style="font-size: 0.9rem;" th:if="${discount.merchantDisplay != null}">
+                                <span th:if="${discount.merchantDisplay != null}">🏪 <span th:text="${discount.merchantDisplay}"></span></span>
                             </div>
                             <!-- 📅 到期提示 (有填結束日期先顯示，統一 dd/MM/yyyy 格式)：最後今日/剩 X 日行紅色，日子充裕就灰色顯示結束日期 -->
                             <div class="mb-2" th:if="${discount.endDate != null}">
