@@ -53,9 +53,9 @@
         /* 日期徽章放大：Bootstrap 預設徽章字太細，卡面日期睇唔到，改大約三成並加粗 */
         .card-content .badge { font-size: 1rem; padding: 0.55em 0.9em; font-weight: bold; }
         .carved-title-bar {
-            background-color: #FFDE00; color: #000000; text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.7);
-            border-bottom: 2px solid #b39b00; font-size: 1.15rem; line-height: 1.35;
-            /* 標題最多四行（2026-10-29：兩行截到字，用戶要求加大黃色標題格）四行高度固定，卡片對齊 */
+            background-color: #ffffff; color: #000000;
+            border-left: 5px solid #FFDE00; border-bottom: 1px solid #f1f1f1; font-size: 1.15rem; line-height: 1.35;
+            /* 標題最多四行（2026-10-29：兩行截到字，用戶要求加大標題格；2026-10-30：黃色太多，標題格改白底＋左邊黃線做品牌點綴）四行高度固定，卡片對齊 */
             display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
             min-height: 5.4em;
         }
@@ -137,7 +137,7 @@
                             </div>
                             <!-- 卡面描述已移除：全文描述留喺詳情頁，卡面只留標題＋圖＋商戶＋日期，唔再成段貼上嚟斷句 -->
                             
-                            <button class="btn btn-warning w-100 fw-bold mt-auto" style="box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+                            <button class="btn btn-dark w-100 fw-bold mt-auto" style="box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
                                 <i class="fa-solid fa-arrow-right me-1"></i>查看圖文詳情
                             </button>
                         </div>
