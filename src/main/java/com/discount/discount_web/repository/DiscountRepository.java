@@ -50,12 +50,13 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
     @Query("SELECT d FROM Discount d WHERE d.category = :category AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
     Page<Discount> findByCategoryOrderByViewCountDesc(@Param("category") String category, Pageable pageable);
 
-    // 🏪 商戶專頁：商戶欄完全相符，或者標題包含商戶名 (覆蓋未填商戶欄嘅舊資料)
-    @Query("SELECT d FROM Discount d WHERE (d.merchant = :name OR LOWER(d.title) LIKE LOWER(CONCAT('%', :name, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
-    Page<Discount> findByMerchantOrTitle(@Param("name") String name, Pageable pageable);
+    // 🏪 商戶專頁（正規化後）：商戶欄係任何一個已知變體（例如 JHC 或 JHC 真好城），
+    // 或者標題包含 canonical 名／原名 (覆蓋未填商戶欄嘅舊資料；原名嗰段保留舊行為)
+    @Query("SELECT d FROM Discount d WHERE (d.merchant IN :names OR LOWER(d.title) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(d.title) LIKE LOWER(CONCAT('%', :rawName, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")
+    Page<Discount> findByMerchantInOrTitle(@Param("names") List<String> names, @Param("name") String name, @Param("rawName") String rawName, Pageable pageable);
 
-    @Query("SELECT d FROM Discount d WHERE (d.merchant = :name OR LOWER(d.title) LIKE LOWER(CONCAT('%', :name, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
-    Page<Discount> findByMerchantOrTitleOrderByViewCountDesc(@Param("name") String name, Pageable pageable);
+    @Query("SELECT d FROM Discount d WHERE (d.merchant IN :names OR LOWER(d.title) LIKE LOWER(CONCAT('%', :name, '%')) OR LOWER(d.title) LIKE LOWER(CONCAT('%', :rawName, '%'))) AND (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.viewCount DESC, d.id DESC")
+    Page<Discount> findByMerchantInOrTitleOrderByViewCountDesc(@Param("names") List<String> names, @Param("name") String name, @Param("rawName") String rawName, Pageable pageable);
 
     // 🏪 商戶一覽：前台可見嘅全部優惠 (controller 再按商戶歸納計數；量大時改 distinct 查詢)
     @Query("SELECT d FROM Discount d WHERE (d.status IS NULL OR d.status = 'PUBLISHED') AND (d.endDate IS NULL OR d.endDate >= CURRENT_DATE) ORDER BY d.id DESC")

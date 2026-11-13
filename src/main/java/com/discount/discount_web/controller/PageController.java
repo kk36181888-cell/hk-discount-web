@@ -7,6 +7,7 @@ import com.discount.discount_web.repository.DiscountRepository;
 import com.discount.discount_web.security.JwtUtil;
 import com.discount.discount_web.service.CloudinaryService;
 import com.discount.discount_web.service.ImageRehostService;
+import com.discount.discount_web.service.MerchantNames;
 import com.discount.discount_web.service.SearchService;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.Cookie;
@@ -117,8 +118,15 @@ public class PageController {
         this.encodedAdminPassword = passwordEncoder.encode(rawAdminPassword);
     }
 
-    // 首頁／分類／搜尋每頁顯示張數：2026-10-26 由 6 改做 18（全站上架 17 張時首頁第一頁就睇晒，唔使再分 3 頁）
-    private static final int PAGE_SIZE = 18;
+    // 📄 2026-11-13：一頁睇晒 — 首頁／分類／搜尋／商戶頁一次過攞晒現行優惠，唔再分頁
+    // （用戶投訴要逐頁撳第 2、3 頁先睇得晒）。1000 係上限唔係目標，現時全站得幾十張。
+    // page 參數保留喺各路由簽名，舊 ?page=2 連結唔會爛（下面一律由第 0 頁攞晒）；
+    // 分頁 block 喺 totalPages = 1 時自動隱藏，template 唔使改。
+    private static final int ALL_PAGE_SIZE = 1000;
+
+    private static Pageable allPage() {
+        return PageRequest.of(0, ALL_PAGE_SIZE);
+    }
 
     // 🔥 排序參數正規化：只認 latest / hot，其他一律當 latest
     private String normalizeSort(String sort) {
@@ -131,7 +139,7 @@ public class PageController {
     @GetMapping("/")
     public String index(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = allPage();
         model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findAllByOrderByViewCountDesc(pageable) : discountRepository.findAllByOrderByIdDesc(pageable));
         model.addAttribute("currentUrl", "/");
         model.addAttribute("searchKeyword", null);
@@ -142,7 +150,7 @@ public class PageController {
     @GetMapping("/search")
     public String search(@RequestParam String keyword, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = allPage();
         // 🔍 搜尋改行 SearchService：多欄位＋同義詞＋分類詞，唔再淨係逐字對標題同描述
         model.addAttribute("discountPage", searchService.search(keyword, sort, pageable));
         model.addAttribute("currentUrl", "/search");
@@ -154,7 +162,7 @@ public class PageController {
     @GetMapping("/supermarket")
     public String supermarket(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = allPage();
         model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("supermarket", pageable) : discountRepository.findByCategoryOrderByIdDesc("supermarket", pageable));
         model.addAttribute("currentUrl", "/supermarket");
         model.addAttribute("searchKeyword", null);
@@ -165,7 +173,7 @@ public class PageController {
     @GetMapping("/dining")
     public String dining(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = allPage();
         model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("dining", pageable) : discountRepository.findByCategoryOrderByIdDesc("dining", pageable));
         model.addAttribute("currentUrl", "/dining");
         model.addAttribute("searchKeyword", null);
@@ -176,7 +184,7 @@ public class PageController {
     @GetMapping("/warehouse")
     public String warehouse(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = allPage();
         model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("warehouse", pageable) : discountRepository.findByCategoryOrderByIdDesc("warehouse", pageable));
         model.addAttribute("currentUrl", "/warehouse");
         model.addAttribute("searchKeyword", null);
@@ -187,7 +195,7 @@ public class PageController {
     @GetMapping("/others")
     public String others(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
+        Pageable pageable = allPage();
         model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findByCategoryOrderByViewCountDesc("others", pageable) : discountRepository.findByCategoryOrderByIdDesc("others", pageable));
         model.addAttribute("currentUrl", "/others");
         model.addAttribute("searchKeyword", null);
@@ -277,8 +285,9 @@ public class PageController {
     public String merchants(Model model) {
         Map<String, Integer> counts = new LinkedHashMap<>();
         for (Discount d : discountRepository.findAllPublished()) {
-            String m = d.getMerchantDisplay();
-            if (m != null) { counts.put(m, counts.getOrDefault(m, 0) + 1); }
+            // 🏪 按 canonical 名分組：JHC 同 JHC 真好城只出一個入口
+            String m = MerchantNames.canonical(d.getMerchantDisplay());
+            if (m != null && !m.isBlank()) { counts.put(m, counts.getOrDefault(m, 0) + 1); }
         }
         List<Map.Entry<String, Integer>> merchantList = new ArrayList<>(counts.entrySet());
         merchantList.sort((a, b) -> b.getValue().compareTo(a.getValue()));
@@ -290,13 +299,17 @@ public class PageController {
     @GetMapping("/merchant/{name}")
     public String merchant(@PathVariable String name, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
-        Pageable pageable = PageRequest.of(page, PAGE_SIZE);
-        Page<Discount> result = "hot".equals(sort) ? discountRepository.findByMerchantOrTitleOrderByViewCountDesc(name, pageable) : discountRepository.findByMerchantOrTitle(name, pageable);
+        // 🏪 商戶名正規化：/merchant/JHC 同 /merchant/JHC 真好城去同一個頁面，睇晒全部變體
+        String canonicalName = MerchantNames.canonical(name);
+        List<String> variants = MerchantNames.variants(canonicalName);
+        if (variants.isEmpty()) { variants = List.of(name); }
+        Pageable pageable = allPage();
+        Page<Discount> result = "hot".equals(sort) ? discountRepository.findByMerchantInOrTitleOrderByViewCountDesc(variants, canonicalName, name, pageable) : discountRepository.findByMerchantInOrTitle(variants, canonicalName, name, pageable);
         model.addAttribute("discountPage", result);
-        model.addAttribute("currentUrl", "/merchant/" + name);
+        model.addAttribute("currentUrl", "/merchant/" + canonicalName);
         model.addAttribute("searchKeyword", null);
         model.addAttribute("sort", sort);
-        model.addAttribute("merchantName", name);
+        model.addAttribute("merchantName", canonicalName);
         return "index";
     }
 
@@ -492,6 +505,9 @@ public class PageController {
         }
 
         discount.setDescription(sanitizeDescription(discount.getDescription()));
+
+        // 🏪 商戶名正規化：JHC / 百佳 PARKnSHOP 等寫法入庫即轉做 canonical 名，唔好再分裂商戶頁
+        discount.setMerchant(MerchantNames.canonical(discount.getMerchant()));
 
         if (discount.getId() != null) {
             Discount existing = discountRepository.findById(discount.getId()).orElse(null);
