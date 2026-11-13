@@ -44,8 +44,14 @@ public class Discount {
 
     // 🤖 自動入貨欄位 (2026-10-23 爬蟲 v1)：狀態 PUBLISHED=公開 / PENDING=待審草稿
     //    columnDefinition 帶 default，現有資料加欄時會自動填 PUBLISHED，唔會突然消失
+    //    ⚠️ 2026-11-13 修復：呢度唔可以寫死 = "PUBLISHED"。Spring 表單綁定用 new Discount()
+    //    做底，寫死咗 getStatus() 就永遠唔會係 null，搞到 PageController.saveOrUpdateDiscount
+    //    入面「status == null 就保留舊值」兩段判斷變死 code；編輯表單漏咗 status 參數嗰陣，
+    //    PENDING 草稿會靜默存成 PUBLISHED（2026-10-28、2026-11-10 226/227 實測中招）。
+    //    唔填 initializer，null 先至行得通：新 deal 冇 status 嗰陣由 saveOrUpdateDiscount 預設
+    //    PUBLISHED，編輯漏咗嗰陣保留舊值。DB column default 'PUBLISHED' 唔受影響。
     @Column(columnDefinition = "varchar(20) default 'PUBLISHED'")
-    private String status = "PUBLISHED";
+    private String status;
 
     // 來源顯示名 (例：惠康官方網店)；人手入嘅優惠可留空
     private String sourceName;
