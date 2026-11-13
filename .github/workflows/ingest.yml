@@ -13,7 +13,7 @@ jobs:
       - name: Wake up Render service
         run: |
           for i in 1 2 3 4 5 6; do
-            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://daybuy2.onrender.com/ || true)
+            code=$(curl -s -o /dev/null -w "%{http_code}" --max-time 60 https://jetsobanana.com/ || true)
             echo "wake attempt $i -> HTTP $code"
             if [ "$code" = "200" ]; then break; fi
             sleep 20
@@ -25,7 +25,7 @@ jobs:
         run: |
           for i in 1 2 3; do
             echo "ingest attempt $i"
-            response=$(curl -s --max-time 300 -X POST https://daybuy2.onrender.com/api/ingest/run -H "X-Ingest-Key: $INGEST_KEY" || true)
+            response=$(curl -s --max-time 300 -X POST https://jetsobanana.com/api/ingest/run -H "X-Ingest-Key: $INGEST_KEY" || true)
             echo "$response"
             if echo "$response" | grep -q '"sources"'; then
               echo "Ingest OK"
