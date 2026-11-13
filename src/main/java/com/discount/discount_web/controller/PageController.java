@@ -7,6 +7,7 @@ import com.discount.discount_web.repository.DiscountRepository;
 import com.discount.discount_web.security.JwtUtil;
 import com.discount.discount_web.service.CloudinaryService;
 import com.discount.discount_web.service.ImageRehostService;
+import com.discount.discount_web.service.MerchantGrouping;
 import com.discount.discount_web.service.MerchantNames;
 import com.discount.discount_web.service.SearchService;
 import jakarta.annotation.PostConstruct;
@@ -140,7 +141,12 @@ public class PageController {
     public String index(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "latest") String sort, Model model) {
         sort = normalizeSort(sort);
         Pageable pageable = allPage();
-        model.addAttribute("discountPage", "hot".equals(sort) ? discountRepository.findAllByOrderByViewCountDesc(pageable) : discountRepository.findAllByOrderByIdDesc(pageable));
+        Page<Discount> discountPage = "hot".equals(sort) ? discountRepository.findAllByOrderByViewCountDesc(pageable) : discountRepository.findAllByOrderByIdDesc(pageable);
+        model.addAttribute("discountPage", discountPage);
+        // 🏪 2026-11-14：首頁按商戶分組（用戶話扁平列表每日望落去好亂）——
+        // grouped 旗只喺首頁設，分類／搜尋／商戶頁共用同一 template 但保持扁平列表。
+        model.addAttribute("grouped", true);
+        model.addAttribute("merchantGroups", MerchantGrouping.group(discountPage.getContent(), sort));
         model.addAttribute("currentUrl", "/");
         model.addAttribute("searchKeyword", null);
         model.addAttribute("sort", sort);

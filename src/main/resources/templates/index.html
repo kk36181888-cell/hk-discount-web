@@ -59,6 +59,11 @@
             display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
             min-height: 5.4em;
         }
+        /* 🏪 首頁按商戶分組 (2026-11-14)：chips 橫向碌、唔換行；撳 chips 平滑跳去嗰間商戶 */
+        html { scroll-behavior: smooth; }
+        .merchant-chips { scrollbar-width: thin; }
+        .merchant-chips .chip { white-space: nowrap; }
+        .merchant-section { scroll-margin-top: 16px; }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -103,48 +108,37 @@
             <a th:href="@{${currentUrl}(sort='hot', keyword=${searchKeyword})}" class="btn fw-bold" th:classappend="${sort == 'hot'} ? 'btn-dark' : 'btn-outline-dark'"><i class="fa-solid fa-fire me-1"></i>最熱門</a>
         </div>
 
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <!-- 🏪 首頁按商戶分組 (2026-11-14)：商戶快跳 chips，撳一下即跳去嗰間商戶嘅 section -->
+        <div th:if="${grouped == true and merchantGroups != null and !merchantGroups.isEmpty()}" class="merchant-chips d-flex gap-2 overflow-auto pb-2 mb-4" role="navigation" aria-label="快速跳去商戶">
+            <span class="flex-shrink-0 fw-bold align-self-center text-muted small">跳去商戶：</span>
+            <a th:each="group : ${merchantGroups}" th:href="'#' + ${group.slug}" class="btn btn-outline-dark btn-sm fw-bold flex-shrink-0 chip" th:text="${group.merchant}"></a>
+        </div>
+
+        <div th:if="${grouped == true and merchantGroups != null and !merchantGroups.isEmpty()}">
+            <section th:each="group : ${merchantGroups}" th:id="${group.slug}" class="merchant-section mb-5">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3" style="border-left: 5px solid #FFDE00; padding-left: 12px;">
+                    <h5 class="fw-bold mb-0"><i class="fa-solid fa-store me-2"></i><span th:text="${group.merchant}"></span> <span class="badge bg-dark ms-1" th:text="${group.totalCount} + ' 個優惠'"></span></h5>
+                    <a th:href="@{/merchant/{name}(name=${group.merchant})}" class="btn btn-outline-dark btn-sm fw-bold">睇晒全部 <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+                <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                    <th:block th:each="discount : ${group.visibleDeals}">
+                        <th:block th:replace="~{fragments :: dealCard(${discount})}"></th:block>
+                    </th:block>
+                </div>
+                <div class="text-center mt-3" th:if="${group.remainingCount > 0}">
+                    <a th:href="@{/merchant/{name}(name=${group.merchant})}" class="btn btn-outline-dark fw-bold">睇埋其餘 <span th:text="${group.remainingCount}"></span> 張優惠 <i class="fa-solid fa-arrow-right ms-1"></i></a>
+                </div>
+            </section>
+        </div>
+
+        <!-- 扁平列表：分類／搜尋／商戶頁繼續用；首頁分組時唔顯示 -->
+        <div th:unless="${grouped == true and merchantGroups != null and !merchantGroups.isEmpty()}" class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
             <!-- 🏗️ 語意化 HTML：使用 article 代表獨立文章/優惠 -->
-            <th:block th:each="discount, iterStat : ${discountPage.content}">
-            <article class="col">
-                <a th:href="@{/discount/{id}(id=${discount.id})}" target="_blank" class="text-decoration-none text-dark d-block h-100">
-                    <div class="wellcome-banner-card">
-                        <div class="p-3 fw-bold px-3 carved-title-bar">
-                            <i class="fa-solid fa-tag me-2"></i><span th:text="${discount.title}">優惠標題</span>
-                        </div>
-                        <div class="card-img-wrapper" th:if="${discount.imageUrl != null and discount.imageUrl != ''}">
-                            <!-- 🚀 效能與 SEO 核心升級：加入 loading="lazy" 同埋動態 alt 文字 -->
-                            <img th:src="${discount.imageUrl}" th:alt="${discount.title} + ' 優惠宣傳圖'" loading="lazy">
-                        </div>
-                        <div class="card-text-cover" th:unless="${discount.imageUrl != null and discount.imageUrl != ''}">
-                            <div class="cover-merchant"><i class="fa-solid fa-store me-2"></i><span th:text="${discount.merchantDisplay}">商戶</span></div>
-                            <div class="cover-title" th:text="${discount.title}">優惠標題</div>
-                        </div>
-                        <div class="card-content bg-white">
-                            <!-- 卡面只顯示一個日期：有結束日期先顯示下面嘅統一格式徽章；
-                                 冇結束日期就唔顯示優惠期嗰行（舊版會重複標題原文），優惠期全文留喺詳情頁 -->
-                            <div class="text-muted mb-2" style="font-size: 0.9rem;" th:if="${discount.merchantDisplay != null}">
-                                <span th:if="${discount.merchantDisplay != null}"><i class="fa-solid fa-store me-2"></i> <span th:text="${discount.merchantDisplay}"></span></span>
-                            </div>
-                            <!-- 📅 到期提示 (有填結束日期先顯示，統一 dd/MM/yyyy 格式)：最後今日/剩 X 日行紅色，日子充裕就灰色顯示結束日期 -->
-                            <div class="mb-2" th:if="${discount.endDate != null}">
-                                <span class="badge bg-danger" th:if="${discount.daysRemaining == 0}"><i class="fa-solid fa-fire me-1"></i>最後今日</span>
-                                <span class="badge bg-danger" th:if="${discount.daysRemaining != null and discount.daysRemaining > 0 and discount.daysRemaining <= 3}"><i class="fa-regular fa-clock me-1"></i><span th:text="'剩返 ' + ${discount.daysRemaining} + ' 日咋'"></span></span>
-                                <span class="badge bg-secondary" th:if="${discount.daysRemaining != null and discount.daysRemaining > 3}"><i class="fa-solid fa-calendar-days me-1"></i><span th:text="'至 ' + ${#temporals.format(discount.endDate, 'dd/MM/yyyy')} + ' 止'"></span></span>
-                            </div>
-                            <!-- 卡面描述已移除：全文描述留喺詳情頁，卡面只留標題＋圖＋商戶＋日期，唔再成段貼上嚟斷句 -->
-                            
-                            <button class="btn btn-dark w-100 fw-bold mt-auto" style="box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-                                <i class="fa-solid fa-arrow-right me-1"></i>查看圖文詳情
-                            </button>
-                        </div>
-                    </div>
-                </a>
-            </article>
+            <th:block th:each="discount : ${discountPage.content}">
+                <th:block th:replace="~{fragments :: dealCard(${discount})}"></th:block>
             </th:block>
         </div>
 
-        
         <nav th:if="${discountPage.totalPages > 1}" aria-label="分頁導航" class="mt-5">
             <ul class="pagination justify-content-center pagination-lg shadow-sm" style="border-radius: 8px;">
                 <li class="page-item" th:classappend="${discountPage.first} ? 'disabled'">

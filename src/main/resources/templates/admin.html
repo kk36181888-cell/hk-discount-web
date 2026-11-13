@@ -187,7 +187,10 @@
                                 <tbody>
                                     <tr th:each="item : ${discounts}" th:classappend="${discount.id == item.id ? 'table-primary' : ''}">
                                         <td class="ps-3" style="width: 80px;">
-                                            <img th:src="${item.imageUrl}" class="rounded shadow-sm bg-white" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <!-- 🖼️ 無封面後備 (2026-11-14)：影片帖等冇封面圖嘅優惠，唔顯示爛圖，
+                                                 改用黃色文字格（商戶名），同前台詳情頁嘅無圖後備封面同一風格 -->
+                                            <img th:if="${item.imageUrl != null and item.imageUrl != ''}" th:src="${item.imageUrl}" class="rounded shadow-sm bg-white" style="width: 60px; height: 60px; object-fit: cover;">
+                                            <div th:unless="${item.imageUrl != null and item.imageUrl != ''}" class="rounded shadow-sm d-flex align-items-center justify-content-center text-center fw-bold" style="width: 60px; height: 60px; background-color: #FFDE00; font-size: 0.7rem; line-height: 1.2; padding: 4px; overflow: hidden;"><span th:text="${item.merchantDisplay != null ? item.merchantDisplay : '無封面圖'}"></span></div>
                                         </td>
                                         <td>
                                             <div class="fw-bold text-truncate" style="max-width: 260px;" th:text="${item.title}"></div>

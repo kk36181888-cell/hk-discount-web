@@ -24,7 +24,10 @@
 
         <div class="card shadow-sm border-0 rounded-4 mb-3" th:each="item : ${pendingDiscounts}">
             <div class="card-body d-flex flex-wrap gap-3 align-items-start">
-                <img th:src="${item.imageUrl}" class="rounded shadow-sm bg-white" style="width: 110px; height: 110px; object-fit: cover;" alt="">
+                <!-- 🖼️ 無封面後備 (2026-11-14)：影片帖等冇封面圖嘅草稿，唔顯示爛圖，
+                     改用黃色文字格（商戶名），同前台詳情頁嘅無圖後備封面同一風格 -->
+                <img th:if="${item.imageUrl != null and item.imageUrl != ''}" th:src="${item.imageUrl}" class="rounded shadow-sm bg-white" style="width: 110px; height: 110px; object-fit: cover;" alt="">
+                <div th:unless="${item.imageUrl != null and item.imageUrl != ''}" class="rounded shadow-sm d-flex flex-column align-items-center justify-content-center text-center fw-bold" style="width: 110px; height: 110px; background-color: #FFDE00; padding: 8px; overflow: hidden;"><span th:text="${item.merchantDisplay != null ? item.merchantDisplay : '無封面圖'}"></span><small class="fw-normal mt-1">無封面圖</small></div>
                 <div class="flex-grow-1" style="min-width: 260px;">
                     <div class="fw-bold fs-5" th:text="${item.title}">標題</div>
                     <div class="mt-1">
