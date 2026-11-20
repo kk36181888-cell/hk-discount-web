@@ -212,7 +212,7 @@
                                                 <i class="fa-solid fa-pen"></i>
                                             </a>
                                             <!-- 🗑️ 刪除按鈕 (用 POST 表單防止誤觸) -->
-                                            <form th:action="@{/daybuy-hq/delete/{id}(id=${item.id})}" method="post" class="d-inline" onsubmit="return confirm('確定要永久刪除呢個優惠嗎？');">
+                                            <form th:action="@{/daybuy-hq/delete/{id}(id=${item.id})}" method="post" class="d-inline">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger" title="刪除">
                                                     <i class="fa-solid fa-trash"></i>
                                                 </button>

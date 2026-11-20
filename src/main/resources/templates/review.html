@@ -50,7 +50,7 @@
                         <button type="submit" class="btn btn-success fw-bold w-100"><i class="fa-solid fa-check me-1"></i>批准出街</button>
                     </form>
                     <a th:href="@{/daybuy-hq/edit/{id}(id=${item.id})}" class="btn btn-outline-primary fw-bold"><i class="fa-solid fa-pen me-1"></i>編輯</a>
-                    <form th:action="@{/daybuy-hq/review/reject/{id}(id=${item.id})}" method="post" onsubmit="return confirm('確定拒絕並刪除呢條草稿？');">
+                    <form th:action="@{/daybuy-hq/review/reject/{id}(id=${item.id})}" method="post">
                         <button type="submit" class="btn btn-outline-danger fw-bold w-100"><i class="fa-solid fa-xmark me-1"></i>拒絕</button>
                     </form>
                 </div>
